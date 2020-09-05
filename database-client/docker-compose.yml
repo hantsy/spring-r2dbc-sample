@@ -1,0 +1,31 @@
+# see https://docs.docker.com/compose/compose-file/compose-versioning/
+version: "3.5" # specify docker-compose version, v3.5 is compatible with docker 17.12.0+
+
+# Define the services/containers to be run
+services:
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: test
+      POSTGRES_USER: user
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql
+ #     - ./pg-initdb.d:/docker-entrypoint-initdb.d
+      
+  mysql:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+ #   command: --default-authentication-plugin=mysql_native_password  
+    environment:
+      MYSQL_ROOT_PASSWORD: mysecret
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: test
+    volumes:
+      - ./data/mysql:/var/lib/mysql    
+ #     - ./mysql-initdb.d:/docker-entrypoint-initdb.d
