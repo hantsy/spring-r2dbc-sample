@@ -6,6 +6,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.UUID;
 
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 
@@ -29,17 +30,17 @@ public class PostHandler {
     public Mono<ServerResponse> create(ServerRequest req) {
         return req.bodyToMono(Post.class)
                 .flatMap(this.posts::save)
-                .flatMap(p -> created(URI.create("/posts/" + p.getId())).build());
+                .flatMap(id -> created(URI.create("/posts/" + id)).build());
     }
 
     public Mono<ServerResponse> get(ServerRequest req) {
-        return this.posts.findById(Integer.valueOf(req.pathVariable("id")))
+        return this.posts.findById(UUID.fromString(req.pathVariable("id")))
                 .flatMap(post -> ok().body(Mono.just(post), Post.class))
                 .switchIfEmpty(notFound().build());
     }
 
     public Mono<ServerResponse> update(ServerRequest req) {
-        var existed = this.posts.findById(Integer.valueOf(req.pathVariable("id")));
+        var existed = this.posts.findById(UUID.fromString(req.pathVariable("id")));
         return Mono
                 .zip(
                         (data) -> {
@@ -53,12 +54,12 @@ public class PostHandler {
                         req.bodyToMono(Post.class)
                 )
                 .cast(Post.class)
-                .flatMap(this.posts::save)
+                .flatMap(this.posts::update)
                 .flatMap(post -> noContent().build());
     }
 
     public Mono<ServerResponse> delete(ServerRequest req) {
-        return this.posts.deleteById(Integer.valueOf(req.pathVariable("id")))
+        return this.posts.deleteById(UUID.fromString(req.pathVariable("id")))
                 .flatMap(deleted -> noContent().build());
     }
 

@@ -14,7 +14,7 @@ services:
       POSTGRES_USER: user
     volumes:
       - ./data/postgresql:/var/lib/postgresql
- #     - ./pg-initdb.d:/docker-entrypoint-initdb.d
+      - ./pg-initdb.d:/docker-entrypoint-initdb.d
       
   mysql:
     image: mysql:5.7

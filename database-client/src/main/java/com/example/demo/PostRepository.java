@@ -1,77 +1,81 @@
 package com.example.demo;
 
+import io.r2dbc.postgresql.codec.Json;
+import io.r2dbc.spi.Row;
+import io.r2dbc.spi.RowMetadata;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+import java.util.function.BiFunction;
+
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class PostRepository {
+
+    public static final BiFunction<Row, RowMetadata, Post> MAPPING_FUNCTION = (row, rowMetaData) -> Post.builder()
+            .id(row.get("id", UUID.class))
+            .title(row.get("title", String.class))
+            .content(row.get("content", String.class))
+            .status(row.get("status", Post.Status.class))
+            .metadata(row.get("metadata", Json.class))
+            .createdAt(row.get("created_at", LocalDateTime.class))
+            .build();
 
     private final DatabaseClient databaseClient;
 
-    Flux<Post> findByTitleContains(String name) {
+    public Flux<Post> findByTitleContains(String name) {
         return this.databaseClient
-                .sql("select * from posts where title like :title")
+                .sql("SELECT * FROM posts WHERE title LIKE :title")
                 .bind("title", "%" + name + "%")
-                .map(row -> Post.builder()
-                        .id(row.get("id", Integer.class))
-                        .title(row.get("title", String.class))
-                        .content(row.get("content", String.class))
-                        .build()
-                )
+                .map(MAPPING_FUNCTION)
                 .all();
-
     }
 
     public Flux<Post> findAll() {
         return this.databaseClient
-                .sql("select * from posts")
-                .map(row -> Post.builder()
-                        .id(row.get("id", Integer.class))
-                        .title(row.get("title", String.class))
-                        .content(row.get("content", String.class))
-                        .build()
-                )
+                .sql("SELECT * FROM posts")
+                .map(MAPPING_FUNCTION)
                 .all();
     }
 
-    public Mono<Post> findById(Integer id) {
+    public Mono<Post> findById(UUID id) {
         return this.databaseClient
-                .sql("select * from posts where id=:id")
+                .sql("SELECT * FROM posts WHERE id=:id")
                 .bind("id", id)
-                .map(row -> Post.builder()
-                        .id(row.get("id", Integer.class))
-                        .title(row.get("title", String.class))
-                        .content(row.get("content", String.class))
-                        .build()
-                )
+                .map(MAPPING_FUNCTION)
                 .one();
     }
 
-    public Mono<Integer> save(Post p) {
-        return this.databaseClient.sql("INSERT INTO  posts (title, content) VALUES (:title, :content)")
+    public Mono<UUID> save(Post p) {
+        return this.databaseClient.sql("INSERT INTO  posts (title, content, metadata) VALUES (:title, :content, :metadata)")
                 .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
                 .bind("title", p.getTitle())
                 .bind("content", p.getContent())
+                .bind("metadata", p.getMetadata())
                 .fetch()
                 .first()
-                .map(stringObjectMap -> (Integer) stringObjectMap.get("id"));
+                .map(r -> (UUID) r.get("id"));
     }
 
     public Mono<Integer> update(Post p) {
-        return this.databaseClient.sql("UPDATE posts set title=:title, content=:content where id=:id")
+        return this.databaseClient.sql("UPDATE posts set title=:title, content=:content, metadata=:metadata WHERE id=:id")
                 .bind("title", p.getTitle())
                 .bind("content", p.getContent())
+                .bind("metadata", p.getMetadata())
                 .bind("id", p.getId())
                 .fetch()
                 .rowsUpdated();
     }
 
-    public Mono<Integer> deleteById(Integer id) {
-        return this.databaseClient.sql("DELETE FROM posts where id=:id")
+    public Mono<Integer> deleteById(UUID id) {
+        return this.databaseClient.sql("DELETE FROM posts WHERE id=:id")
                 .bind("id", id)
                 .fetch()
                 .rowsUpdated();

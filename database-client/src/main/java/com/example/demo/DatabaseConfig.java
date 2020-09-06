@@ -2,6 +2,7 @@ package com.example.demo;
 
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
+import io.r2dbc.postgresql.codec.EnumCodec;
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +25,10 @@ public class DatabaseConfig {
     @Bean
     public ConnectionFactory connectionFactory() {
 
+        // 1. using ConnectionFactories.get from url
         //ConnectionFactory factory = ConnectionFactories.get("r2dbc:h2:mem:///test?options=DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE");
+
+        // 2. using r2dbc drivers provided tools.
         //see: https://github.com/spring-projects/spring-data-r2dbc/issues/269
 //        return new H2ConnectionFactory(
 //                H2ConnectionConfiguration.builder()
@@ -33,7 +37,7 @@ public class DatabaseConfig {
 //                        .username("user")
 //                        .password("password").build()
 //        );
-
+//
 //        return H2ConnectionFactory.inMemory("testdb");
 
         return new PostgresqlConnectionFactory(
@@ -41,7 +45,9 @@ public class DatabaseConfig {
                         .host("localhost")
                         .database("test")
                         .username("user")
-                        .password("password").build()
+                        .password("password")
+                        .codecRegistrar(EnumCodec.builder().withEnum("post_status", Post.Status.class).build())
+                        .build()
         );
     }
 
