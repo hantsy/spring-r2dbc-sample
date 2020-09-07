@@ -38,20 +38,6 @@ public class Application {
         return httpServer.handle(adapter);
     }
 
-    @Bean
-    public ObjectMapper objectMapper() {
 
-        var builder = Jackson2ObjectMapperBuilder.json();
-        builder.serializationInclusion(JsonInclude.Include.NON_EMPTY);
-        builder.featuresToDisable(
-                SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-                SerializationFeature.FAIL_ON_EMPTY_BEANS,
-                DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
-                DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        builder.featuresToEnable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        builder.modulesToInstall(JavaTimeModule.class);
-
-        return builder.build();
-    }
 
 }

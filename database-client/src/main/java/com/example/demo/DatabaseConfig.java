@@ -28,7 +28,9 @@ public class DatabaseConfig {
         // 1. using ConnectionFactories.get from url
         //ConnectionFactory factory = ConnectionFactories.get("r2dbc:h2:mem:///test?options=DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE");
 
-        // 2. using r2dbc drivers provided tools.
+        // 2. using r2dbc drivers provided tools to create a connection factory.
+
+        //  H2
         //see: https://github.com/spring-projects/spring-data-r2dbc/issues/269
 //        return new H2ConnectionFactory(
 //                H2ConnectionConfiguration.builder()
@@ -40,6 +42,9 @@ public class DatabaseConfig {
 //
 //        return H2ConnectionFactory.inMemory("testdb");
 
+
+
+        // postgres
         return new PostgresqlConnectionFactory(
                 PostgresqlConnectionConfiguration.builder()
                         .host("localhost")

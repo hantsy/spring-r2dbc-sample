@@ -41,6 +41,7 @@ public class PostRepository {
     public Flux<Post> findAll() {
         return this.databaseClient
                 .sql("SELECT * FROM posts")
+                .filter((statement, executeFunction) -> statement.fetchSize(10).execute())
                 .map(MAPPING_FUNCTION)
                 .all();
     }
