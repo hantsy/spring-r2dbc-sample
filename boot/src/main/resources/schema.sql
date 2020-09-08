@@ -12,3 +12,14 @@ CREATE TABLE IF NOT EXISTS posts (
  version INTEGER,
  PRIMARY KEY (id)
  );
+
+ CREATE TABLE IF NOT EXISTS persons (
+ -- id SERIAL PRIMARY KEY,
+  id UUID DEFAULT uuid_generate_v4(),
+  first_name VARCHAR(255),
+  last_name VARCHAR(255),
+  created_at TIMESTAMP ,
+  updated_at TIMESTAMP,
+  version INTEGER,
+  PRIMARY KEY (id)
+  );

@@ -21,6 +21,7 @@ public class PostReadingConverter implements Converter<Row, Post> {
                 .metadata(row.get("metadata", Json.class))
                 .createdAt(row.get("created_at", LocalDateTime.class))
                 .updatedAt(row.get("updated_at", LocalDateTime.class))
+                .version(row.get("version", Long.class))
                 .build();
     }
 }

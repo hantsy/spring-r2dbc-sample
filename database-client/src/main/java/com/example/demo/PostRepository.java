@@ -66,10 +66,11 @@ public class PostRepository {
     }
 
     public Mono<Integer> update(Post p) {
-        return this.databaseClient.sql("UPDATE posts set title=:title, content=:content, metadata=:metadata WHERE id=:id")
+        return this.databaseClient.sql("UPDATE posts set title=:title, content=:content, metadata=:metadata, status=:status WHERE id=:id")
                 .bind("title", p.getTitle())
                 .bind("content", p.getContent())
                 .bind("metadata", p.getMetadata())
+                .bind("status", p.getStatus())
                 .bind("id", p.getId())
                 .fetch()
                 .rowsUpdated();

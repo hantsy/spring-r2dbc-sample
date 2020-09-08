@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -46,8 +47,21 @@ public class PostHandler {
                         (data) -> {
                             Post p = (Post) data[0];
                             Post p2 = (Post) data[1];
-                            p.setTitle(p2.getTitle());
-                            p.setContent(p2.getContent());
+                            if(p2!= null && StringUtils.hasText(p2.getTitle())){
+                                p.setTitle(p2.getTitle());
+                            }
+
+                            if(p2!= null && StringUtils.hasText(p2.getContent())){
+                                p.setContent(p2.getContent());
+                            }
+
+                            if(p2!= null && p2.getMetadata()!=null){
+                                p.setMetadata(p2.getMetadata());
+                            }
+
+                            if(p2!= null && p2.getStatus()!=null){
+                                p.setStatus(p2.getStatus());
+                            }
                             return p;
                         },
                         existed,

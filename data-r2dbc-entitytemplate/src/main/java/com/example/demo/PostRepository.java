@@ -13,8 +13,8 @@ import java.util.UUID;
 
 import static org.springframework.data.relational.core.query.Criteria.where;
 
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class PostRepository {
 
@@ -41,10 +41,19 @@ public class PostRepository {
     }
 
     public Mono<Integer> update(Post p) {
+/*
+        return this.template.update(Post.class)
+                .matching(Query.query(where("id").is(p.getId())))
+                .apply(Update.update("title", p.getTitle())
+                        .set("content", p.getContent())
+                        .set("status", p.getStatus())
+                        .set("metadata", p.getMetadata()));
+*/
         return this.template.update(
                 Query.query(where("id").is(p.getId())),
                 Update.update("title", p.getTitle())
                         .set("content", p.getContent())
+                        .set("status", p.getStatus())
                         .set("metadata", p.getMetadata()),
                 Post.class
         );

@@ -13,6 +13,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.boot.autoconfigure.r2dbc.ConnectionFactoryOptionsBuilderCustomizer;
 import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,10 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
+import org.springframework.data.convert.WritingConverter;
+import org.springframework.data.domain.ReactiveAuditorAware;
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
+import org.springframework.data.r2dbc.convert.EnumWriteSupport;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.relational.core.mapping.Column;
@@ -31,6 +35,7 @@ import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -40,8 +45,11 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
+import static io.r2dbc.postgresql.PostgresqlConnectionFactoryProvider.OPTIONS;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 
@@ -54,20 +62,44 @@ public class DemoApplication {
     }
 
     @Bean
-    ApplicationRunner initialize(DatabaseClient databaseClient) {
+    ApplicationRunner initialize(DatabaseClient databaseClient, PersonRepository persons) {
         log.info("start data initialization...");
-        return args -> databaseClient
-                .sql("INSERT INTO  posts (title, content, metadata) VALUES (:title, :content, :metadata)")
-                .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
-                .bind("title", "my first post")
-                .bind("content", "content of my first post")
-                .bind("metadata", Json.of("{\"tags\":[\"spring\", \"r2dbc\"]}"))
-                .fetch()
-                .first()
-                .subscribe(
-                        data -> log.info("inserted data : {}", data),
-                        error -> log.error("error: {}", error)
-                );
+        return args -> {
+            databaseClient
+                    .sql("INSERT INTO  posts (title, content, metadata) VALUES (:title, :content, :metadata)")
+                    .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
+                    .bind("title", "my first post")
+                    .bind("content", "content of my first post")
+                    .bind("metadata", Json.of("{\"tags\":[\"spring\", \"r2dbc\"]}"))
+                    .fetch()
+                    .first()
+                    .subscribe(
+                            data -> log.info("inserted data : {}", data),
+                            error -> log.error("error: {}", error)
+                    );
+
+            persons
+                    .save(
+                            Person.builder()
+                                    .firstName("hantsy")
+                                    .lastName("bai")
+                                    .build()
+                    )
+                    .log()
+                    .map(person -> {
+                        person.setFirstName("new Hantsy");
+                        return person;
+                    })
+                    .flatMap(persons::save)
+                    .log()
+                    .then()
+                    .thenMany(persons.findAll())
+                    .subscribe(
+                            data -> log.info("saved data: {}", data),
+                            err -> log.error("err: {}", err)
+                    );
+
+        };
 
     }
 
@@ -111,23 +143,34 @@ public class DemoApplication {
             builder.featuresToEnable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         };
     }
-
-/*    @Bean
-    public RouterFunction<ServerResponse> routes(PostHandler postController) {
-        return route()
-                .GET("/posts", postController::all)
-                .POST("/posts", postController::create)
-                .GET("/posts/{id}", postController::get)
-                .PUT("/posts/{id}", postController::update)
-                .DELETE("/posts/{id}", postController::delete)
-                .build();
-    }*/
 }
+
+//@Component
+//@WritingConverter
+//class PostStatusWritingConverter extends EnumWriteSupport<Post.Status> {
+//}
 
 @Configuration
 @EnableR2dbcAuditing
 class DataConfig {
 
+    @Bean
+    public ConnectionFactoryOptionsBuilderCustomizer postgresCustomizer() {
+        Map<String, String> options = new HashMap<>();
+        options.put("lock_timeout", "30s");
+        options.put("statement_timeout", "60s");
+        return (builder) -> builder.option(OPTIONS, options);
+    }
+
+    @Bean
+    ReactiveAuditorAware<String> auditorAware() {
+//        ReactiveSecurityContextHolder.getContext()
+//                .map(SecurityContext::getAuthentication)
+//                .filter(Authentication::isAuthenticated)
+//                .map(Authentication::getPrincipal)
+//                .map(User.class::cast);
+        return () -> Mono.just("hantsy");
+    }
 }
 
 @Configuration
@@ -206,8 +249,21 @@ class PostHandler {
                         (data) -> {
                             Post p = (Post) data[0];
                             Post p2 = (Post) data[1];
-                            p.setTitle(p2.getTitle());
-                            p.setContent(p2.getContent());
+                            if (p2 != null && StringUtils.hasText(p2.getTitle())) {
+                                p.setTitle(p2.getTitle());
+                            }
+
+                            if (p2 != null && StringUtils.hasText(p2.getContent())) {
+                                p.setContent(p2.getContent());
+                            }
+
+                            if (p2 != null && p2.getMetadata() != null) {
+                                p.setMetadata(p2.getMetadata());
+                            }
+
+                            if (p2 != null && p2.getStatus() != null) {
+                                p.setStatus(p2.getStatus());
+                            }
                             return p;
                         },
                         existed,
@@ -271,3 +327,39 @@ class Post {
     }
 
 }
+
+interface PersonRepository extends R2dbcRepository<Person, UUID> {
+}
+
+@Data
+@ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(value = "persons")
+class Person {
+
+    @Id
+    @Column("id")
+    private UUID id;
+
+    @Column("first_name")
+    private String firstName;
+
+    @Column("last_name")
+    private String lastName;
+
+    @Column("created_at")
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @Column("updated_at")
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    @Column("version")
+    @Version
+    private Long version;
+
+}
+
