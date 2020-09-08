@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS posts (
 CREATE TABLE IF NOT EXISTS comments (
     id UUID DEFAULT uuid_generate_v4(),
     content VARCHAR(255),
-    post_id UUID NOT NULL,
+    post_id UUID REFERENCES posts ON DELETE CASCADE,
     created_at TIMESTAMP ,
     updated_at TIMESTAMP,
     version INTEGER,
