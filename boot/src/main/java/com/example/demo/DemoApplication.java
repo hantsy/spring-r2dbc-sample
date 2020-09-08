@@ -22,10 +22,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
-import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.domain.ReactiveAuditorAware;
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
-import org.springframework.data.r2dbc.convert.EnumWriteSupport;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.relational.core.mapping.Column;
@@ -35,7 +33,7 @@ import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -50,6 +48,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static io.r2dbc.postgresql.PostgresqlConnectionFactoryProvider.OPTIONS;
+import static org.springframework.web.reactive.function.server.RequestPredicates.path;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 
@@ -62,7 +61,11 @@ public class DemoApplication {
     }
 
     @Bean
-    ApplicationRunner initialize(DatabaseClient databaseClient, PersonRepository persons) {
+    ApplicationRunner initialize(
+            DatabaseClient databaseClient,
+            PostRepository posts,
+            CommentRepository comments,
+            TransactionalOperator operator) {
         log.info("start data initialization...");
         return args -> {
             databaseClient
@@ -78,22 +81,24 @@ public class DemoApplication {
                             error -> log.error("error: {}", error)
                     );
 
-            persons
-                    .save(
-                            Person.builder()
-                                    .firstName("hantsy")
-                                    .lastName("bai")
+            posts
+                    .save(Post.builder().title("another post").content("content of another post").build())
+                    .map(p -> {
+                        p.setTitle("new Title");
+                        return p;
+                    })
+                    .flatMap(posts::save)
+                    .flatMap(saved -> comments
+                            .save(Comment.builder()
+                                    .content("dummy comments")
+                                    .postId(saved.getId())
                                     .build()
+                            )
                     )
                     .log()
-                    .map(person -> {
-                        person.setFirstName("new Hantsy");
-                        return person;
-                    })
-                    .flatMap(persons::save)
-                    .log()
                     .then()
-                    .thenMany(persons.findAll())
+                    .thenMany(posts.findAll())
+                    .as(operator::transactional)
                     .subscribe(
                             data -> log.info("saved data: {}", data),
                             err -> log.error("err: {}", err)
@@ -117,20 +122,6 @@ public class DemoApplication {
         return initializer;
     }
 
-/*    @Bean
-    @Primary
-    public ConnectionFactory connectionFactory() {
-        return new PostgresqlConnectionFactory(
-                PostgresqlConnectionConfiguration.builder()
-                        .host("localhost")
-                        .database("test")
-                        .username("user")
-                        .password("password")
-                        .codecRegistrar(EnumCodec.builder().withEnum("post_status", Post.Status.class).build())
-                        .build()
-        );
-    }*/
-
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
         return builder -> {
@@ -144,11 +135,6 @@ public class DemoApplication {
         };
     }
 }
-
-//@Component
-//@WritingConverter
-//class PostStatusWritingConverter extends EnumWriteSupport<Post.Status> {
-//}
 
 @Configuration
 @EnableR2dbcAuditing
@@ -164,11 +150,6 @@ class DataConfig {
 
     @Bean
     ReactiveAuditorAware<String> auditorAware() {
-//        ReactiveSecurityContextHolder.getContext()
-//                .map(SecurityContext::getAuthentication)
-//                .filter(Authentication::isAuthenticated)
-//                .map(Authentication::getPrincipal)
-//                .map(User.class::cast);
         return () -> Mono.just("hantsy");
     }
 }
@@ -177,14 +158,33 @@ class DataConfig {
 class WebConfig {
 
     @Bean
-    public RouterFunction<ServerResponse> routes(PostHandler postController) {
+    public RouterFunction<ServerResponse> routes(PostHandler postController, CommentHandler commentHandler) {
         return route()
-                .GET("/posts", postController::all)
-                .POST("/posts", postController::create)
-                .GET("/posts/{id}", postController::get)
-                .PUT("/posts/{id}", postController::update)
-                .DELETE("/posts/{id}", postController::delete)
-                .build();
+                .path("/posts", () -> route()
+                        .nest(
+                                path(""),
+                                () -> route()
+                                        .GET("", postController::all)
+                                        .POST("", postController::create)
+                                        .build()
+                        )
+                        .nest(
+                                path("{id}"),
+                                () -> route()
+                                        .GET("", postController::get)
+                                        .PUT("", postController::update)
+                                        .DELETE("", postController::delete)
+                                        .nest(
+                                                path("comments"),
+                                                () -> route()
+                                                        .GET("", commentHandler::getByPostId)
+                                                        .POST("", commentHandler::create)
+                                                        .build()
+                                        )
+                                        .build()
+                        )
+                        .build()
+                ).build();
     }
 }
 
@@ -249,21 +249,10 @@ class PostHandler {
                         (data) -> {
                             Post p = (Post) data[0];
                             Post p2 = (Post) data[1];
-                            if (p2 != null && StringUtils.hasText(p2.getTitle())) {
-                                p.setTitle(p2.getTitle());
-                            }
-
-                            if (p2 != null && StringUtils.hasText(p2.getContent())) {
-                                p.setContent(p2.getContent());
-                            }
-
-                            if (p2 != null && p2.getMetadata() != null) {
-                                p.setMetadata(p2.getMetadata());
-                            }
-
-                            if (p2 != null && p2.getStatus() != null) {
-                                p.setStatus(p2.getStatus());
-                            }
+                            p.setTitle(p2.getTitle());
+                            p.setContent(p2.getContent());
+                            p.setMetadata(p2.getMetadata());
+                            p.setStatus(p2.getStatus());
                             return p;
                         },
                         existed,
@@ -328,7 +317,34 @@ class Post {
 
 }
 
-interface PersonRepository extends R2dbcRepository<Person, UUID> {
+@Component
+class CommentHandler {
+
+    private final CommentRepository comments;
+
+    public CommentHandler(CommentRepository comments) {
+        this.comments = comments;
+    }
+
+    public Mono<ServerResponse> create(ServerRequest req) {
+        var postId = UUID.fromString(req.pathVariable("id"));
+        return req.bodyToMono(Comment.class)
+                .map(comment -> {
+                    comment.setPostId(postId);
+                    return comment;
+                })
+                .flatMap(this.comments::save)
+                .flatMap(c -> created(URI.create("/posts/" + postId + "/comments/" + c.getId())).build());
+    }
+
+    public Mono<ServerResponse> getByPostId(ServerRequest req) {
+        var result = this.comments.findByPostId(UUID.fromString(req.pathVariable("id")));
+        return ok().body(result, Comment.class);
+    }
+}
+
+interface CommentRepository extends R2dbcRepository<Comment, UUID> {
+    Flux<Comment> findByPostId(UUID postId);
 }
 
 @Data
@@ -336,18 +352,18 @@ interface PersonRepository extends R2dbcRepository<Person, UUID> {
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(value = "persons")
-class Person {
+@Table(value = "comments")
+class Comment {
 
     @Id
     @Column("id")
     private UUID id;
 
-    @Column("first_name")
-    private String firstName;
+    @Column("content")
+    private String content;
 
-    @Column("last_name")
-    private String lastName;
+    @Column("post_id")
+    private UUID postId;
 
     @Column("created_at")
     @CreatedDate
