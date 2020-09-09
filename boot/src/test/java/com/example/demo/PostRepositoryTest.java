@@ -6,11 +6,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.testcontainers.shaded.org.apache.commons.lang.math.IntRange;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
+import java.util.stream.IntStream;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -54,6 +58,26 @@ public class PostRepositoryTest {
                     assertNotNull(p.getCreatedAt());
                     assertNotNull(p.getUpdatedAt());
                 })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void testInsertAndFindByTitleLike() {
+        var data = IntStream.range(1, 101)
+                .mapToObj(
+                   i-> Post.builder().title("test title#"+i).content("content of test").build()
+                )
+                .collect(toList());
+        this.posts.saveAll(data)
+                .log()
+                .then()
+                .thenMany(
+                        this.posts.findByTitleLike("test%", PageRequest.of(0, 10))
+                )
+                .log()
+                .as(StepVerifier::create)
+                .expectNextCount(10)
                 .verifyComplete();
 
     }

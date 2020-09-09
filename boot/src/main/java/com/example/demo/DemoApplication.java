@@ -22,6 +22,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.ReactiveAuditorAware;
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
 import org.springframework.data.r2dbc.repository.Query;
@@ -273,6 +274,14 @@ interface PostRepository extends R2dbcRepository<Post, UUID> {
 
     @Query("SELECT * FROM posts where title like :title")
     public Flux<Post> findByTitleContains(String title);
+
+    public Flux<PostSummary> findByTitleLike(String title, Pageable pageable);
+}
+
+@Value
+class PostSummary {
+    UUID id;
+    String title;
 }
 
 @Data
