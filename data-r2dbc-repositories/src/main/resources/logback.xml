@@ -22,11 +22,7 @@
 		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
 	</logger>
-<!--	<logger name="io.r2dbc.postgresql.QUERY" level="DEBUG">
-		<appender-ref ref="FILE" />
-		<appender-ref ref="STDOUT" />
-	</logger>-->
-	<logger name="io.r2dbc" level="DEBUG">
+	<logger name="io.r2dbc.postgresql.QUERY" level="DEBUG">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
 	</logger>
@@ -46,7 +42,7 @@
 		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
 	</logger>
-	<logger name="org.springframework.r2dbc" level="DEBUG">
+	<logger name="org.springframework.r2dbc.core.DatabaseClient" level="DEBUG">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
 	</logger>
