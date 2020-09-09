@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS posts (
  title VARCHAR(255),
  content VARCHAR(255),
  metadata JSON default '{}',
- status post_status default 'DRAFT',
+ status post_status default 'DRAFT', -- use custom enum post_status
  created_at TIMESTAMP, -- NOT NULL DEFAULT LOCALTIMESTAMP,
  updated_at TIMESTAMP,
  version INTEGER,

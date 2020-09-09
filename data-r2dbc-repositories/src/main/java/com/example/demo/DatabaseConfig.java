@@ -47,7 +47,10 @@ public class DatabaseConfig extends AbstractR2dbcConfiguration {
 
     @Override
     protected List<Object> getCustomConverters() {
-        return List.of(new PostReadingConverter());
+        return List.of(
+                new PostReadingConverter(),
+                new PostStatusWritingConverter()
+        );
     }
 
     @Bean

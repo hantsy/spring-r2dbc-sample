@@ -22,11 +22,11 @@
 		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
 	</logger>
-	<logger name="io.r2dbc.postgresql.QUERY" level="DEBUG">
+<!--	<logger name="io.r2dbc.postgresql.QUERY" level="DEBUG">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
-	</logger>
-	<logger name="io.r2dbc.postgresql.client" level="DEBUG">
+	</logger>-->
+	<logger name="io.r2dbc" level="DEBUG">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
 	</logger>
