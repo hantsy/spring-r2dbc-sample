@@ -5,8 +5,12 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
+import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
+import io.r2dbc.postgresql.PostgresqlConnectionFactory;
+import io.r2dbc.postgresql.codec.EnumCodec;
 import io.r2dbc.postgresql.codec.Json;
 import io.r2dbc.spi.ConnectionFactory;
+import io.r2dbc.spi.Row;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
@@ -17,14 +21,20 @@ import org.springframework.boot.autoconfigure.r2dbc.ConnectionFactoryOptionsBuil
 import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
+import org.springframework.data.convert.ReadingConverter;
+import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.ReactiveAuditorAware;
+import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration;
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
+import org.springframework.data.r2dbc.convert.EnumWriteSupport;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.relational.core.mapping.Column;
@@ -45,6 +55,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -136,6 +147,60 @@ public class DemoApplication {
         };
     }
 }
+
+// need to register EnumCodec to handle post_status
+// If use a varchar to store Enum, no need converter for it.
+// eg. "status VARCHAR(255) default 'DRAFT'"
+/*
+@Configuration
+class R2dbcConfig extends AbstractR2dbcConfiguration {
+    @Bean
+    @Primary
+    public ConnectionFactory connectionFactory() {
+        return new PostgresqlConnectionFactory(
+                PostgresqlConnectionConfiguration.builder()
+                        .host("localhost")
+                        .database("test")
+                        .username("user")
+                        .password("password")
+                        .codecRegistrar(EnumCodec.builder().withEnum("post_status", Post.Status.class).build())
+                        .build()
+        );
+    }
+
+    @Override
+    protected List<Object> getCustomConverters() {
+        return List.of(
+                new PostReadingConverter(),
+                new PostStatusWritingConverter()
+        );
+    }
+
+}
+
+@WritingConverter
+class PostStatusWritingConverter extends EnumWriteSupport<Post.Status> {
+
+}
+
+@ReadingConverter
+class PostReadingConverter implements Converter<Row, Post> {
+
+    @Override
+    public Post convert(Row row) {
+        return Post.builder()
+                .id(row.get("id", UUID.class))
+                .title(row.get("title", String.class))
+                .content(row.get("content", String.class))
+                .status(row.get("status", Post.Status.class))
+                .metadata(row.get("metadata", Json.class))
+                .createdAt(row.get("created_at", LocalDateTime.class))
+                .updatedAt(row.get("updated_at", LocalDateTime.class))
+                .version(row.get("version", Long.class))
+                .build();
+    }
+}
+*/
 
 @Configuration
 @EnableR2dbcAuditing

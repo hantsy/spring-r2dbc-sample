@@ -4,8 +4,7 @@ CREATE TABLE IF NOT EXISTS posts (
     title VARCHAR(255),
     content VARCHAR(255),
     metadata JSON default '{}',
-
-    -- Spring data r2dbc can convert Java Enum to pg VARCHAR, and reverse.
+    -- In this sample, use Varchar to store enum(name), Spring Data R2dbc can convert Java Enum to pg VARCHAR, and reverse.
     status VARCHAR(255) default 'DRAFT',
     created_at TIMESTAMP , --NOT NULL DEFAULT LOCALTIMESTAMP,
     updated_at TIMESTAMP,
