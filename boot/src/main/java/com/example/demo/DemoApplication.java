@@ -7,12 +7,14 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
-import io.r2dbc.postgresql.codec.EnumCodec;
+import io.r2dbc.postgresql.api.PostgresqlConnection;
+import io.r2dbc.postgresql.api.PostgresqlResult;
 import io.r2dbc.postgresql.codec.Json;
 import io.r2dbc.spi.ConnectionFactory;
-import io.r2dbc.spi.Row;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,20 +23,14 @@ import org.springframework.boot.autoconfigure.r2dbc.ConnectionFactoryOptionsBuil
 import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
-import org.springframework.data.convert.ReadingConverter;
-import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.ReactiveAuditorAware;
-import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration;
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
-import org.springframework.data.r2dbc.convert.EnumWriteSupport;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.relational.core.mapping.Column;
@@ -51,11 +47,13 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -77,7 +75,8 @@ public class DemoApplication {
             DatabaseClient databaseClient,
             PostRepository posts,
             CommentRepository comments,
-            TransactionalOperator operator) {
+            TransactionalOperator operator
+    ) {
         log.info("start data initialization...");
         return args -> {
             databaseClient
@@ -116,8 +115,23 @@ public class DemoApplication {
                             err -> log.error("err: {}", err)
                     );
 
+
         };
 
+    }
+
+    @Bean
+    @Qualifier("pgConnectionFactory")
+    public ConnectionFactory pgConnectionFactory() {
+        return new PostgresqlConnectionFactory(
+                PostgresqlConnectionConfiguration.builder()
+                        .host("localhost")
+                        .database("test")
+                        .username("user")
+                        .password("password")
+                        //.codecRegistrar(EnumCodec.builder().withEnum("post_status", Post.Status.class).build())
+                        .build()
+        );
     }
 
     @Bean
@@ -146,6 +160,41 @@ public class DemoApplication {
             builder.featuresToEnable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         };
     }
+}
+
+@Component
+@Slf4j
+class Listener {
+    @Autowired
+    @Qualifier("pgConnectionFactory")
+    ConnectionFactory pgConnectionFactory;
+
+    PostgresqlConnection postgresqlConnection;
+
+    @PostConstruct
+    public void initialize() throws InterruptedException {
+        postgresqlConnection = Mono.from(pgConnectionFactory.create())
+                .cast(PostgresqlConnection.class).block();
+
+        postgresqlConnection.createStatement("LISTEN mymessage")
+                .execute()
+                .flatMap(PostgresqlResult::getRowsUpdated)
+                .log("listen::").subscribe();
+
+        Flux.interval(Duration.ofSeconds(5))
+                .delayElements(Duration.ofSeconds(1))
+                .concatMap(l -> postgresqlConnection.getNotifications())
+                .log("getNotifications::")
+                .subscribe(
+                        data -> log.info("notifications: {}", data)
+                );
+    }
+
+    @PreDestroy
+    public void destroy() {
+        postgresqlConnection.close().subscribe();
+    }
+
 }
 
 // need to register EnumCodec to handle post_status
@@ -224,8 +273,22 @@ class DataConfig {
 class WebConfig {
 
     @Bean
-    public RouterFunction<ServerResponse> routes(PostHandler postController, CommentHandler commentHandler) {
+    public RouterFunction<ServerResponse> routes(
+            PostHandler postController,
+            CommentHandler commentHandler,
+            @Qualifier("pgConnectionFactory") ConnectionFactory pgConnectionFactory) {
         return route()
+                .GET("/hello", request -> Mono.from(pgConnectionFactory.create())
+                        .cast(PostgresqlConnection.class)
+                        .flatMap(sender ->
+                                sender.createStatement("NOTIFY mymessage, 'hello world'")
+                                        .execute()
+                                        .flatMap(PostgresqlResult::getRowsUpdated)
+                                        .log("sending notification::")
+                                        .then()
+                        )
+                        .flatMap((v) -> noContent().build())
+                )
                 .path("/posts", () -> route()
                         .nest(
                                 path(""),
