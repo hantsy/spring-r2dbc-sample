@@ -164,27 +164,59 @@ public class DemoApplication {
 
 @Component
 @Slf4j
+class Notifier {
+    @Autowired
+    @Qualifier("pgConnectionFactory")
+    ConnectionFactory pgConnectionFactory;
+
+    PostgresqlConnection sender;
+
+    @PostConstruct
+    public void initialize() throws InterruptedException {
+        sender = Mono.from(pgConnectionFactory.create())
+                .cast(PostgresqlConnection.class)
+                .block();
+    }
+
+    public Mono<Void> send() {
+        return sender.createStatement("NOTIFY mymessage, 'Hello world at " + LocalDateTime.now() + "'")
+                .execute()
+                .flatMap(PostgresqlResult::getRowsUpdated)
+                .log("sending notification::")
+                .then();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        sender.close().subscribe();
+    }
+
+}
+
+@Component
+@Slf4j
 class Listener {
     @Autowired
     @Qualifier("pgConnectionFactory")
     ConnectionFactory pgConnectionFactory;
 
-    PostgresqlConnection postgresqlConnection;
+    PostgresqlConnection receiver;
 
     @PostConstruct
     public void initialize() throws InterruptedException {
-        postgresqlConnection = Mono.from(pgConnectionFactory.create())
-                .cast(PostgresqlConnection.class).block();
+        receiver = Mono.from(pgConnectionFactory.create())
+                .cast(PostgresqlConnection.class)
+                .block();
 
-        postgresqlConnection.createStatement("LISTEN mymessage")
+        receiver.createStatement("LISTEN mymessage")
                 .execute()
                 .flatMap(PostgresqlResult::getRowsUpdated)
-                .log("listen::").subscribe();
+                .log("listen::")
+                .subscribe();
 
-        Flux.interval(Duration.ofSeconds(5))
+        receiver.getNotifications()
                 .delayElements(Duration.ofSeconds(1))
-                .concatMap(l -> postgresqlConnection.getNotifications())
-                .log("getNotifications::")
+                .log()
                 .subscribe(
                         data -> log.info("notifications: {}", data)
                 );
@@ -192,7 +224,7 @@ class Listener {
 
     @PreDestroy
     public void destroy() {
-        postgresqlConnection.close().subscribe();
+        receiver.close().subscribe();
     }
 
 }
@@ -276,17 +308,10 @@ class WebConfig {
     public RouterFunction<ServerResponse> routes(
             PostHandler postController,
             CommentHandler commentHandler,
-            @Qualifier("pgConnectionFactory") ConnectionFactory pgConnectionFactory) {
+            Notifier notifier) {
         return route()
-                .GET("/hello", request -> Mono.from(pgConnectionFactory.create())
-                        .cast(PostgresqlConnection.class)
-                        .flatMap(sender ->
-                                sender.createStatement("NOTIFY mymessage, 'hello world'")
-                                        .execute()
-                                        .flatMap(PostgresqlResult::getRowsUpdated)
-                                        .log("sending notification::")
-                                        .then()
-                        )
+                .GET("/hello", request -> notifier
+                        .send()
                         .flatMap((v) -> noContent().build())
                 )
                 .path("/posts", () -> route()
