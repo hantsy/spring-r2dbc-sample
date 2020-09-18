@@ -139,7 +139,7 @@ class DataConfig {
                 .filter(Authentication::isAuthenticated)
                 .map(Authentication::getPrincipal)
                 .map(User.class::cast)
-                .map(User::getUsername).switchIfEmpty(Mono.empty());
+                .map(User::getUsername);
     }
 }
 
