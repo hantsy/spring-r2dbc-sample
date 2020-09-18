@@ -6,16 +6,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DataR2dbcTest()
 @Slf4j
+@Import(DataConfig.class)
 public class PostRepositoryTest {
 
     @Autowired
@@ -41,16 +44,22 @@ public class PostRepositoryTest {
 
     @Test
     public void testInsertAndQuery() {
-        var post = Post.builder().title("test title").content("content of test").build();
-        this.template.insert(Post.class)
-                .using(post)
-                .log()
-                .then()
+        var data = Post.builder().title("test title").content("content of test").build();
+        this.template.insert(data)
                 .thenMany(
-                        this.posts.findByTitleContains("test%").log()
+                        this.posts.findByTitleContains("test%")
                 )
+                .log()
                 .as(StepVerifier::create)
-                .consumeNextWith(p -> assertEquals("test title", p.getTitle()))
+                .consumeNextWith(p -> {
+                            log.info("saved post: {}", p);
+                            assertThat(p.getTitle()).isEqualTo("test title");
+                            assertNotNull(p.getCreatedAt());
+                            assertNotNull(p.getUpdatedAt());
+                            assertNull(p.getCreatedBy());
+                            assertNull(p.getUpdatedBy());
+                        }
+                )
                 .verifyComplete();
 
     }

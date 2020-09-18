@@ -139,21 +139,26 @@ class DataConfig {
                 .filter(Authentication::isAuthenticated)
                 .map(Authentication::getPrincipal)
                 .map(User.class::cast)
-                .map(User::getUsername);
+                .map(User::getUsername).switchIfEmpty(Mono.empty());
     }
 }
 
 @Configuration
+@Slf4j
 class SecurityConfig {
 
     @Bean
     SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) {
+        var POST_PATH = "/posts/**";
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .httpBasic(basic -> basic.securityContextRepository(NoOpServerSecurityContextRepository.getInstance()))
-                .authorizeExchange(a ->
-                        a.pathMatchers(HttpMethod.GET, "/", "/posts/**").permitAll()
-                                .pathMatchers(HttpMethod.DELETE, "/posts/**").hasRole("ADMIN")
+                .httpBasic(httpBasicSpec -> httpBasicSpec
+                        .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+                )
+                .authorizeExchange(it ->
+                        it.pathMatchers(HttpMethod.GET, "/", POST_PATH).permitAll()
+                                .pathMatchers(HttpMethod.DELETE, POST_PATH).hasRole("ADMIN")
+                                .pathMatchers(POST_PATH).hasRole("USER")
                                 .pathMatchers("/users/{user}/**").access(this::currentUserMatchesPath)
                                 .anyExchange().authenticated()
                 )
@@ -183,6 +188,8 @@ class SecurityConfig {
                 .password("password")
                 .roles("USER", "ADMIN")
                 .build();
+        log.info("user: {}", user);
+        log.info("admin: {}", admin);
         return new MapReactiveUserDetailsService(user, admin);
     }
 
