@@ -82,10 +82,11 @@ public class H2Tests {
                                             c -> c.createStatement(insertSql)
                                                     .returnGeneratedValues("id")
                                                     .execute()
+
                                     )
                     )
-                    .log()
-                    .doOnNext(data -> log.info("inserted: {}", data))
+                    .flatMap(data -> Flux.from(data.map((row, rowMetadata) -> row.get("id"))))
+                    .doOnNext(id -> log.info("generated id: {}", id))
                     .blockLast(Duration.ofSeconds(5));
         }
 
