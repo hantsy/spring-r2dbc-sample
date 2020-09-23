@@ -2,12 +2,9 @@ package com.example.demo;
 
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
-import io.r2dbc.postgresql.PostgresqlConnectionFactoryProvider;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
-
-import java.util.Map;
 
 public class PgConnectionFactories {
 

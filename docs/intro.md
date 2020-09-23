@@ -1,0 +1,242 @@
+
+
+# Introduction to R2dbc 
+
+
+
+In contrast to the blocking nature of Jdbc, R2dbc allows you operate with relational database with none-blocking APIs, R2dbc embraces [Reactive Streams](https://www.reactive-streams.org/) spec, and provides open specification which includes a collection of  SPIs to database vendors to create its own drivers.
+
+To connect to the databases,you should add corresponding drivers into your project dependencies. 
+
+## R2dbc drivers
+
+Currently there are a few drivers available, check the [R2dbc drivers](https://r2dbc.io/drivers/) page for the complete list.
+
+H2 database is frequently used in development environment, add the following dependencies when using either embedded or file-based H2 database.
+
+```xml
+<dependency>
+    <groupId>io.r2dbc</groupId>
+    <artifactId>r2dbc-h2</artifactId>
+</dependency>
+```
+
+To use R2dbc with MySQL database, add the following dependency.
+
+```xml
+<dependency>
+    <groupId>dev.miku</groupId>
+    <artifactId>r2dbc-mysql</artifactId>
+</dependency>
+```
+
+You can also use R2dbc with the MySQL fork - [MariaDB](https://github.com/mariadb-corporation/mariadb-connector-r2dbc).
+
+For Postgres database, add Postgres R2dbc driver.
+
+```xml
+<dependency>
+    <groupId>io.r2dbc</groupId>
+    <artifactId>r2dbc-postgresql</artifactId>
+</dependency>
+```
+
+R2dbc also support Microsoft SQL Server.
+
+```xml
+<dependency>
+    <groupId>io.r2dbc</groupId>
+    <artifactId>r2dbc-mssql</artifactId>
+</dependency>
+```
+
+If you have installed desired databases, and make sure it is running. Now you can connect it via R2dbc's `ConnectionFactory`.
+
+## ConnectionFactory
+
+Internally R2dbc spec provides a `ConnectionFactories` utility class to create a `ConnectionFactory` from connection url or `ConnectionFactoryOptions`. 
+
+For example, the following is an example obtaining a H2 specific `ConnectionFactory` from url, it will connect to an embedded H2 database.
+
+```java
+ConnectionFactories.get("r2dbc:h2:mem:///test?options=DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE")
+```
+
+Let's look at another example of Postgres connection url.
+
+```java
+ConnectionFactories.get("r2dbc:postgres://user:password@localhost/test");
+```
+
+The details of the url format is described in the [R2dbc spec doc](https://r2dbc.io/spec/0.8.2.RELEASE/spec/html/#overview.connection.url).
+
+The following is an example of getting a `ConnectionFactory` from `ConnectionFactoryOptions`. 
+
+```java
+var options = ConnectionFactoryOptions.builder()
+    .option(ConnectionFactoryOptions.HOST, "localhost")
+    .option(ConnectionFactoryOptions.DATABASE, "test")
+    .option(ConnectionFactoryOptions.USER, "user")
+    .option(ConnectionFactoryOptions.PASSWORD, "password")
+    .option(ConnectionFactoryOptions.DRIVER, "postgresql")
+    //.option(PostgresqlConnectionFactoryProvider.OPTIONS, Map.of("lock_timeout", "30s"))
+    .build();
+return ConnectionFactories.get(options);
+```
+
+The R2dbc drivers could provide some utility class to create a `ConnectionFactory` directly.
+
+For example, you can create an embedded or file-based H2 database using `H2ConnectionFactory` like this.
+
+```java
+H2ConnectionFactory.inMemory("test");
+
+//file
+new H2ConnectionFactory(
+    H2ConnectionConfiguration.builder()
+    //.inMemory("testdb")
+    .file("./testdb")
+    .username("sa")
+    .password("password")
+    .build()
+)
+```
+
+ Similarly Postgres drivers also provides a `PostgresConnectionFactory` to create a `ConnectionFactory` instance.
+
+```java
+new PostgresqlConnectionFactory(
+    PostgresqlConnectionConfiguration.builder()
+    .host("localhost")
+    .database("test")
+    .username("user")
+    .password("password")
+    //.codecRegistrar(EnumCodec.builder().withEnum("post_status", Post.Status.class).build())
+    .build()
+);
+```
+
+The driver specific utility class is more easy to setup database specific features, eg. enable the `Enum` codec in Postgres.
+
+Once you get a `ConnectionFactory`,  calling the `create` method to create a `Publisher<Connection>`, similar to the Jdbc's Connection, but is based on Reactive Streams APIs.
+
+## Executing SQL queries
+
+Utilizing with the `Connection.createStatement`, you can execute SQL queries like insert, update or delete etc.  The following example is creating a table and inserting data into  the table on a H2 database. 
+
+```java
+String createSql = """
+    CREATE TABLE IF NOT EXISTS persons (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    age INTEGER
+	)
+    """;
+
+String insertSql = """
+    INSERT INTO persons(first_name, last_name, age)
+    VALUES
+    ('Hello', 'Kitty', 20),
+    ('Hantsy', 'Bai', 40)
+    """;
+        
+Mono.from(conn)   
+    .flatMap(
+        c -> Mono.from(c.createStatement(createSql).execute())
+	)
+    .log()
+    .doOnNext(data -> log.info("created: {}", data))
+    .then()
+    .thenMany(
+        Mono.from(conn)
+        	.flatMapMany(
+            	c -> c.createStatement(insertSql)
+                    .returnGeneratedValues("id")
+                    .execute()
+            )
+    )
+    .flatMap(data -> Flux.from(data.map((row, rowMetadata) -> row.get("id"))))
+    .doOnNext(id -> log.info("generated id: {}", id))
+```
+
+We are using [Project Reactor](https://projectreactor.io/) to simplify the operations. The `.returnGeneratedValues("id")` to fetch the generated id when inserting a row into a table.
+
+Let's have  a look at another *select* statement.
+
+```
+var selectSql = """
+    SELECT * FROM persons;
+    """;
+    
+Mono.from(conn)
+    .flatMapMany(
+        c -> Flux.from(c.createStatement(selectSql).execute())
+    )
+    .log()
+    .flatMap(result -> result
+    	.map((row, rowMetadata) -> {
+    		rowMetadata.getColumnMetadatas()
+    			.forEach(
+   					columnMetadata -> log.info("column name:{}, type: {}", columnMetadata.getName(), 		columnMetadata.getJavaType())
+    	);
+    
+        var id = row.get("id", Integer.class);
+        var firstName = row.get("first_name", String.class);
+        var lastName = row.get("last_name", String.class);
+        var age = row.get("age", Integer.class);
+
+    	return Person.builder().firstName(firstName)
+            .lastName(lastName)
+            .age(age)
+            .id(id)
+            .build();
+    }))
+    .doOnNext(data -> log.info(": {}", data))
+```
+
+After it is executed, from the query result, you can call the  `map` method to get the details of row data and row metadata.
+
+You can also bind parameters to SQL placeholders. H2 accepts `$1` like labeled parameters, it is database specific, for MSSQL database, it should be `@1`.
+
+```java
+var selectSql = """
+    SELECT * FROM persons WHERE first_name=$1
+    """;
+    
+Mono.from(conn)
+    .flatMapMany(
+        c -> Flux.from(c.createStatement(selectSql)
+                       .bind("$1", "Hantsy")
+                       .execute())
+    )
+```
+
+When executing a *update* query, you can get the number of updated rows.
+
+```java
+var updateSql = """
+    UPDATE persons SET first_name=$1 WHERE first_name=$2
+    """;
+
+Mono.from(conn)
+        .flatMapMany(
+            c -> Flux.from(c.createStatement(updateSql)
+                           .bind("$1", "test1")
+                           .bind("$2", "Hantsy")
+                           .execute())
+        .flatMap(result -> result.getRowsUpdated())
+        .doOnNext(data -> log.info(": {}", data))
+    )
+    .log()
+```
+
+Similarly executing a *delete* query also get the number of update rows.
+
+## R2dbc Clients
+
+There are some client libraries which wraps R2dbc's `Connection`, `Statement` etc, and hide the complexity of the raw R2dbc APIs.
+
+In Spring core framework, there is a new refactored `DatabaseClient`.  Spring Data R2dbc provides a light ORM mapping features based on `DatabaseClient`.
+
+We will explore the `DatabaseClient`  in the next post.
