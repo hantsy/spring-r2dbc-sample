@@ -30,7 +30,7 @@ services:
       - ./data/mysql:/var/lib/mysql    
  #     - ./mysql-initdb.d:/docker-entrypoint-initdb.d
  
-   # no entrypoint-init scripts, see: https://github.com/Microsoft/mssql-docker/issues/11 
+  # no entrypoint-init scripts, see: https://github.com/Microsoft/mssql-docker/issues/11 
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment: 
