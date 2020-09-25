@@ -4,9 +4,9 @@
 
 
 
-In contrast to the blocking nature of Jdbc, R2dbc allows you operate with relational database with none-blocking APIs, R2dbc embraces [Reactive Streams](https://www.reactive-streams.org/) spec, and provides open specification which includes a collection of  SPIs to database vendors to create its own drivers.
+In contrast to the blocking nature of Jdbc, R2dbc allows you to access with relational databases using none-blocking APIs, R2dbc embraces [Reactive Streams](https://www.reactive-streams.org/) spec, and provides open specification which includes a collection of  Service Provider Interface(SPI) to the database vendors to implement their own drivers.
 
-To connect to the databases,you should add corresponding drivers into your project dependencies. 
+To connect to databases, you should add corresponding drivers into your project dependencies. 
 
 ## R2dbc drivers
 
@@ -56,19 +56,19 @@ If you have installed desired databases, and make sure it is running. Now you ca
 
 Internally R2dbc spec provides a `ConnectionFactories` utility class to create a `ConnectionFactory` from connection url or `ConnectionFactoryOptions`. 
 
-For example, the following is an example obtaining a H2 specific `ConnectionFactory` from url, it will connect to an embedded H2 database.
+The following is an example of obtaining a H2 specific `ConnectionFactory` from URL, it will connect to an embedded H2 database.
 
 ```java
 ConnectionFactories.get("r2dbc:h2:mem:///test?options=DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE")
 ```
 
-Let's look at another example of Postgres connection url.
+Let's look at another example of Postgres connection URL.
 
 ```java
 ConnectionFactories.get("r2dbc:postgres://user:password@localhost/test");
 ```
 
-The details of the url format is described in the [R2dbc spec doc](https://r2dbc.io/spec/0.8.2.RELEASE/spec/html/#overview.connection.url).
+The details of the URL format is described in the [R2dbc spec doc](https://r2dbc.io/spec/0.8.2.RELEASE/spec/html/#overview.connection.url).
 
 The following is an example of getting a `ConnectionFactory` from `ConnectionFactoryOptions`. 
 
@@ -84,7 +84,7 @@ var options = ConnectionFactoryOptions.builder()
 return ConnectionFactories.get(options);
 ```
 
-The R2dbc drivers could provide some utility class to create a `ConnectionFactory` directly.
+Most of the R2dbc drivers provide its utility classes to create a `ConnectionFactory`.
 
 For example, you can create an embedded or file-based H2 database using `H2ConnectionFactory` like this.
 
@@ -160,7 +160,7 @@ Mono.from(conn)
     .doOnNext(id -> log.info("generated id: {}", id))
 ```
 
-We are using [Project Reactor](https://projectreactor.io/) to simplify the operations. The `.returnGeneratedValues("id")` to fetch the generated id when inserting a row into a table.
+We are using [Project Reactor](https://projectreactor.io/) to wrap the connection and simplify the operations. The `returnGeneratedValues("id")` will fetch the generated id when inserting a row into a table.
 
 Let's have  a look at another *select* statement.
 
@@ -195,9 +195,9 @@ Mono.from(conn)
     .doOnNext(data -> log.info(": {}", data))
 ```
 
-After it is executed, from the query result, you can call the  `map` method to get the details of row data and row metadata.
+After it is executed, to extract the row data from the query result, you can call the  `map` method to get the details of row data and row metadata.
 
-You can also bind parameters to SQL placeholders. H2 accepts `$1` like labeled parameters, it is database specific, for MSSQL database, it should be `@1`.
+You can also bind parameters to placeholders in SQL strings. 
 
 ```java
 var selectSql = """
@@ -211,6 +211,8 @@ Mono.from(conn)
                        .execute())
     )
 ```
+
+> H2 accepts `$`  as prefix in the parameter placeholders. But it is database specific, for MSSQL database, the prefix should be `@`.
 
 When executing a *update* query, you can get the number of updated rows.
 
