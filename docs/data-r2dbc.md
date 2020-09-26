@@ -79,13 +79,13 @@ public class DatabaseConfig extends AbstractR2dbcConfiguration {
 ```
 In above codes,  a `@EnableTransactionManagement` is added to the configuration to activate the reactive transaction management support, to use `@Transactional` annotation, you have to declare a `ReactiveTransactionManager` bean. Spring provides a `R2dbcTransactionManager`. As described in the former post, a `ConnectionFactoryInitializer` bean is declared to initialize the table schema and sample data.
 
-In Spring Boot applications, simply configure the **spring.r2dbc.url**, **spring.r2dbc.username**, **spring.r2dbc.password** properties, Spring boot will autoconfigure these for you. Of course you can customize your own configuration by subclassing `AbstractR2dbcConfiguration`, check the [example config fragment](https://github.com/hantsy/spring-r2dbc-sample/blob/master/boot/src/main/java/com/example/demo/DemoApplication.java#L236-L261).
+In Spring Boot applications, simply configure the **spring.r2dbc.url**, **spring.r2dbc.username**, **spring.r2dbc.password** properties, Spring boot will autoconfigure these for you. Of course you can customize your own configuration by subclassing `AbstractR2dbcConfiguration`, check [my example config fragment](https://github.com/hantsy/spring-r2dbc-sample/blob/master/boot/src/main/java/com/example/demo/DemoApplication.java#L236-L261).
 
 Next, we can use Spring Data R2dbc's specific `EntityTemplate` or `R2dbcRepository`  to perform CRUD operations on databases. 
 
 ## EntityTemplate
 
-The `EntityTemplate` is a simple wrapper of `DatabaseClient` , but it provides type safe operations and you can its DSL like query APIs instead of literal SQL strings.
+The `EntityTemplate` is a lightweight wrapper of `DatabaseClient` , but it provides type safe operations and fluent query APIs instead of literal SQL queries.
 
 A `EntityTemplate` bean is declared in the  `AbstractR2dbcConfiguration` class.  So  you can inject it directly.
 
@@ -165,7 +165,7 @@ public class Post {
 
 ```
 
-The `Post` class is annotated with the `@Table` annotation which accepts a table name. `@Id` specifies its the identifier of this entity, `@Column`  defines the column name in the table.
+The `Post` class is annotated with a `@Table` annotation which accepts the mapped table name. `@Id` specifies its the identifier of this entity, `@Column`  defines the column name in the table.
 
 > Please note, `@Table`  and  `@Column` is from the spring data relational, which is common for Spring Data Jdbc and Spring Data R2dbc, and `@Id` is from Spring Data Commons. 
 

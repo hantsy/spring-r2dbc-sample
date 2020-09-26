@@ -30,7 +30,7 @@ And make sure you are using the latest Spring 5.3 which is managed by Spring Boo
 </parent>
 ```
 
-Also add the following dependencies to create a plain WebFlux application.
+Also add the following dependencies to create a plain Spring application.
 
 ```xml
 <dependency>
@@ -94,7 +94,7 @@ Also add the following dependencies to create a plain WebFlux application.
 
 > In a Spring Boot application, just needs to add *spring-boot-webflux-starter* into your dependencies.
 
-Then declare a `ConnectionFactory` bean.
+Like the `DataSource` of Jdbc support, to activate R2dbc, declare a `ConnectionFactory` bean instead.
 
 ```java
 @Bean
@@ -125,15 +125,15 @@ DatabaseClient databaseClient(ConnectionFactory connectionFactory) {
 }
 ```
 
-The `DatabaseClient.builder` provides an option to setup the parameter binding strategy in SQL queries.
+The `DatabaseClient.builder()` provides a flexible approach to setup the parameter binding strategy in SQL queries.
 
->If you are using Spring Boot, just need to setup **spring.r2dbc.url**, **spring.r2dbc.username**, **spring.r2dbc.password** properties in the *application.properties* file, it will autoconfigure `ConnectionFactory` and `DatabaseClient` for you.
+If you are using Spring Boot, just need to setup **spring.r2dbc.url**, **spring.r2dbc.username**, **spring.r2dbc.password** properties in the *application.properties* file, it will autoconfigure `ConnectionFactory` and `DatabaseClient` for you.
 
 ## Using DatabaseClient
 
 Now you can use `DatabaseClient` to execute queries, such as, *select*, *insert*, *update*, *delete*, etc. 
 
-Create a POJO class to present the entity in the table.
+Create a POJO class to wrap the query results.
 
 ```java
 @Data
@@ -185,6 +185,8 @@ CREATE TABLE IF NOT EXISTS posts (
 DELETE FROM posts;
 INSERT INTO  posts (title, content) VALUES ('R2dbc is refined', 'R2dbc is now part of Spring framework core');
 ```
+
+> In the Jdbc world, there are some solutions to initialize  and maintain the database schema and data, such as [Flyway](https://flywaydb.org/) and [Liquibase](https://www.liquibase.org/).  There is a new project [nkonev/r2dbc-migrate](https://github.com/nkonev/r2dbc-migrate) which try to port similar features into R2dbc.
 
 Create a `PostRepository` class to encapsulate the CRUD operations.
 
@@ -285,11 +287,75 @@ public class DataInitializer {
 
 > In the Spring Boot application, you can listen the `ApplicationReadyEvent` instead.
 
+## Transaction Management
+
+Spring R2dbc provides a `R2dbcTransactionManager` which implements `ReactiveTransactionManager`. 
+
+To use `@Transacational`  to control transaction scopes on classes or methods, first of all, you should add `@EnableTransactionManagement` on the configuration class.
+
+```java
+@Configuration
+@EnableTransactionManagement
+class DatabaseConfig{}
+```
+
+Then declare a `R2dbcTransactionManager` bean.
+
+```java
+@Bean
+ReactiveTransactionManager transactionManager(ConnectionFactory connectionFactory) {
+    return new R2dbcTransactionManager(connectionFactory);
+}
+```
+
+For programmatic transaction control, the traditional Jdbc provides a `TransactionTemplate`. In Spring reactive stack, Spring provides a similar `TransactionalOperator`.
+
+Declare a `TransactionalOperator` bean.
+
+```java
+@Bean
+TransactionalOperator transactionalOperator(ReactiveTransactionManager transactionManager) {
+    return TransactionalOperator.create(transactionManager);
+}
+```
+
+Then apply `operator::transactional` in the reactive pipes to wrap a series of operations into a transaction unit.
+
+```java
+@Autowired
+TransactionalOperator operator;
+
+posts
+    .save(Post.builder().title("another post").content("content of another post").build())
+    .map(p -> {
+        p.setTitle("new Title");
+        return p;
+    })
+    .flatMap(posts::save)
+    .flatMap(saved -> comments
+             .save(Comment.builder()
+                   .content("dummy comments")
+                   .postId(saved.getId())
+                   .build()
+                  )
+            )
+    .log()
+    .then()
+    .thenMany(posts.findAll())
+    .as(operator::transactional)
+    .subscribe(
+        data -> log.info("saved data: {}", data),
+        err -> log.error("err: {}", err)
+    );
+```
+
+> More info of Spring transaction, check the [Transaction Management](https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/data-access.html#transaction) chapter of Spring reference documentation.
+
 ## Exposing RESTful APIs
 
 Let's move to the web layer, and expose the CRUD as RESTful APIs.
 
-Create a  `WebConfig` class.
+Create a  `WebConfig` configuration class.
 
 ```java 
 @Configuration
@@ -344,7 +410,7 @@ public class Jackson2ObjectMapperConfig {
 }
 ```
 
-> In a Spring Boot application, you just need to declare a `RouterFunction` bean.
+> In a Spring Boot application, it will autoconfigure these for you,  you just need to declare a `RouterFunction` bean and focus on your business.
 
 Create a `PostHanlder` class to handle the incoming request.
 
@@ -414,7 +480,7 @@ public class PostHandler {
 }
 ```
 
-In a plain Spring WebFlux application, you need create a custom main class to start the application.
+In a plain Spring application, you need create a custom main class to start the application.
 
 ```java
 @Configuration
@@ -444,8 +510,8 @@ public class Application {
 }
 ```
 
-Now you can run the application in IDEs directly. You also can package it as a jar file, and then execute the jar file using command line, check the configuration of [maven-assembly-plugin](https://github.com/hantsy/spring-r2dbc-sample/blob/master/database-client/pom.xml#L149) in the *pom.xml* file.
+Now you can run the application in IDEs directly. You also can package the application into a jar file, and then execute the jar file using command line, check the configuration of [maven-assembly-plugin](https://github.com/hantsy/spring-r2dbc-sample/blob/master/database-client/pom.xml#L149) in the *pom.xml* file.
 
-> In Spring Boot application, instead of the above tedious settings, in IDEs you can run the generated Application class directly, and you can also use preconfigured maven plugin to package and run the application.
+> In Spring Boot application,  you can run the generated Spring boot Application class from IDEs directly, and you can also use preconfigured Spring Boot maven plugin to package and run the application.
 
 Grab a copy of [this sample code](https://github.com/hantsy/spring-r2dbc-sample/blob/master/database-client) from my github, and play it yourself.
