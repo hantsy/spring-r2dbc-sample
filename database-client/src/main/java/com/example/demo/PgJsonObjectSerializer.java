@@ -16,9 +16,9 @@ public class PgJsonObjectSerializer extends JsonSerializer<Json> {
     @Override
     public void serialize(Json value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         var text = value.asString();
-        log.info("The raw json value from PostgresSQL JSON type:" + text);
+        log.info("The raw json value from PostgresSQL JSON type: {}", text);
         JsonFactory factory = new JsonFactory();
-        JsonParser parser  = factory.createParser(text);
+        JsonParser parser = factory.createParser(text);
         var node = gen.getCodec().readTree(parser);
         serializers.defaultSerializeValue(node, gen);
     }

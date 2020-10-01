@@ -15,7 +15,7 @@ public class PgJsonObjectDeserializer extends JsonDeserializer<Json> {
     @Override
     public Json deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         var value = ctxt.readTree(p);
-        log.info("read json value :", value);
+        log.info("read json value : {}", value);
         return Json.of(value.toString());
     }
 }
