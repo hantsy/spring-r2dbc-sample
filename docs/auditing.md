@@ -312,7 +312,7 @@ ApplicationRunner initialize(DatabaseClient databaseClient) {
 }
 ```
 
-> Please note, the `DatabaseClient` dose not trigger the auditing events, when using `R2dbcEntityTempplate` or `R2dbcRepository` , both work well.
+> Please note, when using `R2dbcEntityTempplate` or `R2dbcRepository` , the auditing feature works well, but the `DatabaseClient` dose not work, it does not trigger the auditing events.
 
 Grab the [sample codes](https://github.com/hantsy/spring-r2dbc-sample/) from my Github.
 
