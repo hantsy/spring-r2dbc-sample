@@ -2,11 +2,18 @@
 
 For most of Spring developers, I think you are familiar with the simple auditing features in Spring Data project, but in the past years, it only works with the blocking APIs. The long-awaited [Reactive AuditorAware support](https://jira.spring.io/browse/DATACMNS-1379) will be available in the new Spring Data release train.
 
-Create a Spring Boot project using [Spring Intializr](https://start.spring.io), choose Maven as build tools and build against the latest Java 11 or above, choose Spring Boot 2.4.0-M3 to get the newest `ReactiveAuditorAware` support, and add the following dependencies to the project.
-* Reactive Web
-* Spring Data R2dbc
-* Security
-* Lombok
+Let's create a new Spring Boot project to experience the auditing feature.
+
+Open your browser and navigate to [Spring Intializr](https://start.spring.io) page.  
+
+* Build tools: choose Maven as build tools 
+* Java version, choose the latest Java 11 or above
+* Spring boot version: choose Spring Boot 2.4.0-M3 to get the newest `ReactiveAuditorAware` support
+* And add the following dependencies to the project.
+  * Reactive Web
+  * Spring Data R2dbc
+  * Security
+  * Lombok
 
 ## Enabling Auditing Support
 
@@ -20,7 +27,7 @@ class DatabaseConfig{
 }
 ```
 
-Declare a `ReactiveAuditorAware` bean. When a `ReactiveAuditorAware` bean is available, it will fill the fields annotated by `@CreatedBy` and `@LastModifiedBy` annotations in the entity classes. 
+Declare a `ReactiveAuditorAware` bean. When a `ReactiveAuditorAware` bean is available, it will fill the fields annotated by `@CreatedBy` and `@LastModifiedBy` annotations automatically in the entity classes. 
 
 ```java
 @Bean
@@ -87,7 +94,7 @@ The above class is similar to the entity classes we created in the previous post
 * `CreatedBy` will be filled when entity data is persisted and user is authenticated.
 * `CreatedDate` will be filled with the timestamp when the entity data is persisted.
 * `LastModifiedBy` will be filled when the entity data is updated and user is authenticated.
-* `LastModifiedDate` will be filled with current timestamp when the entity is updated.
+* `LastModifiedDate` will be filled with the timestamp when the entity is updated.
 
 ## Create a Repository for the Entity class
 
@@ -229,9 +236,11 @@ private Mono<AuthorizationDecision> currentUserMatchesPath(Mono<Authentication> 
 }
 ```
 
-In the above codes, we allow unauthenticated user to perform a GET request on path */* or */posts*. And as an example, only the current user can access */users/{user}*.
+In the above codes, we allow unauthenticated users to perform a GET request on path */* or */posts*, it only allows a `ADMIN` role based user to delete a post,  an authenticated user with `USER` role  is allowed  to create and update posts.
 
-We defines two roles in the above  configuration, let's create a two users for test purpose.
+And as an example, only the current user can access */users/{user}*.
+
+We define two roles in the above  configuration, let's create two users for test purpose.
 
 ```java
 @Bean
@@ -257,11 +266,11 @@ public MapReactiveUserDetailsService userDetailsService(PasswordEncoder password
 }
 ```
 
- In the above codes, `PasswordEncoder` is use for password hashing, and here we used an in-memory `Map` to serve a `ReactiveUserDetailsService`. In a real world application, you can implements the `ReactiveUserDetailsService` interface and find users from databases.
+ In the above codes, `PasswordEncoder` is use for password hashing, and here we used an in-memory `Map` to serve a `ReactiveUserDetailsService`. In a real world application, you can implements your own `ReactiveUserDetailsService` interface and fetch users from databases.
 
 ## Startup the application
 
-Mentioned in the previous posts, you need to a `ConnectionFactoryInitializer` to initialize the database schema if they are not ready at the application startup phase.
+Mentioned in the previous posts, you need to a `ConnectionFactoryInitializer` to initialize the database schema if they are not ready at the application startup.
 
 ```java
 @Bean
@@ -279,7 +288,7 @@ public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFact
 }
 ```
 
-To insert some sample data, when using Spring Boot, you can defines a `ApplicationRunner` or `CommandLineRunner` bean instead of listening the `ContextRefreshEvent` or `ApplicationReadyEvent`. 
+To insert some sample data, when using Spring Boot, you can define a `ApplicationRunner` or `CommandLineRunner` bean instead of listening the `ContextRefreshEvent` or `ApplicationReadyEvent`. 
 
 ```java
 @Bean
@@ -305,6 +314,6 @@ ApplicationRunner initialize(DatabaseClient databaseClient) {
 
 > Please note, the `DatabaseClient` dose not trigger the auditing events, when using `R2dbcEntityTempplate` or `R2dbcRepository` , both work well.
 
-
+Grab the [sample codes](https://github.com/hantsy/spring-r2dbc-sample/) from my Github.
 
 
