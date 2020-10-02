@@ -1,12 +1,14 @@
 # *Update*: Accessing RDBMS with Spring Data R2dbc
 
-I have written [an article to introduce Spring Data R2dbc](https://medium.com/@hantsy/reactive-accessing-rdbms-with-spring-data-r2dbc-d6e453f2837e) before, this article is an update to the latest Spring 5.3 and Spring Data R2dbc 1.2.
+I have published [an article on Medium several monthes ago to introduce Spring Data R2dbc](https://medium.com/@hantsy/reactive-accessing-rdbms-with-spring-data-r2dbc-d6e453f2837e) , but it involved frequently, the R2dbc `DatabaseClient` is move to Spring core framework  as an alternative of Jdbc.
+
+This post is an update to the latest Spring 5.3 and Spring Data R2dbc 1.2.
 
 
 
 ## Add Spring Data R2dbc Dependency
 
-Add the following dependency into your project dependencies.
+Beside adding the R2dbc drivers, when using Spring Data R2dbc, add the following dependencies into your project.
 
 ```xml
 <dependency>
@@ -25,8 +27,6 @@ For Spring Boot applications, add the Spring Boot starter for Spring Data R2dbc.
 ```
 
 ## Configuring Spring Data R2dbc
-
-Beside the R2dbc drivers, when using Spring Data R2dbc, add the following dependencies into your project.
 
 Spring Data R2dbc provides a templated `AbstractR2dbcConfiguration` class to simplify the configuration, override the `connectionFactory()` to provide a `ConnectionFactory` bean. You can also register the custom converters used to convert between data type and Java type.
 
@@ -77,17 +77,17 @@ public class DatabaseConfig extends AbstractR2dbcConfiguration {
 }
 
 ```
-In above codes,  a `@EnableTransactionManagement` is added to the configuration to activate the reactive transaction management support, to use `@Transactional` annotation, you have to declare a `ReactiveTransactionManager` bean. Spring provides a `R2dbcTransactionManager`. As described in the former post, a `ConnectionFactoryInitializer` bean is declared to initialize the table schema and sample data.
+In above codes,  the `@EnableTransactionManagement` annotation on the configuration class is used to activate the reactive transaction management support. To use `@Transactional` annotation, you have to declare a `ReactiveTransactionManager` bean, Spring provides an implementation for R2dbc - `R2dbcTransactionManager`. As described in the former post, a `ConnectionFactoryInitializer` bean is declared here to initialize the table schema and sample data.
 
-In Spring Boot applications, simply configure the **spring.r2dbc.url**, **spring.r2dbc.username**, **spring.r2dbc.password** properties, Spring boot will autoconfigure these for you. Of course you can customize your own configuration by subclassing `AbstractR2dbcConfiguration`, check [my example config fragment](https://github.com/hantsy/spring-r2dbc-sample/blob/master/boot/src/main/java/com/example/demo/DemoApplication.java#L236-L261).
+> In Spring Boot applications, simply configure the **spring.r2dbc.url**, **spring.r2dbc.username**, **spring.r2dbc.password** properties, Spring boot will autoconfigure these for you. Of course you can customize your own configuration by subclassing `AbstractR2dbcConfiguration`, check [my example config fragment](https://github.com/hantsy/spring-r2dbc-sample/blob/master/boot/src/main/java/com/example/demo/DemoApplication.java#L236-L261).
 
 Next, we can use Spring Data R2dbc's specific `EntityTemplate` or `R2dbcRepository`  to perform CRUD operations on databases. 
 
-## EntityTemplate
+## R2dbcEntityTemplate
 
-The `EntityTemplate` is a lightweight wrapper of `DatabaseClient` , but it provides type safe operations and fluent query APIs instead of literal SQL queries.
+The `R2dbcEntityTemplate` is a lightweight wrapper of `DatabaseClient` , but it provides type safe operations and fluent query APIs instead of literal SQL queries. 
 
-A `EntityTemplate` bean is declared in the  `AbstractR2dbcConfiguration` class.  So  you can inject it directly.
+A `R2dbcEntityTemplate` bean is declared in the  `AbstractR2dbcConfiguration` class.  So  you can inject it directly.
 
 ```java
 @Component
@@ -140,6 +140,8 @@ public class PostRepository {
 }
 ```
 
+Compare to the former codes using `DatabaseClient`, it is more concisely, it utilizes the entity class `Post` to simplify the binding work and conversions, and also include fluent `Query` APIs to escape from the raw SQL query strings.
+
 Let's have a look at the `Post` class.
 
 ```java
@@ -165,9 +167,9 @@ public class Post {
 
 ```
 
-The `Post` class is annotated with a `@Table` annotation which accepts the mapped table name. `@Id` specifies its the identifier of this entity, `@Column`  defines the column name in the table.
+The `Post` class is annotated with a `@Table` annotation which accepts the mapped table name. `@Id` specifies it's the identifier of this entity, `@Column`  defines the column name in the table.
 
-> Please note, `@Table`  and  `@Column` is from the spring data relational, which is common for Spring Data Jdbc and Spring Data R2dbc, and `@Id` is from Spring Data Commons. 
+> Please note, `@Table`  and  `@Column` is from the spring-data-relational project, which is a common library for Spring Data Jdbc and Spring Data R2dbc, and `@Id` is from Spring Data Commons. 
 
 ## R2dbcRepository
 
@@ -193,3 +195,4 @@ public interface PostRepository extends R2dbcRepository<Post, UUID> {
 
 It also supports some common Spring data features, such as `@Query` annotations on methods and named or index-based parameters.
 
+Get the [code samples](https://github.com/hantsy/spring-r2dbc-sample/) from my github.
