@@ -7,9 +7,9 @@ In the previous posts, we have explored the R2dbc support for H2, MySQL, Postgre
 Postgres support two forms of JSON types.
 
 * **json** -  storing data as textual form in databases
-* **jsonb** - storing data as binary form in the databases
+* **jsonb** - storing data as binary form in databases
 
-For example, add a *metadata* column to the *posts* table we created in the previous posts.
+For example, add a *metadata* column to the *posts* table we've created in the previous posts.
 
 ```sql
 CREATE TABLE IF NOT EXISTS posts (
@@ -122,7 +122,7 @@ builder.serializers(new PgJsonObjectSerializer())
     .deserializers(new PgJsonObjectDeserializer())
 ```
 
-If it is a Spring Boot application, just need to declare a `@JsonComponent` component, Spring Boot will register it automatically.
+If it is a Spring Boot application, just need to declare a `@JsonComponent` annotated component, Spring Boot will register it automatically.
 
 ```java
 @Slf4j
@@ -157,7 +157,7 @@ class PgJsonObjectJsonComponent {
 
 ## Enum type
 
-Postgres database support custom types, you can create your enum type and limit the inserting values in a set of predefined  items.
+Postgres database supports custom types, you can create your enum type and limit the inserting values in a set of predefined  items.
 
 ```sql
 DO $$ BEGIN
@@ -167,9 +167,9 @@ EXCEPTION
 END $$;
 ```
 
-The scripts will try to create a custom type `post_status` and only its value is  only  allowed to set in one of `DRAFT`, `PENDING_MODERATION`,  `PUBLISHED`. 
+The scripts will try to create a custom type `post_status` and only accept one of `DRAFT`, `PENDING_MODERATION`,  `PUBLISHED`. 
 
-> The `ConnectionFactoryInitializer` read the scripts by termination of  ";" which caused exceptions when the application starts up. I put these scripts into the init.sql of  Postgres docker service defined in `docker-compose.yml`.
+> The `ConnectionFactoryInitializer` read the scripts line by line terminated by  ";" which caused exceptions when the application starts up. I move this scripts into the init.sql of  Postgres docker service defined in `docker-compose.yml`, it will be initialized when the docker is starting.
 
 Define a `post_status` enum data type in the table script.
 
@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS posts (
  );
 ```
 
-Create a Java enum class and define a `stauts` field in the `Post` entity.
+Create a Java Enum class and define a `stauts` field in the `Post` entity.
 
 ```java
 public class Post {
@@ -195,7 +195,7 @@ enum Status {
 }
 ```
 
-To encode and decode the enum data type automatically, register a Postgres specific `EnumCodec` in the connection configration which is shipped with Postgres R2dc drivers.
+To encode and decode the enum data type automatically, register a Postgres specific `EnumCodec` in the connection configuration which is shipped with the  official Postgres R2dc driver.
 
 ```java
 PostgresqlConnectionConfiguration.builder()
@@ -214,9 +214,9 @@ row.get("status", Post.Status.class)
 .bind("status", p.getStatus())       
 ```
 
-When using Spring Data R2dbc, it registers a collection of converters in its `MappingContext`, and it will detect the data type and Java type and use these converters when reading and writing data. 
+When using Spring Data R2dbc, it registered a collection of converters in its `MappingContext` in the `AbstractR2dbcConfiguration`. It will detect the data type and Java type and apply the correct converters when reading and writing data. 
 
-> Ideally when it fails, it will return to use the built-in solution from the baked drivers, but I got exceptions when reading data from database. Follow the official Spring Data R2dbc reference document, you can create your custom converters to resolve this issue.
+> Ideally when it fails, it will return to use the built-in solution from the baked drivers, but I got exceptions when reading data from databases. Follow the official Spring Data R2dbc reference document, you can create your custom converters to resolve this issue.
 
 Create s `@ReadingConverter` to convert the data type to Java type.
 
@@ -262,7 +262,7 @@ public class DatabaseConfig extends AbstractR2dbcConfiguration {
 }
 ```
 
- Spring Data R2dbc can convert Java Enum type to a textual data type and reverse automatically. You can just need to declare the *enum* column as a string type, eg. 
+ Spring Data R2dbc can convert Java Enum type to a textual data type and reverse automatically. You can just need to declare the *enum* column as a textual type, eg. 
 
 ```sql
 status VARCHAR(255) default 'DRAFT',
@@ -270,11 +270,11 @@ status VARCHAR(255) default 'DRAFT',
 
 No need custom converters in this case.
 
-The disadvantage of this usage is that it will loss the constraints of the database itself, you are responsible for the value inserted in the tables.
+The disadvantage of this usage is that it will loss the constraints of the database schema itself, you are responsible for ensuring the correctness of the data being inserted in the tables.
 
-## Notifier/Listener
+## Notify/Listen
 
-Postgres provides simple notification mechanism, you can use it as  a simple message broker.
+Postgres provides a simple notification mechanism, you can use it as a message broker.
 
 Create a `Nofitier` to send a message.
 
@@ -311,7 +311,7 @@ class Notifier {
 }
 ```
 
-And listen is a  `Listener` bean.
+And receiving the message in a  `Listener` bean.
 
 ```java
 @Component
@@ -351,7 +351,7 @@ class Listener {
 }
 ```
 
-Add a  routing to send a message, check the logging of listener side.
+Add a  routing rule to send a message, check the logging of listener side.
 
 ```java
 .GET("/hello", request -> notifier
@@ -360,3 +360,4 @@ Add a  routing to send a message, check the logging of listener side.
     )
 ```
 
+Grab the [sample codes](https://github.com/hantsy/spring-r2dbc-sample) from my Github.
