@@ -233,7 +233,7 @@ Mono.from(conn)
     .log()
 ```
 
-Similarly executing a *delete* query is also to get the number of affected rows.
+Similarly executing a *delete* query is also easy to get the number of affected rows.
 
 ## R2dbc Clients
 

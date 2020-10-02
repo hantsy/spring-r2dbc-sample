@@ -19,7 +19,7 @@ To use R2dbc, first of all,  add corresponding drivers into your project depende
 </dependency>
 ```
 
-And make sure you are using the latest Spring 5.3 which is managed by Spring Boot 2.4 BOM.
+And make sure you are using the latest Spring 5.3 which is managed by Spring Boot 2.4 BOM, use Spring Boot BOM to simplify the dependency management.
 
 ```xml
 <parent>
@@ -33,6 +33,7 @@ And make sure you are using the latest Spring 5.3 which is managed by Spring Boo
 Also add the following dependencies to create a plain Spring application.
 
 ```xml
+<!-- spring webflux support -->
 <dependency>
     <groupId>org.springframework</groupId>
     <artifactId>spring-context</artifactId>
@@ -41,11 +42,14 @@ Also add the following dependencies to create a plain Spring application.
     <groupId>org.springframework</groupId>
     <artifactId>spring-webflux</artifactId>
 </dependency>
+
+<!-- Spring R2dbc -->
 <dependency>
     <groupId>org.springframework</groupId>
     <artifactId>spring-r2dbc</artifactId>
 </dependency>
 
+<!-- Jackson modules -->
 <dependency>
     <groupId>com.fasterxml.jackson.core</groupId>
     <artifactId>jackson-databind</artifactId>
@@ -59,6 +63,7 @@ Also add the following dependencies to create a plain Spring application.
     <artifactId>jackson-datatype-jsr310</artifactId>
 </dependency>
 
+<!-- Reactor/Netty runtime -->
 <dependency>
     <groupId>io.netty</groupId>
     <artifactId>netty-buffer</artifactId>
@@ -69,11 +74,13 @@ Also add the following dependencies to create a plain Spring application.
     <artifactId>reactor-netty</artifactId>
 </dependency>
 
+<!-- Project Lombok: to erase the getter and setters, equals, hashCode, toString in source codes, and clean your codes -->
 <dependency>
     <groupId>org.projectlombok</groupId>
     <artifactId>lombok</artifactId>
 </dependency>
 
+<!-- logging -->
 <dependency>
     <groupId>org.slf4j</groupId>
     <artifactId>slf4j-api</artifactId>
@@ -94,7 +101,7 @@ Also add the following dependencies to create a plain Spring application.
 
 > In a Spring Boot application, just needs to add *spring-boot-webflux-starter* into your dependencies.
 
-Like the `DataSource` of Jdbc support, to activate R2dbc, declare a `ConnectionFactory` bean instead.
+Like the `DataSource`  beans  of the Jdbc support, to activate R2dbc feature, declare a `ConnectionFactory` bean instead.
 
 ```java
 @Bean
@@ -112,7 +119,7 @@ public ConnectionFactory connectionFactory() {
 }
 ```
 
-Now you can declare a `DatabaseClient` bean.
+Now you can create a `DatabaseClient` bean which is dependent on the existing `ConnectionFactory` bean.
 
 ```java
 @Bean
@@ -125,70 +132,15 @@ DatabaseClient databaseClient(ConnectionFactory connectionFactory) {
 }
 ```
 
-The `DatabaseClient.builder()` provides a flexible approach to setup the parameter binding strategy in SQL queries.
+The `DatabaseClient.builder()` provides a flexible way to setup the parameter binding strategy in SQL queries.
 
 If you are using Spring Boot, just need to setup **spring.r2dbc.url**, **spring.r2dbc.username**, **spring.r2dbc.password** properties in the *application.properties* file, it will autoconfigure `ConnectionFactory` and `DatabaseClient` for you.
 
 ## Using DatabaseClient
 
-Now you can use `DatabaseClient` to execute queries, such as, *select*, *insert*, *update*, *delete*, etc. 
+Once a `DatabaseClient` is available in Spring container, you can inject it in your Repository class , and use it to execute queries, such as, *select*, *insert*, *update*, *delete*, etc. 
 
-Create a POJO class to wrap the query results.
-
-```java
-@Data
-@ToString
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Post {
-
-    private UUID id;
-
-    private String title;
-
-    private String content;
-
-}
-```
-
-Declare a `ConnectionFactoryInitializer` bean to initialize the database.
-
-```java
-@Bean
-public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
-
-    ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
-    initializer.setConnectionFactory(connectionFactory);
-
-    CompositeDatabasePopulator populator = new CompositeDatabasePopulator();
-    populator.addPopulators(new ResourceDatabasePopulator(new ClassPathResource("schema.sql")));
-    populator.addPopulators(new ResourceDatabasePopulator(new ClassPathResource("data.sql")));
-    initializer.setDatabasePopulator(populator);
-
-    return initializer;
-}
-```
-
-Here we use a `schema.sql` to create the tables and the `data.sql` to initialize some sample data.
-
-```sql
--- schema.sql
-CREATE TABLE IF NOT EXISTS posts (
-    id UUID DEFAULT uuid_generate_v4(),
-    title VARCHAR(255),
-    content VARCHAR(255),
-    PRIMARY KEY (id)
-);
-
--- data.sql
-DELETE FROM posts;
-INSERT INTO  posts (title, content) VALUES ('R2dbc is refined', 'R2dbc is now part of Spring framework core');
-```
-
-> In the Jdbc world, there are some solutions to initialize  and maintain the database schema and data, such as [Flyway](https://flywaydb.org/) and [Liquibase](https://www.liquibase.org/).  There is a new project [nkonev/r2dbc-migrate](https://github.com/nkonev/r2dbc-migrate) which try to port similar features into R2dbc.
-
-Create a `PostRepository` class to encapsulate the CRUD operations.
+Create a `PostRepository` class to envelope the basic CRUD operations.
 
 ```java
 @RequiredArgsConstructor
@@ -255,8 +207,63 @@ public class PostRepository {
     }
 }
 ```
+In the above codes, it used a  POJO class `Post` to wrap the query results.
 
-To initialize some sample data in the application, just need to listen the `ContextRefreshEvent`.
+```java
+@Data
+@ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Post {
+
+    private UUID id;
+
+    private String title;
+
+    private String content;
+
+}
+```
+
+Declare a `ConnectionFactoryInitializer` bean to initialize the database, such as preparing the schema if not existed , and inserting some sample data.
+
+```java
+@Bean
+public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
+
+    ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
+    initializer.setConnectionFactory(connectionFactory);
+
+    CompositeDatabasePopulator populator = new CompositeDatabasePopulator();
+    populator.addPopulators(new ResourceDatabasePopulator(new ClassPathResource("schema.sql")));
+    populator.addPopulators(new ResourceDatabasePopulator(new ClassPathResource("data.sql")));
+    initializer.setDatabasePopulator(populator);
+
+    return initializer;
+}
+```
+
+Here we use a `schema.sql` to create the tables and the `data.sql` to initialize some sample data.
+
+```sql
+-- schema.sql
+CREATE TABLE IF NOT EXISTS posts (
+    id UUID DEFAULT uuid_generate_v4(),
+    title VARCHAR(255),
+    content VARCHAR(255),
+    PRIMARY KEY (id)
+);
+
+-- data.sql
+DELETE FROM posts;
+INSERT INTO  posts (title, content) VALUES ('R2dbc is refined', 'R2dbc is now part of Spring framework core');
+```
+
+> In the Jdbc world, there are some solutions to initialize  and maintain the database schema and data, such as [Flyway](https://flywaydb.org/) and [Liquibase](https://www.liquibase.org/).  There is a new project [nkonev/r2dbc-migrate](https://github.com/nkonev/r2dbc-migrate) which try to port similar features into the R2dbc world.
+
+
+To initialize some sample data in a plain Spring application, create a bean to listen the `ContextRefreshEvent`.
 
 ```java
 @Component
@@ -285,13 +292,13 @@ public class DataInitializer {
 }
 ```
 
-> In the Spring Boot application, you can listen the `ApplicationReadyEvent` instead.
+> Spring Boot includes a series of application lifecycle events, in a Spring Boot application, listen the `ApplicationReadyEvent` instead.
 
 ## Transaction Management
 
-Spring R2dbc provides a `R2dbcTransactionManager` which implements `ReactiveTransactionManager`. 
+Spring R2dbc provides a `R2dbcTransactionManager` which implements `ReactiveTransactionManager`, with a Spring transaction manager, you can control the transaction by the declaration way or programmatic approaches. 
 
-To use `@Transacational`  to control transaction scopes on classes or methods, first of all, you should add `@EnableTransactionManagement` on the configuration class.
+To enable transaction support, first of all, you should add `@EnableTransactionManagement` on the configuration class.
 
 ```java
 @Configuration
@@ -308,9 +315,25 @@ ReactiveTransactionManager transactionManager(ConnectionFactory connectionFactor
 }
 ```
 
+Now it is ready to add a `@Transacational` annotation on classes or methods   to control transaction unit.
+
+```java
+// on classes
+@Transactional
+class Service{}
+
+// on methods
+class Service{
+    
+    @Transactional
+    public void someMethod() {}
+}
+
+```
+
 For programmatic transaction control, the traditional Jdbc provides a `TransactionTemplate`. In Spring reactive stack, Spring provides a similar `TransactionalOperator`.
 
-Declare a `TransactionalOperator` bean.
+Declare an extra `TransactionalOperator` bean.
 
 ```java
 @Bean
@@ -319,7 +342,7 @@ TransactionalOperator transactionalOperator(ReactiveTransactionManager transacti
 }
 ```
 
-Then apply `operator::transactional` in the reactive pipes to wrap a series of operations into a transaction unit.
+Then apply `operator::transactional` in the reactive pipelines to wrap a series of operations into a transaction unit.
 
 ```java
 @Autowired
@@ -353,9 +376,9 @@ posts
 
 ## Exposing RESTful APIs
 
-Let's move to the web layer, and expose the CRUD as RESTful APIs.
+Let's move to the web layer, and expose the CRUD  operations as RESTful APIs.
 
-Create a  `WebConfig` configuration class.
+Create a  `WebConfig` configuration class to enable Spring Webflux feature.
 
 ```java 
 @Configuration
@@ -386,7 +409,9 @@ public class WebConfig implements WebFluxConfigurer {
 }
 ```
 
-And custom the Jackson 2 `ObjectMapper`.
+In this example, we use `RouterFunction` instead of traditional `@RestController`.
+
+And usually add a configuration to customize the Jackson 2 `ObjectMapper`.
 
 ```java
 @Configuration
@@ -412,7 +437,7 @@ public class Jackson2ObjectMapperConfig {
 
 > In a Spring Boot application, it will autoconfigure these for you,  you just need to declare a `RouterFunction` bean and focus on your business.
 
-Create a `PostHanlder` class to handle the incoming request.
+Add the missing `PostHanlder` class in the `RouterFunction` bean to handle the incoming request.
 
 ```java
 @Component
