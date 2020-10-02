@@ -4,15 +4,15 @@
 
 
 
-In contrast to the blocking nature of Jdbc, R2dbc allows you to access with relational databases using none-blocking APIs, R2dbc embraces [Reactive Streams](https://www.reactive-streams.org/) spec, and provides open specification which includes a collection of  Service Provider Interface(SPI) to the database vendors to implement their own drivers.
+In contrast to the blocking nature of Jdbc, R2dbc allows you to access with relational databases using none-blocking APIs, R2dbc embraces the [Reactive Streams](https://www.reactive-streams.org/) spec, and provides a community-driven open specification which includes a collection of  Service Provider Interface(SPI) to the database vendors to implement their own drivers.
 
 To connect to databases, you should add corresponding drivers into your project dependencies. 
 
 ## R2dbc drivers
 
-Currently there are a few drivers available, check the [R2dbc drivers](https://r2dbc.io/drivers/) page for the complete list.
+Currently there are a few drivers ready for production, check the [R2dbc drivers](https://r2dbc.io/drivers/) page for the complete list.
 
-H2 database is frequently used in development environment, add the following dependencies when using either embedded or file-based H2 database.
+H2 database is frequently used in development environment, add the following dependency when using either embedded or file-based H2 database.
 
 ```xml
 <dependency>
@@ -21,7 +21,7 @@ H2 database is frequently used in development environment, add the following dep
 </dependency>
 ```
 
-To use R2dbc with MySQL database, add the following dependency.
+To use R2dbc with MySQL database, add the following dependency instead.
 
 ```xml
 <dependency>
@@ -30,9 +30,9 @@ To use R2dbc with MySQL database, add the following dependency.
 </dependency>
 ```
 
-You can also use R2dbc with the MySQL fork - [MariaDB](https://github.com/mariadb-corporation/mariadb-connector-r2dbc).
+R2dbc also supports  [MariaDB](https://github.com/mariadb-corporation/mariadb-connector-r2dbc) -  the MySQL fork .
 
-For Postgres database, add Postgres R2dbc driver.
+For Postgres database, use Postgres R2dbc driver.
 
 ```xml
 <dependency>
@@ -41,7 +41,7 @@ For Postgres database, add Postgres R2dbc driver.
 </dependency>
 ```
 
-R2dbc also support Microsoft SQL Server.
+R2dbc has good support of  Microsoft SQL Server.
 
 ```xml
 <dependency>
@@ -52,9 +52,9 @@ R2dbc also support Microsoft SQL Server.
 
 If you have installed desired databases, and make sure it is running. Now you can connect it via R2dbc's `ConnectionFactory`.
 
-## ConnectionFactory
+## Connecting to Databases
 
-Internally R2dbc spec provides a `ConnectionFactories` utility class to create a `ConnectionFactory` from connection url or `ConnectionFactoryOptions`. 
+Internally R2dbc spec provides a `ConnectionFactories` utility class to create a `ConnectionFactory` from connection URL or `ConnectionFactoryOptions`. 
 
 The following is an example of obtaining a H2 specific `ConnectionFactory` from URL, it will connect to an embedded H2 database.
 
@@ -68,7 +68,7 @@ Let's look at another example of Postgres connection URL.
 ConnectionFactories.get("r2dbc:postgres://user:password@localhost/test");
 ```
 
-The details of the URL format is described in the [R2dbc spec doc](https://r2dbc.io/spec/0.8.2.RELEASE/spec/html/#overview.connection.url).
+The details of the URL form is described in the [R2dbc spec doc](https://r2dbc.io/spec/0.8.2.RELEASE/spec/html/#overview.connection.url).
 
 The following is an example of getting a `ConnectionFactory` from `ConnectionFactoryOptions`. 
 
@@ -84,7 +84,7 @@ var options = ConnectionFactoryOptions.builder()
 return ConnectionFactories.get(options);
 ```
 
-Most of the R2dbc drivers provide its utility classes to create a `ConnectionFactory`.
+Most of the R2dbc drivers provide its private utility classes to create a `ConnectionFactory`.
 
 For example, you can create an embedded or file-based H2 database using `H2ConnectionFactory` like this.
 
@@ -118,11 +118,11 @@ new PostgresqlConnectionFactory(
 
 The driver specific utility class is more easy to setup database specific features, eg. enable the `Enum` codec in Postgres.
 
-Once you get a `ConnectionFactory`,  calling the `create` method to create a `Publisher<Connection>`, similar to the Jdbc's Connection, but is based on Reactive Streams APIs.
+Once you get a `ConnectionFactory`,  calling the `create` method to create a `Publisher<Connection>`, which is similar to the Jdbc's Connection, but is based on Reactive Streams APIs.
 
 ## Executing SQL queries
 
-Utilizing with the `Connection.createStatement`, you can execute SQL queries like insert, update or delete etc.  The following example is creating a table and inserting data into  the table on a H2 database. 
+Utilizing with the `Connection.createStatement`, you can execute SQL queries like insert, update or delete etc.  The following example is creating a table and then inserting some data into  the table on a H2 database. 
 
 ```java
 String createSql = """
@@ -160,7 +160,7 @@ Mono.from(conn)
     .doOnNext(id -> log.info("generated id: {}", id))
 ```
 
-We are using [Project Reactor](https://projectreactor.io/) to wrap the connection and simplify the operations. The `returnGeneratedValues("id")` will fetch the generated id when inserting a row into a table.
+In the above codes, we used [Project Reactor](https://projectreactor.io/) to wrap the connection and simplify the Reactive Streams pipeline operations. The `returnGeneratedValues("id")` method will fetch the generated id when inserting a row into a table.
 
 Let's have  a look at another *select* statement.
 
@@ -197,7 +197,7 @@ Mono.from(conn)
 
 After it is executed, to extract the row data from the query result, you can call the  `map` method to get the details of row data and row metadata.
 
-You can also bind parameters to placeholders in SQL strings. 
+You can also bind parameters to placeholders in SQL query strings. 
 
 ```java
 var selectSql = """
@@ -212,7 +212,7 @@ Mono.from(conn)
     )
 ```
 
-> H2 accepts `$`  as prefix in the parameter placeholders. But it is database specific, for MSSQL database, the prefix should be `@`.
+> H2 accepts `$`  as prefix in the parameter placeholders. But it is database specific, for MSSQL database, the prefix should be a `@`.
 
 When executing a *update* query, you can get the number of updated rows.
 
@@ -233,12 +233,14 @@ Mono.from(conn)
     .log()
 ```
 
-Similarly executing a *delete* query also get the number of update rows.
+Similarly executing a *delete* query is also to get the number of affected rows.
 
 ## R2dbc Clients
 
 There are some client libraries which wraps R2dbc's `Connection`, `Statement` etc, and hide the complexity of the raw R2dbc APIs.
 
-In Spring core framework, there is a new refactored `DatabaseClient`.  Spring Data R2dbc provides a light ORM mapping features based on `DatabaseClient`.
+In Spring, there is a new refactored `DatabaseClient` brought in the upcoming Spring 5.3.  Spring Data R2dbc provides a light ORM mapping features based on `DatabaseClient`.
 
 We will explore the `DatabaseClient`  in the next post.
+
+You can get the [sample codes](https://github.com/hantsy/spring-r2dbc-sample/) from my github.
