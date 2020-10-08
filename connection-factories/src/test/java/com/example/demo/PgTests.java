@@ -1,7 +1,6 @@
 package com.example.demo;
 
 import io.r2dbc.spi.Connection;
-import io.r2dbc.spi.ConnectionFactories;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
