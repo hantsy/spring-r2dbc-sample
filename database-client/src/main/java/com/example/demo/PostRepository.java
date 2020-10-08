@@ -68,6 +68,8 @@ public class PostRepository {
                 .map(r -> (UUID) r.get("id"));
     }
 
+    // see: https://github.com/spring-projects/spring-data-r2dbc/issues/259
+    // and https://stackoverflow.com/questions/62514094/how-to-execute-multiple-inserts-in-batch-in-r2dbc
     public Flux<UUID> saveAll(List<Post> data) {
         return this.databaseClient.inConnectionMany(connection -> {
 
