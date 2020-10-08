@@ -1,8 +1,6 @@
 package com.example.demo;
 
 import io.r2dbc.spi.Connection;
-import lombok.Builder;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,30 +15,28 @@ import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class H2Tests {
-
+public class MySQLTests {
     @Nested
     @Slf4j
     static class Connections {
 
         @Test
         public void getFromUrl() {
-            var conn = H2ConnectionFactories.fromUrl();
+            var conn = MySQLConnectionFactories.fromUrl();
             var metadata = conn.getMetadata();
             log.info("ConnectionFactoryMetadata name: {}", metadata.getName());
             assertThat(conn).isNotNull();
         }
 
         @Test
-        public void inMemory() {
-            var conn = H2ConnectionFactories.inMemory();
-
+        public void fromOptions() {
+            var conn = MySQLConnectionFactories.fromOptions();
             assertThat(conn).isNotNull();
         }
 
         @Test
-        public void file() {
-            var conn = H2ConnectionFactories.file();
+        public void pgConnectionFactory() {
+            var conn = MySQLConnectionFactories.mysqlConnectionFactory();
             assertThat(conn).isNotNull();
         }
     }
@@ -52,10 +48,10 @@ public class H2Tests {
 
         @BeforeEach
         public void setupAll() {
-            conn = H2ConnectionFactories.fromUrl().create();
+            conn = MySQLConnectionFactories.mysqlConnectionFactory().create();
             String createSql = """
                     CREATE TABLE IF NOT EXISTS persons (
-                    id SERIAL PRIMARY KEY,
+                    id int auto_increment PRIMARY KEY,
                     first_name VARCHAR(255),
                     last_name VARCHAR(255),
                     age INTEGER
@@ -105,6 +101,47 @@ public class H2Tests {
         }
 
         @Test
+        public void testInserts() {
+            String insertSql = """
+                    INSERT INTO persons(first_name, last_name, age)
+                    VALUES('test first name','last name', 24)
+                    """;
+            Mono.from(conn)
+                    .flatMapMany(
+                            c -> Flux.from(c.createStatement(insertSql).returnGeneratedValues("id").execute())
+                    )
+                    .flatMap(data -> Flux.from(data.map((row, rowMetadata) -> row.get("id"))))
+                    .doOnNext(id -> log.info("generated id: {}", id))
+                    .as(StepVerifier::create)
+                    .expectNextCount(1)
+                    .verifyComplete();
+        }
+
+        @Test
+        public void testInsertBatch() {
+            String insertSql = """
+                    INSERT INTO persons(first_name, last_name, age)
+                    VALUES(?, ?, ?)
+                    """;
+            Mono.from(conn)
+                    .flatMapMany(
+                            c -> {
+                                var statement = c.createStatement(insertSql);
+                                statement.bind(0, "testfirstname1").bind(1, "testlastname1").bind(2, 10).add();
+                                statement.bind(0, "testfirstname2").bind(1, "testlastname2").bind(2, 20).add();
+                                statement.bind(0, "testfirstname3").bind(1, "testlastname3").bind(2, 30).add();
+                                return Flux.from(statement.returnGeneratedValues("id").execute());
+                            }
+                    )
+                    .flatMap(data -> Flux.from(data.map((row, rowMetadata) -> row.get("id"))))
+                    .doOnNext(id -> log.info("generated id: {}", id))
+                    .as(StepVerifier::create)
+                    .expectNextCount(3)
+                    .verifyComplete();
+        }
+
+
+        @Test
         public void testQueries() {
             var selectSql = """
                     SELECT * FROM persons;
@@ -143,12 +180,12 @@ public class H2Tests {
         @Test
         public void testQueryByParam() {
             var selectSql = """
-                    SELECT * FROM persons WHERE first_name=$1
+                    SELECT * FROM persons WHERE first_name=?
                     """;
             Mono.from(conn)
                     .flatMapMany(
                             c -> Flux.from(c.createStatement(selectSql)
-                                    .bind("$1", "Hantsy")
+                                    .bind(0, "Hantsy")
                                     .execute())
                     )
                     .log()
@@ -163,13 +200,13 @@ public class H2Tests {
         @Test
         public void testUpdate() {
             var updateSql = """
-                    UPDATE persons SET first_name=$1 WHERE first_name=$2
+                    UPDATE persons SET first_name=? WHERE first_name=?
                     """;
             Mono.from(conn)
                     .flatMapMany(
                             c -> Flux.from(c.createStatement(updateSql)
-                                    .bind("$1", "test1")
-                                    .bind("$2", "Hantsy")
+                                    .bind(0, "test1")
+                                    .bind(1, "Hantsy")
                                     .execute())
                                     .flatMap(result -> result.getRowsUpdated())
                                     .doOnNext(data -> log.info(": {}", data))
@@ -186,21 +223,21 @@ public class H2Tests {
                     SELECT * FROM persons
                     """;
             var selectSql = """
-                    SELECT * FROM persons WHERE first_name=$1
+                    SELECT * FROM persons WHERE first_name=?
                     """;
 
             var selectByIdSql = """
-                    SELECT * FROM persons WHERE id=$1
+                    SELECT * FROM persons WHERE id=?
                     """;
 
             var updateSql = """
-                    UPDATE persons SET first_name=$1 WHERE id=$2
+                    UPDATE persons SET first_name=? WHERE id=?
                     """;
 
             Mono.from(conn)
                     .flatMapMany(
                             c -> c.createStatement(selectSql)
-                                    .bind("$1", "Hantsy")
+                                    .bind(0, "Hantsy")
                                     .execute()
                     )
                     .log()
@@ -211,14 +248,14 @@ public class H2Tests {
                                             Flux.from(c.setAutoCommit(false))
                                                     .flatMap(it -> c.beginTransaction())
                                                     .flatMap(it -> c.createStatement(updateSql)
-                                                            .bind("$1", "test1")
-                                                            .bind("$2", id)
+                                                            .bind(0, "test1")
+                                                            .bind(1, id)
                                                             .execute()
                                                     )
                                                     .flatMap(it -> c.createSavepoint("save"))
                                                     .flatMap(it -> c.createStatement(updateSql)
-                                                            .bind("$1", "test100")
-                                                            .bind("$2", id)
+                                                            .bind(0, "test100")
+                                                            .bind(1, id)
                                                             .execute()
                                                     )
                                                     //.flatMap(it -> c.createSavepoint("save2"))
@@ -228,7 +265,7 @@ public class H2Tests {
                                                     .then()
                                                     .thenMany(
                                                             c.createStatement(selectByIdSql)
-                                                                    .bind("$1", id)
+                                                                    .bind(0, id)
                                                                     .execute()
                                                     )
                                                     .log()
@@ -246,4 +283,7 @@ public class H2Tests {
         }
 
     }
+
 }
+
+
