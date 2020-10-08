@@ -1,16 +1,19 @@
 package com.example.demo;
 
 import io.r2dbc.postgresql.codec.Json;
+import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.reactivestreams.Publisher;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
@@ -63,6 +66,20 @@ public class PostRepository {
                 .fetch()
                 .first()
                 .map(r -> (UUID) r.get("id"));
+    }
+
+    public Flux<UUID> saveAll(List<Post> data) {
+        return this.databaseClient.inConnectionMany(connection -> {
+
+            var statement = connection.createStatement("INSERT INTO  posts (title, content) VALUES ($1, $2)")
+                    .returnGeneratedValues("id");
+
+            for (var p : data) {
+                statement.bind(0, p.getTitle()).bind(1, p.getContent()).add();
+            }
+
+            return Flux.from(statement.execute()).flatMap(result -> result.map((row, rowMetadata) -> row.get("id", UUID.class)));
+        });
     }
 
     public Mono<Integer> update(Post p) {

@@ -1,64 +1,43 @@
 package com.example.demo;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.r2dbc.core.DatabaseClient;
-import org.springframework.r2dbc.core.StatementFilterFunction;
-import reactor.core.publisher.Flux;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import reactor.test.StepVerifier;
 
-import java.util.function.BiFunction;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author hantsy
  */
 @Slf4j
-//@ExtendWith(MockitoExtension.class)
+@SpringJUnitConfig(classes = {DatabaseConfig.class, PostRepositoryTest.TestConfig.class})
 public class PostRepositoryTest {
 
-//    @Mock
-//    DatabaseClient databaseClient;
-//
-//    @InjectMocks
-//    PostRepository posts;
-//
-//    @BeforeEach
-//    public void setup() {
-//
-//    }
+    @Autowired
+    PostRepository posts;
 
     @Test
-    public void testGetAllPostsDeepStubs() {
-        // RETURNS_DEEP_STUBS is used for mock sql, filter, all together in a stubbing statement.
-        var databaseClient = mock(DatabaseClient.class, RETURNS_DEEP_STUBS);
-        var posts = new PostRepository(databaseClient);
-        log.info("databaseClient: {}", databaseClient);
-        given(
-                databaseClient
-                        .sql(anyString())
-                        .filter(isA(StatementFilterFunction.class))
-                        .map(isA(BiFunction.class))
-                        .all())
-                .willReturn(Flux.just(Post.builder().title("test").content("content").build()));
+    public void testSaveAll() {
 
-        var result = posts.findAll();
+        var data = Post.builder().title("test").content("content").build();
+        var data1 = Post.builder().title("test1").content("content1").build();
+
+        var result = posts.saveAll(List.of(data, data1)).log("[Generated result]")
+                .doOnNext(id->log.info("generated id: {}", id));
 
         assertThat(result).isNotNull();
         result.as(StepVerifier::create)
-                .consumeNextWith(p -> assertThat(p.getTitle()).isEqualTo("test"))
+                .expectNextCount(2)
                 .verifyComplete();
+    }
+
+    @ComponentScan
+    static class TestConfig {
     }
 
 }
