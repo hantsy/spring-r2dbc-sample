@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DataR2dbcTest()
 @Slf4j
-@Import(DataConfig.class)
+@Import({DataConfig.class})
 public class PostRepositoryTest {
 
     @Autowired

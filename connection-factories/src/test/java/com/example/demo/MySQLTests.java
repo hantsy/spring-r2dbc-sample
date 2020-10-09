@@ -82,7 +82,7 @@ public class MySQLTests {
                                     )
                     )
                     .flatMap(data -> Flux.from(data.map((row, rowMetadata) -> row.get("id"))))
-                    .doOnNext(id -> log.info("generated id: {}", id))
+                    .doOnNext(id -> log.info("[BeforeEach]generated id: {}", id))
                     .blockLast(Duration.ofSeconds(5));
         }
 

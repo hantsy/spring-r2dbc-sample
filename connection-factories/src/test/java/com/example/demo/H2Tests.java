@@ -244,4 +244,74 @@ public class H2Tests {
         }
 
     }
+
+
+    @Nested
+    @Slf4j
+    static class Batch {
+        Publisher<? extends Connection> conn;
+
+        @BeforeEach
+        public void setupAll() {
+            conn = H2ConnectionFactories.fromUrl().create();
+            String createSql = """
+                    CREATE TABLE IF NOT EXISTS books (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(255),
+                    author VARCHAR(255)
+                    )
+                    """;
+
+
+            Mono.from(conn)
+                    .flatMap(
+                            c -> Mono.from(c.createStatement(createSql)
+                                    .execute())
+                    )
+                    .log()
+                    .doOnNext(data -> log.info("created: {}", data))
+                    .block(Duration.ofSeconds(5));
+        }
+
+
+        @Test
+        public void testBatch() {
+            String insertSql = """
+                    INSERT INTO books(name, author)
+                    VALUES
+                    ('Pro Spring', 'unknown'),
+                    ('Spring in action', 'test')
+                    """;
+
+            String selectSql = """
+                    select * from books
+                    """;
+
+            Mono.from(conn)
+                    .flatMapMany(
+                            c -> {
+                                var batch = c.createBatch();
+                                return Flux.from(batch.add(insertSql).add(selectSql).execute());
+                            }
+                    )
+                    .doOnNext(r -> log.info("batch result: {}", r))
+                    .as(StepVerifier::create)
+                    .expectNextCount(2)
+                    .verifyComplete();
+        }
+
+        @AfterEach
+        public void teardown() {
+            String deleteSql = """
+                    DELETE FROM books
+                    """;
+            Mono.from(conn)
+                    .flatMap(
+                            c -> Mono.from(c.createStatement(deleteSql).execute())
+                    )
+                    .log()
+                    .doOnNext(data -> log.info("deleted: {}", data))
+                    .subscribe();
+        }
+    }
 }
