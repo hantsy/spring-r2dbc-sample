@@ -27,7 +27,9 @@ public class PostRepository {
     }
 
     public Flux<Post> findAll() {
-        return this.template.select(Post.class).all();
+        return this.template.select(Post.class)
+                .matching(Query.query(where("status").like("%" + name + "%")).limit(10).offset(0))
+                .all();
     }
 
     public Mono<Post> findById(UUID id) {

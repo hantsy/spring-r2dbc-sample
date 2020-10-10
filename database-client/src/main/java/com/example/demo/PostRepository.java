@@ -1,12 +1,10 @@
 package com.example.demo;
 
 import io.r2dbc.postgresql.codec.Json;
-import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.reactivestreams.Publisher;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -14,6 +12,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
@@ -49,6 +48,19 @@ public class PostRepository {
                 .all();
     }
 
+    // see: https://stackoverflow.com/questions/64267699/spring-data-r2dbc-and-group-by
+    public Flux<Map<Object, Object>> countByStatus() {
+        return this.databaseClient
+                .sql("SELECT count(*) as cnt, status FROM posts group by status")
+                .map((row, rowMetadata) -> {
+                    Long cnt = row.get("cnt", Long.class);
+                    Post.Status s = row.get("status", Post.Status.class);
+
+                    return Map.<Object, Object>of("cnt", cnt, "status", s);
+                })
+                .all();
+    }
+
     public Mono<Post> findById(UUID id) {
         return this.databaseClient
                 .sql("SELECT * FROM posts WHERE id=:id")
@@ -58,11 +70,12 @@ public class PostRepository {
     }
 
     public Mono<UUID> save(Post p) {
-        return this.databaseClient.sql("INSERT INTO  posts (title, content, metadata) VALUES (:title, :content, :metadata)")
+        return this.databaseClient.sql("INSERT INTO  posts (title, content, metadata, status) VALUES (:title, :content, :metadata, :status)")
                 .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
                 .bind("title", p.getTitle())
                 .bind("content", p.getContent())
                 .bind("metadata", p.getMetadata())
+                .bind("status", p.getStatus())
                 .fetch()
                 .first()
                 .map(r -> (UUID) r.get("id"));
@@ -73,11 +86,11 @@ public class PostRepository {
     public Flux<UUID> saveAll(List<Post> data) {
         return this.databaseClient.inConnectionMany(connection -> {
 
-            var statement = connection.createStatement("INSERT INTO  posts (title, content) VALUES ($1, $2)")
+            var statement = connection.createStatement("INSERT INTO  posts (title, content, status) VALUES ($1, $2, $3)")
                     .returnGeneratedValues("id");
 
             for (var p : data) {
-                statement.bind(0, p.getTitle()).bind(1, p.getContent()).add();
+                statement.bind(0, p.getTitle()).bind(1, p.getContent()).bind(2, p.getStatus()).add();
             }
 
             return Flux.from(statement.execute()).flatMap(result -> result.map((row, rowMetadata) -> row.get("id", UUID.class)));

@@ -28,7 +28,8 @@ public class Post {
     @JsonDeserialize(using = PgJsonObjectDeserializer.class)
     private Json metadata;
 
-    private Status status;
+    @Builder.Default
+    private Status status = Status.DRAFT;
 
     private LocalDateTime createdAt;
 
