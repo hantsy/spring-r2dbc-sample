@@ -26,7 +26,8 @@ public class Post {
 
     @JsonSerialize(using = PgJsonObjectSerializer.class)
     @JsonDeserialize(using = PgJsonObjectDeserializer.class)
-    private Json metadata;
+    @Builder.Default
+    private Json metadata = Json.of("{}");
 
     @Builder.Default
     private Status status = Status.DRAFT;

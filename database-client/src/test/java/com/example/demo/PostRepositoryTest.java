@@ -50,6 +50,21 @@ public class PostRepositoryTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testInsertAndQuery() {
+        var data = Post.builder().title("test").content("content")
+                .status(Post.Status.PENDING_MODERATION)
+                .build();
+        this.posts.save(data)
+                .flatMap(id -> this.posts.findById(id))
+                .as(StepVerifier::create)
+                .consumeNextWith(r -> {
+                    log.info("result data: {}", r);
+                    assertThat(r.getStatus()).isEqualTo(Post.Status.PENDING_MODERATION);
+                })
+                .verifyComplete();
+    }
+
     @ComponentScan
     static class TestConfig {
     }
