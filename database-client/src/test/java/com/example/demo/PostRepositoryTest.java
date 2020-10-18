@@ -50,6 +50,7 @@ public class PostRepositoryTest {
                 .verifyComplete();
     }
 
+    //see: https://stackoverflow.com/questions/64374730/java-r2dbc-client-execute-sql-and-use-returned-id-for-next-execute/64409363#64409363
     @Test
     public void testInsertAndQuery() {
         var data = Post.builder().title("test").content("content")
