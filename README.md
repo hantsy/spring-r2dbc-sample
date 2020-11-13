@@ -2,7 +2,7 @@
 
 I have created several R2dbc examples in the [spring-reactive-sample](https://github.com/hantsy/spring-reactive-sample/) repository since it was born. But Spring Data R2dbc evolved very quickly, a lot of changes are introduced in the upcoming Spring Data R2dbc 1.2. This repository will contain the latest work in the Spring Framework 5.3, Spring Data R2dbc 1.2 and Spring Boot 2.4.
 
-
+![build](https://github.com/hantsy/spring-r2dbc-sample/workflows/build/badge.svg)
 
 ## Notes
 
