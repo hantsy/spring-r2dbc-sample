@@ -114,4 +114,10 @@ public class PostRepository {
                 .fetch()
                 .rowsUpdated();
     }
+
+    public Mono<Integer> deleteAll() {
+        return this.databaseClient.sql("DELETE FROM posts")
+                .fetch()
+                .rowsUpdated();
+    }
 }

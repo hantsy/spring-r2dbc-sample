@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
@@ -20,6 +21,13 @@ public class PostRepositoryTest {
 
     @Autowired
     PostRepository posts;
+
+    @BeforeEach
+    public void setup() {
+        this.posts.deleteAll().subscribe(
+                data -> log.info("clean database: {} deleted.", data)
+        );
+    }
 
     @Test
     public void testSaveAll() {
