@@ -50,7 +50,7 @@ jobs:
         run: mvn clean install --file entitycallbacks/pom.xml -Dmaven.test.skip -DskipTests      
  
       # reset database due to change type enum type to use varchar in boot applications.
-      - name: Start up databases via Docker Compose 
+      - name: Reset databases(remove containers and restart via Docker Compose) 
         run: |
             docker rm "$(docker ps -aq)" -f
             docker-compose up -d postgres
