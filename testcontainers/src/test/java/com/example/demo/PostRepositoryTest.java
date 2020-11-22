@@ -6,19 +6,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
-import java.util.stream.IntStream;
 
-import static java.util.stream.Collectors.toList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DataR2dbcTest()
 @Slf4j
+@Import(DataConfig.class)
+@ActiveProfiles("tc")
 public class PostRepositoryTest {
 
     @Autowired
@@ -44,39 +46,22 @@ public class PostRepositoryTest {
 
     @Test
     public void testInsertAndQuery() {
-        this.template.insert(Post.builder().title("test title").content("content of test").build())
-                .log()
-                .then()
+        var data = Post.builder().title("test title").content("content of test").build();
+        this.template.insert(data)
                 .thenMany(
                         this.posts.findByTitleContains("test%")
                 )
                 .log()
                 .as(StepVerifier::create)
                 .consumeNextWith(p -> {
-                    assertEquals("test title", p.getTitle());
-                    assertNotNull(p.getCreatedAt());
-                    assertNotNull(p.getUpdatedAt());
-                })
-                .verifyComplete();
-
-    }
-
-    @Test
-    public void testInsertAndFindByTitleLike() {
-        var data = IntStream.range(1, 101)
-                .mapToObj(
-                   i-> Post.builder().title("test title#"+i).content("content of test").build()
+                            log.info("saved post: {}", p);
+                            assertThat(p.getTitle()).isEqualTo("test title");
+                            assertNotNull(p.getCreatedAt());
+                            assertNotNull(p.getUpdatedAt());
+                            assertNull(p.getCreatedBy());
+                            assertNull(p.getUpdatedBy());
+                        }
                 )
-                .collect(toList());
-        this.posts.saveAll(data)
-                .log()
-                .then()
-                .thenMany(
-                        this.posts.findByTitleLike("test%", PageRequest.of(0, 10))
-                )
-                .log()
-                .as(StepVerifier::create)
-                .expectNextCount(10)
                 .verifyComplete();
 
     }
