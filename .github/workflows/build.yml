@@ -64,6 +64,15 @@ jobs:
         run: |
             mvn clean install --file auditing/pom.xml
             mvn clean verify -Pit --file auditing/pom.xml        
+    
+      # reset database due to change type enum type to use varchar in boot applications.
+      - name: Clean docker containers 
+        run: |
+            docker rm "$(docker ps -aq)" -f
+            
+      - name: Build testcontainers
+        run: |
+            mvn clean install --file testcontainers/pom.xml       
         
   automerge:
     name: Merge pull request
