@@ -23,6 +23,7 @@ I have created several R2dbc examples in the [spring-reactive-sample](https://gi
 * [data-r2dbc-repositories](https://github.com/hantsy/spring-r2dbc-sample/tree/master/data-r2dbc-repositories) Spring Data R2dbc generic `R2dbcRepository` interface example
 * [connection-factories](https://github.com/hantsy/spring-r2dbc-sample/tree/master/connection-factories) R2dbc driver's `ConnectionFactory` example
 * [entitycallbacks](https://github.com/hantsy/spring-r2dbc-sample/tree/master/entitycallbacks) Spring Data R2dbc `BeforeConvertEntityCallback`, `AfterConvertEntityCallback`, etc.
+* [testcontainers](https://github.com/hantsy/spring-r2dbc-sample/tree/master/testcontainers) Spring Data R2dbc `@DataR2dbcTest` with TestContainers.
 
 ## Reference
 
