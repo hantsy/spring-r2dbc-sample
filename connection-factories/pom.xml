@@ -41,6 +41,11 @@
             <artifactId>r2dbc-mssql</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.oracle.database.r2dbc</groupId>
+            <artifactId>oracle-r2dbc</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
@@ -89,8 +94,8 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-	
-	<build>
+
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
