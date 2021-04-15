@@ -20,7 +20,8 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v1
         with:
-          java-version: 15
+          distribution: 'adopt'
+          java-version: 16
 
       - name: Cache Maven packages
         uses: actions/cache@v2
