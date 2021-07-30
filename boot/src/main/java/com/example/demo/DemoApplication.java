@@ -126,7 +126,7 @@ public class DemoApplication {
         return new PostgresqlConnectionFactory(
                 PostgresqlConnectionConfiguration.builder()
                         .host("localhost")
-                        .database("test")
+                        .database("blogdb")
                         .username("user")
                         .password("password")
                         //.codecRegistrar(EnumCodec.builder().withEnum("post_status", Post.Status.class).build())
@@ -241,7 +241,7 @@ class R2dbcConfig extends AbstractR2dbcConfiguration {
         return new PostgresqlConnectionFactory(
                 PostgresqlConnectionConfiguration.builder()
                         .host("localhost")
-                        .database("test")
+                        .database("blogdb")
                         .username("user")
                         .password("password")
                         .codecRegistrar(EnumCodec.builder().withEnum("post_status", Post.Status.class).build())

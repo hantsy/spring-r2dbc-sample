@@ -10,38 +10,38 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: test
+      POSTGRES_DB: blogdb
       POSTGRES_USER: user
     volumes:
       - ./data/postgresql:/var/lib/postgresql
       - ./pg-initdb.d:/docker-entrypoint-initdb.d
-      
+
   mysql:
     image: mysql:8.0
     ports:
       - "3306:3306"
- #   command: --default-authentication-plugin=mysql_native_password  
+ #   command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: mysecret
       MYSQL_USER: user
       MYSQL_PASSWORD: password
-      MYSQL_DATABASE: test
+      MYSQL_DATABASE: blogdb
     volumes:
-      - ./data/mysql:/var/lib/mysql    
+      - ./data/mysql:/var/lib/mysql
  #     - ./mysql-initdb.d:/docker-entrypoint-initdb.d
- 
-  # no entrypoint-init scripts, see: https://github.com/Microsoft/mssql-docker/issues/11 
+
+  # no entrypoint-init scripts, see: https://github.com/Microsoft/mssql-docker/issues/11
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
-    environment: 
+    environment:
       - SA_PASSWORD=p@ssw0rd
       - ACCEPT_EULA=Y
     ports:
       - 1433:1433
-      
-  mongodb: 
-    image: mongo 
+
+  mongodb:
+    image: mongo
     volumes:
       - ./data/mongo:/data/db
     ports:
-      - "27017:27017"    
+      - "27017:27017"

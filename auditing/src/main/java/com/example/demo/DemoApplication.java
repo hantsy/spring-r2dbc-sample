@@ -91,20 +91,22 @@ public class DemoApplication {
         };
 
     }
-
-    @Bean
-    public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
-
-        ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
-        initializer.setConnectionFactory(connectionFactory);
-
-        CompositeDatabasePopulator populator = new CompositeDatabasePopulator();
-        populator.addPopulators(new ResourceDatabasePopulator(new ClassPathResource("schema.sql")));
-        populator.addPopulators(new ResourceDatabasePopulator(new ClassPathResource("data.sql")));
-        initializer.setDatabasePopulator(populator);
-
-        return initializer;
-    }
+//
+// use `spring.sql.init.mode=always` instead.
+//
+//    @Bean
+//    public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
+//
+//        ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
+//        initializer.setConnectionFactory(connectionFactory);
+//
+//        CompositeDatabasePopulator populator = new CompositeDatabasePopulator();
+//        populator.addPopulators(new ResourceDatabasePopulator(new ClassPathResource("schema.sql")));
+//        populator.addPopulators(new ResourceDatabasePopulator(new ClassPathResource("data.sql")));
+//        initializer.setDatabasePopulator(populator);
+//
+//        return initializer;
+//    }
 
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {

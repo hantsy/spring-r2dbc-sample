@@ -27,7 +27,7 @@ public class MySQLConnectionFactories {
         return MySqlConnectionFactory.from(
                 MySqlConnectionConfiguration.builder()
                         .host("localhost")
-                        .database("test")
+                        .database("blogdb")
                         .username("user")
                         .password("password")
                         .build()
