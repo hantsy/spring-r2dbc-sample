@@ -22,10 +22,10 @@ jobs:
         with:
           distribution: "adopt"
           java-version: 16
-      - name: Start up PostgreSQL in Docker
-        run: |
-          docker-compose up postgres
-          docker ps -a
+#       - name: Start up PostgreSQL in Docker
+#         run: |
+#           docker-compose up -d postgres
+#           docker ps -a
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
@@ -34,7 +34,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build connectionfactories
-        run: mvn clean install --file connection-factories/pom.xml -Dmaven.test.skip -DskipTests
+        run: mvn clean install --file connection-factories/pom.xml -Dmaven.test.skip=true -DskipTests
 
   data-r2dbc-repositories:
     runs-on: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
           distribution: "adopt"
       - name: Start up PostgreSQL in Docker
         run: |
-          docker-compose up postgres
+          docker-compose up -d postgres
           docker ps -a
       - name: Cache Maven packages
         uses: actions/cache@v2.1.6
@@ -77,7 +77,7 @@ jobs:
           distribution: "adopt"
       - name: Start up PostgreSQL in Docker
         run: |
-          docker-compose up postgres
+          docker-compose up -d postgres
           docker ps -a
       - name: Cache Maven packages
         uses: actions/cache@v2.1.6
@@ -103,7 +103,7 @@ jobs:
           distribution: "adopt"
       - name: Start up PostgreSQL in Docker
         run: |
-          docker-compose up postgres
+          docker-compose up -d postgres
           docker ps -a
       - name: Cache Maven packages
         uses: actions/cache@v2.1.6
@@ -127,10 +127,10 @@ jobs:
         with:
           java-version: 16
           distribution: "adopt"
-      - name: Start up PostgreSQL in Docker
-        run: |
-          docker-compose up postgres
-          docker ps -a
+#       - name: Start up PostgreSQL in Docker
+#         run: |
+#           docker-compose up -d postgres
+#           docker ps -a
       - name: Cache Maven packages
         uses: actions/cache@v2.1.6
         with:
@@ -139,7 +139,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build with Maven
-        run: mvn clean install --file entitycallbacks/pom.xml -Dmaven.test.skip -DskipTests
+        run: mvn clean install --file entitycallbacks/pom.xml -Dmaven.test.skip=true -DskipTests
   boot:
     runs-on: ubuntu-latest
     steps:
@@ -155,7 +155,7 @@ jobs:
           distribution: "adopt"
       - name: Start up PostgreSQL in Docker
         run: |
-          docker-compose up postgres
+          docker-compose up -d postgres
           docker ps -a
       - name: Cache Maven packages
         uses: actions/cache@v2.1.6
@@ -183,7 +183,7 @@ jobs:
           distribution: "adopt"
       - name: Start up PostgreSQL in Docker
         run: |
-          docker-compose up postgres
+          docker-compose up -d postgres
           docker ps -a
       - name: Cache Maven packages
         uses: actions/cache@v2.1.6
