@@ -54,7 +54,7 @@ jobs:
           docker-compose up -d postgres
           docker ps -a
       - name: Cache Maven packages
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -80,7 +80,7 @@ jobs:
           docker-compose up -d postgres
           docker ps -a
       - name: Cache Maven packages
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -106,7 +106,7 @@ jobs:
           docker-compose up -d postgres
           docker ps -a
       - name: Cache Maven packages
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -132,7 +132,7 @@ jobs:
 #           docker-compose up -d postgres
 #           docker ps -a
       - name: Cache Maven packages
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -158,7 +158,7 @@ jobs:
           docker-compose up -d postgres
           docker ps -a
       - name: Cache Maven packages
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -186,7 +186,7 @@ jobs:
           docker-compose up -d postgres
           docker ps -a
       - name: Cache Maven packages
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -211,7 +211,7 @@ jobs:
           distribution: "adopt"
 
       - name: Cache Maven packages
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
