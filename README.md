@@ -23,12 +23,12 @@ Compare to the Spring Data R2dbc 1.1, some breaking changes are notable.
 ## Sample Codes
 | Example | Description |
 |---|---|
-| [connection-factories](https://github.com/hantsy/spring-r2dbc-sample/tree/master/connection-factories)  | R2dbc driver's `ConnectionFactory` example for MySQL, H2, PostgreSQL, MSSQL, Oracle, etc|
-| [database-client](https://github.com/hantsy/spring-r2dbc-sample/tree/master/database-client) |  `DatabaseClient` example |
-| [data-r2dbc-entitytemplates](https://github.com/hantsy/spring-r2dbc-sample/tree/master/data-r2dbc-entitytemplate) |  Spring Data R2dbc specific `R2dbcEntityTemplate` example |
-| [data-r2dbc-repositories](https://github.com/hantsy/spring-r2dbc-sample/tree/master/data-r2dbc-repositories)  | Spring Data R2dbc generic `R2dbcRepository` interface example |
+| [connection-factories](https://github.com/hantsy/spring-r2dbc-sample/tree/master/connection-factories)  | R2dbc driver's `ConnectionFactory` examples for MySQL, H2, PostgreSQL, MSSQL, Oracle, etc|
+| [database-client](https://github.com/hantsy/spring-r2dbc-sample/tree/master/database-client) |  Spring R2dbc `DatabaseClient` example |
+| [data-r2dbc-entitytemplates](https://github.com/hantsy/spring-r2dbc-sample/tree/master/data-r2dbc-entitytemplate) |  Spring Data R2dbc  `R2dbcEntityTemplate` example |
+| [data-r2dbc-repositories](https://github.com/hantsy/spring-r2dbc-sample/tree/master/data-r2dbc-repositories)  | Spring Data R2dbc `R2dbcRepository` interface example |
 | [entitycallbacks](https://github.com/hantsy/spring-r2dbc-sample/tree/master/entitycallbacks)  | Spring Data R2dbc `BeforeConvertEntityCallback`, `AfterConvertEntityCallback`, etc. |
-| [testcontainers](https://github.com/hantsy/spring-r2dbc-sample/tree/master/testcontainers) | Spring Data R2dbc `@DataR2dbcTest` with TestContainers. |
+| [testcontainers](https://github.com/hantsy/spring-r2dbc-sample/tree/master/testcontainers) | Spring Data R2dbc `@DataR2dbcTest` with Testcontainers. |
 | [boot](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot) | Spring Boot example |
 | [auditing](https://github.com/hantsy/spring-r2dbc-sample/tree/master/auditing)  | Spring Data R2dbc Auditing example |
 
