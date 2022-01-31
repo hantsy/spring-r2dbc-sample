@@ -3,27 +3,40 @@ package com.example.demo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.MountableFile;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
+@Testcontainers
 @DataR2dbcTest()
 @Slf4j
-@Import(DataConfig.class)
-@ActiveProfiles("tc")
-@Disabled // see: https://github.com/testcontainers/testcontainers-java/discussions/4961
-public class PostRepositoryWithR2dbcSupportUrlTest {
+public class PostRepositoryWithTestcontainersAnnotationsAndDynamicPropertySourceTest {
+
+    @Container
+    static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer<>("postgres:12")
+            .withCopyFileToContainer(MountableFile.forClasspathResource("init.sql"), "/docker-entrypoint-initdb.d/init.sql");
+
+    @DynamicPropertySource
+    static void registerDynamicProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.r2dbc.url", () -> "r2dbc:postgresql://"
+                + postgreSQLContainer.getHost() + ":" + postgreSQLContainer.getFirstMappedPort()
+                + "/" + postgreSQLContainer.getDatabaseName());
+        registry.add("spring.r2dbc.username", () -> postgreSQLContainer.getUsername());
+        registry.add("spring.r2dbc.password", () -> postgreSQLContainer.getPassword());
+    }
 
     @Autowired
     R2dbcEntityTemplate template;
@@ -58,10 +71,6 @@ public class PostRepositoryWithR2dbcSupportUrlTest {
                 .consumeNextWith(p -> {
                             log.info("saved post: {}", p);
                             assertThat(p.getTitle()).isEqualTo("test title");
-                            assertNotNull(p.getCreatedAt());
-                            assertNotNull(p.getUpdatedAt());
-                            assertNull(p.getCreatedBy());
-                            assertNull(p.getUpdatedBy());
                         }
                 )
                 .verifyComplete();

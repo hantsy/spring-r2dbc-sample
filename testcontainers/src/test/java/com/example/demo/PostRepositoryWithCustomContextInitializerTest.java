@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataR2dbcTest()
 @Slf4j
-@ContextConfiguration(initializers = PostRepositoryWithDockerContainerInitializerTest.TestContainerInitializer.class)
-public class PostRepositoryWithDockerContainerInitializerTest {
+@ContextConfiguration(initializers = PostRepositoryWithCustomContextInitializerTest.TestContainerInitializer.class)
+public class PostRepositoryWithCustomContextInitializerTest {
 
     static class TestContainerInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
