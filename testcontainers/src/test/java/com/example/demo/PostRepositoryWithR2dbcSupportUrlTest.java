@@ -3,6 +3,7 @@ package com.example.demo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
@@ -21,7 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @Slf4j
 @Import(DataConfig.class)
 @ActiveProfiles("tc")
-public class PostRepositoryTest {
+@Disabled // see: https://github.com/testcontainers/testcontainers-java/discussions/4961
+public class PostRepositoryWithR2dbcSupportUrlTest {
 
     @Autowired
     R2dbcEntityTemplate template;
