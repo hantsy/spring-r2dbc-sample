@@ -31,6 +31,7 @@ Compare to the Spring Data R2dbc 1.1, some breaking changes are notable.
 | [testcontainers](https://github.com/hantsy/spring-r2dbc-sample/tree/master/testcontainers) | Spring Data R2dbc `@DataR2dbcTest` with Testcontainers. |
 | [boot](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot) | Spring Boot example |
 | [auditing](https://github.com/hantsy/spring-r2dbc-sample/tree/master/auditing)  | Spring Data R2dbc Auditing example |
+| [kotlin-co](https://github.com/hantsy/spring-r2dbc-sample/tree/master/kotlin-co)  | Kotlin Coroutines example |
 
 ## Reference
 
