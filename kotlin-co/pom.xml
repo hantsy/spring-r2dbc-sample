@@ -17,7 +17,7 @@
 		<java.version>17</java.version>
 		<kotlin.version>1.6.10</kotlin.version>
 		<kotlin-coroutines.version>1.6.0</kotlin-coroutines.version>
-		<testcontainers.version>1.16.2</testcontainers.version>
+		<testcontainers.version>1.16.3</testcontainers.version>
 	</properties>
 	<dependencies>
 		<dependency>
