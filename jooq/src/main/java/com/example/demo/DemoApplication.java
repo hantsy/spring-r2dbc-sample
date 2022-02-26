@@ -1,11 +1,13 @@
 package com.example.demo;
 
+import com.example.demo.jooq.tables.records.PostsTagsRecord;
 import io.r2dbc.spi.ConnectionFactory;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
+import org.jooq.Record1;
 import org.jooq.SQLDialect;
-import org.jooq.impl.DefaultCloseableDSLContext;
+import org.jooq.impl.DSL;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -18,16 +20,26 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
-import static com.example.demo.jooq.Tables.COMMENTS;
-import static com.example.demo.jooq.Tables.POSTS;
+import static com.example.demo.jooq.Tables.*;
 import static org.jooq.impl.DSL.multiset;
 import static org.jooq.impl.DSL.select;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import static org.springframework.web.reactive.function.server.ServerResponse.created;
+import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @SpringBootApplication
 @EnableR2dbcAuditing
@@ -44,7 +56,7 @@ class JooqConfig {
 
     @Bean
     DSLContext dslContext(ConnectionFactory connectionFactory) {
-        return new DefaultCloseableDSLContext(connectionFactory, SQLDialect.POSTGRES);
+        return DSL.using(connectionFactory, SQLDialect.POSTGRES);
     }
 }
 
@@ -84,6 +96,105 @@ class DataInitializer {
                         () -> log.debug("done")
                 );
     }
+}
+
+
+@Configuration
+class WebConfig {
+
+    @Bean
+    RouterFunction<ServerResponse> routerFunction(PostHandler handler) {
+        return route()
+                .GET("/posts", handler::getAll)
+                .POST("/posts", handler::create)
+                .build();
+    }
+}
+
+
+@Component
+@RequiredArgsConstructor
+class PostHandler {
+    private PostService postService;
+
+    public Mono<ServerResponse> getAll(ServerRequest req) {
+        return ok().body(this.postService.findAll(), PostSummary.class);
+    }
+
+    public Mono<ServerResponse> create(ServerRequest req) {
+        return req.bodyToMono(CreatePostCommand.class)
+                .flatMap(body -> this.postService.create(body))
+                .flatMap(id -> created(URI.create("/posts/" + id)).build());
+    }
+
+}
+
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+class PostService {
+    private final DSLContext dslContext;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final HashTagRepository tagRepository;
+    private final PostTagRelationRepository postTagRelRepository;
+
+
+    public Flux<PostSummary> findAll() {
+        var p = POSTS;
+        var pt = POSTS_TAGS;
+        var t = HASH_TAGS;
+        var sql = dslContext.select(
+                        p.ID,
+                        p.TITLE,
+                        multiset(select(t.NAME)
+                                .from(t)
+                                .where(t.ID.eq(pt.TAG_ID).and(pt.POST_ID.eq(p.ID)))
+                        ).as("tags")
+                )
+                .from(p)
+                .orderBy(p.CREATED_AT);
+        return Flux.from(sql)
+                .map(r -> new PostSummary(r.value1(), r.value2(), r.value3().map(Record1::value1)));
+    }
+
+    public Mono<UUID> create(CreatePostCommand data) {
+        var p = POSTS;
+        var pt = POSTS_TAGS;
+        var sqlInsertPost = dslContext.insertInto(p)
+                .columns(p.TITLE, p.CONTENT)
+                .values(data.title(), data.content())
+                .returningResult(p.ID);
+        return Mono.from(sqlInsertPost)
+                .flatMap(ir -> {
+                            Collection<?> tags = data.tagId().stream().map(tag -> {
+                                PostsTagsRecord r = pt.newRecord();
+                                r.setPostId(ir.value1());
+                                r.setTagId(tag);
+                                return r;
+                            }).toList();
+                            return Mono.from(dslContext.insertInto(pt)
+                                            .columns(pt.POST_ID, pt.TAG_ID)
+                                            .values(tags)
+                                    )
+                                    .map(r -> {
+                                        log.debug("insert tags:: {}", r);
+                                        return ir;
+                                    });
+                        }
+                )
+                .map(Record1::value1);
+    }
+}
+
+record CreatePostCommand(String title, String content, List<UUID> tagId) {
+}
+
+record PostSummary(UUID id, String title, List<String> tags) {
+}
+
+record TagDto(UUID id, String name) {
 }
 
 interface PostRepository extends R2dbcRepository<Post, UUID> {
