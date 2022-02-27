@@ -8,8 +8,6 @@ Compare to the Spring Data R2dbc 1.1, some breaking changes are notable.
 * The old DatabaseClient in Spring Data R2dbc 1.1 was split into two parts, a simple new `DatabaseClient` is part of Spring framework, as an alternative of Jdbc.
 * Another part of the old DatabaseClient is reorganized into a new class `R2dbcEntityTemplate` which acts as the role of `JdbcTemplate`.
 
-![build](https://github.com/hantsy/spring-r2dbc-sample/workflows/build/badge.svg)
-
 ## Notes
 
 * [Introduction to R2dbc](./docs/intro.md)
@@ -32,6 +30,7 @@ Compare to the Spring Data R2dbc 1.1, some breaking changes are notable.
 | [boot](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot) | Spring Boot example (with Postgres specific `Enum`, `Json`, `NOTIFY/LISTEN`, etc.)|
 | [auditing](https://github.com/hantsy/spring-r2dbc-sample/tree/master/auditing)  | Spring Data R2dbc Auditing example |
 | [kotlin-co](https://github.com/hantsy/spring-r2dbc-sample/tree/master/kotlin-co)  | Kotlin Coroutines example |
+| [jooq](https://github.com/hantsy/spring-r2dbc-sample/tree/master/jooq)  | R2dbc and JOOQ example |
 
 ## Reference
 
