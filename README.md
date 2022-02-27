@@ -41,3 +41,4 @@ Compare to the Spring Data R2dbc 1.1, some breaking changes are notable.
 * [Java & Postgres enums - How do I make them work together for update?](https://stackoverflow.com/questions/40356750/java-postgres-enums-how-do-i-make-them-work-together-for-update)
 * [How to delete an enum type value in postgres?](https://stackoverflow.com/questions/25811017/how-to-delete-an-enum-type-value-in-postgres)
 * [Create a type if not exist Postgresql](https://stackoverflow.com/questions/56647514/create-a-type-if-not-exist-postgresql)
+* [jOOQ#12218: Reactive transaction with Spring and R2dbc](https://github.com/jOOQ/jOOQ/issues/12218)
