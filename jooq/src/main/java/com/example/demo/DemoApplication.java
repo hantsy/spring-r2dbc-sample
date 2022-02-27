@@ -115,7 +115,7 @@ class WebConfig {
 @Component
 @RequiredArgsConstructor
 class PostHandler {
-    private PostService postService;
+    private final PostService postService;
 
     public Mono<ServerResponse> getAll(ServerRequest req) {
         return ok().body(this.postService.findAll(), PostSummary.class);
@@ -150,7 +150,8 @@ class PostService {
                         p.TITLE,
                         multiset(select(t.NAME)
                                 .from(t)
-                                .where(t.ID.eq(pt.TAG_ID).and(pt.POST_ID.eq(p.ID)))
+                                .join(pt).on(t.ID.eq(pt.TAG_ID))
+                                .where(pt.POST_ID.eq(p.ID))
                         ).as("tags")
                 )
                 .from(p)
