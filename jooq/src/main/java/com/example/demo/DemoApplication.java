@@ -167,10 +167,10 @@ class PostService {
                 .values(data.title(), data.content())
                 .returningResult(p.ID);
         return Mono.from(sqlInsertPost)
-                .flatMap(ir -> {
+                .flatMap(id -> {
                             Collection<?> tags = data.tagId().stream().map(tag -> {
                                 PostsTagsRecord r = pt.newRecord();
-                                r.setPostId(ir.value1());
+                                r.setPostId(id.value1());
                                 r.setTagId(tag);
                                 return r;
                             }).toList();
@@ -179,8 +179,8 @@ class PostService {
                                             .values(tags)
                                     )
                                     .map(r -> {
-                                        log.debug("insert tags:: {}", r);
-                                        return ir;
+                                        log.debug("inserted tags:: {}", r);
+                                        return id;
                                     });
                         }
                 )
@@ -303,7 +303,7 @@ class HashTag {
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(value = "post_tags")
+@Table(value = "posts_tags")
 class PostTagRelation {
 
     @Column("post_id")
