@@ -24,11 +24,7 @@ val kotlinCoVersion = project.properties["kotlinCoVersion"]
 val kotestVersion = project.properties["kotestVersion"]
 val mockkVersion = project.properties["mockkVersion"]
 val springmockkVersion = project.properties["springmockkVersion"]
-val springdocVersion = project.properties["springdocVersion"]
 val jooqVersion = project.properties["jooqVersion"]
-val r2dbcMigrateVersion = project.properties["r2dbcMigrateVersion"]
-val libphonenumberVersion = project.properties["libphonenumberVersion"]
-val fusionauthJavaClientVersoin = project.properties["fusionauthJavaClientVersoin"]
 
 dependencies {
 
