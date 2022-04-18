@@ -32,7 +32,12 @@ class R2dbcConfig {
     @Bean
     public R2dbcCustomConversions r2dbcCustomConversions(ConnectionFactory connectionFactory, ObjectMapper objectMapper) {
         var dialect = DialectResolver.getDialect(connectionFactory);
-        var converters = List.of(new MapToJsonConverter(objectMapper), new JsonToMapConverter(objectMapper));
+        var converters = List.of(
+                new MapToJsonConverter(objectMapper),
+                new JsonToMapConverter(objectMapper),
+                new AuthorReadConverter(),
+                new AuthorWriteConverter()
+        );
         return R2dbcCustomConversions.of(dialect, converters);
     }
 

@@ -24,13 +24,14 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Testcontainers
 @DataR2dbcTest()
 @Slf4j
-public class BookRepositoryTest {
+public class RepositoryTest {
     @Container
     static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer<>("postgres:12");
     //.withCopyFileToContainer(MountableFile.forClasspathResource("init.sql"), "/docker-entrypoint-initdb.d/init.sql");
@@ -57,12 +58,16 @@ public class BookRepositoryTest {
     @Autowired
     BookRepository books;
 
+    @Autowired
+    AuthorRepository authors;
+
     @SneakyThrows
     @BeforeEach
     public void setup() {
         var latch = new CountDownLatch(1);
 
         this.template.delete(Book.class).all()
+                .flatMap(__ -> this.template.delete(Author.class).all())
                 .doOnTerminate(latch::countDown)
                 .subscribe(data -> log.debug("delete books."));
 
@@ -80,7 +85,7 @@ public class BookRepositoryTest {
     }
 
     @Test
-    public void testInsertAndQuery() {
+    public void testBookInsertAndQuery() {
         var entity = Book.builder()
                 .title("test title")
                 .description("content of test")
@@ -97,9 +102,32 @@ public class BookRepositoryTest {
                 .as(StepVerifier::create)
                 .consumeNextWith(p -> {
                     assertEquals("test title", p.getTitle());
+                    assertThat(p.getTags()).containsExactlyInAnyOrderElementsOf(List.of("Spring", "R2dbc"));
+                    assertThat(p.getMetadata()).isEqualTo(Map.of("test", "test"));
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    public void testAuthorInsertAndQuery() {
+        var author = new Author(
+                null,
+                "Hantsy",
+                "Bai",
+                new Address("No.1 X Street", "210002", "GZ")
+        );
+        var savedAuthor = template.insert(author)
+                .then()
+                .thenMany(this.authors.findByLastName("Bai"))
+                .log()
+                .as(StepVerifier::create)
+                .consumeNextWith(p-> {
+                    assertThat(p.getName()).isEqualTo("Hantsy Bai");
+                    assertThat(p.getFullName()).isEqualTo("Hantsy Bai");
+                    assertThat(p.getSalutation("Mr.")).isEqualTo("Mr. Hantsy");
+                })
+                .verifyComplete();
     }
 
 }
