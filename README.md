@@ -32,7 +32,7 @@ Compare to the Spring Data R2dbc 1.1, some breaking changes are notable.
 | [kotlin-co](https://github.com/hantsy/spring-r2dbc-sample/tree/master/kotlin-co)  | Kotlin Coroutines example |
 | [jooq](https://github.com/hantsy/spring-r2dbc-sample/tree/master/jooq)  | R2dbc and JOOQ example |
 | [jooq-kotlin-co-gradle](https://github.com/hantsy/spring-r2dbc-sample/tree/master/jooq-kotlin-co-gradle)  | R2dbc/JOOQ/Kotlin Coroutines and Gradle generator config example |
-| [bookstore](https://github.com/hantsy/spring-r2dbc-sample/tree/master/bookstore)  | **(WIP)** An example to track the associations support of Spring Data  R2dbc example |
+| [bookstore](https://github.com/hantsy/spring-r2dbc-sample/tree/master/bookstore)  | **(WIP)** An example to track the associations support of Spring Data  R2dbc |
 
 ## Reference
 
