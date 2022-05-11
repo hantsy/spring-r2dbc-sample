@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -56,6 +57,23 @@ public class PostRepositoryTest {
                     assertEquals("test title", p.getTitle());
                     assertNotNull(p.getCreatedAt());
                     assertNotNull(p.getUpdatedAt());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void testInsertAndCount() {
+        this.template.insert(Post.builder().title("test title").content("content of test").build())
+                .log()
+                .then()
+                .then(
+                        this.posts.countByTitleContaining("test")
+                )
+                .log()
+                .as(StepVerifier::create)
+                .consumeNextWith(p -> {
+                    assertThat(p).isEqualTo(1);
                 })
                 .verifyComplete();
 

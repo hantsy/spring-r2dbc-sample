@@ -428,6 +428,8 @@ interface PostRepository extends R2dbcRepository<Post, UUID> {
     @Query("SELECT * FROM posts where title like :title")
     public Flux<Post> findByTitleContains(String title);
 
+    public Mono<Long> countByTitleContaining(String title);
+
     public Flux<PostSummary> findByTitleLike(String title, Pageable pageable);
 }
 

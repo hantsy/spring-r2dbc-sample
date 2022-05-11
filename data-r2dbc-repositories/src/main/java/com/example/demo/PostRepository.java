@@ -16,5 +16,6 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 
 public interface PostRepository extends R2dbcRepository<Post, UUID> {
     public Flux<Post> findByTitleContains(String name);
+    public Mono<Long> countByTitleContains(String name);
 
 }

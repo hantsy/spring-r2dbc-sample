@@ -26,8 +26,17 @@ public class PostRepository {
                 .all();
     }
 
+    public Mono<Long> countByTitleContains(String name) {
+        return this.template.count(Query.query(where("title").like("%" + name + "%")), Post.class);
+    }
+
+
     public Flux<Post> findAll() {
         return this.template.select(Post.class).all();
+    }
+
+    public Mono<Long> count() {
+        return this.template.count(Query.empty(), Post.class);
     }
 
     public Mono<Post> findById(UUID id) {
