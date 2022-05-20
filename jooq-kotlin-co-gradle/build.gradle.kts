@@ -4,7 +4,7 @@ import nu.studer.gradle.jooq.JooqGenerate
 import org.jooq.meta.jaxb.Property
 
 plugins {
-	id("org.springframework.boot") version "2.6.7"
+	id("org.springframework.boot") version "2.7.0"
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
 	kotlin("jvm") version "1.6.21"
 	kotlin("plugin.spring") version "1.6.21"
@@ -40,7 +40,7 @@ dependencies {
 
 	//r2dbc and spring data r2dbc
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
-	runtimeOnly("io.r2dbc:r2dbc-postgresql")
+	runtimeOnly("org.postgresql:r2dbc-postgresql")
 
 	//jooq
 	implementation("org.jooq:jooq:${jooqVersion}")
