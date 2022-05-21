@@ -45,10 +45,11 @@
             <artifactId>r2dbc-postgresql</artifactId>
         </dependency>
         <!-- The r2dbc-mysql is not updated to R2dbc 0.9 yet -->
-        <!--<dependency>
+        <dependency>
             <groupId>dev.miku</groupId>
             <artifactId>r2dbc-mysql</artifactId>
-        </dependency>--> 
+            <version>0.8.2.RELEASE</version>
+        </dependency>
         <dependency>
             <groupId>org.mariadb</groupId>
             <artifactId>r2dbc-mariadb</artifactId>
