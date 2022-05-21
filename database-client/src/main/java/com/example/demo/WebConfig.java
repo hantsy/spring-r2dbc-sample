@@ -31,13 +31,13 @@ public class WebConfig implements WebFluxConfigurer {
     }
 
     @Bean
-    public RouterFunction<ServerResponse> routes(PostHandler postController) {
+    public RouterFunction<ServerResponse> routes(PostHandler handler) {
         return route()
-                .GET("/posts", postController::all)
-                .POST("/posts", postController::create)
-                .GET("/posts/{id}", postController::get)
-                .PUT("/posts/{id}", postController::update)
-                .DELETE("/posts/{id}", postController::delete)
+                .GET("/posts", handler::all)
+                .POST("/posts", handler::create)
+                .GET("/posts/{id}", handler::get)
+                .PUT("/posts/{id}", handler::update)
+                .DELETE("/posts/{id}", handler::delete)
                 .build();
     }
 }

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -84,14 +85,25 @@ public class PostRepository {
     // see: https://github.com/spring-projects/spring-data-r2dbc/issues/259
     // and https://stackoverflow.com/questions/62514094/how-to-execute-multiple-inserts-in-batch-in-r2dbc
     public Flux<UUID> saveAll(List<Post> data) {
+        Assert.notEmpty(data, "saving data can be empty");
         return this.databaseClient.inConnectionMany(connection -> {
 
             var statement = connection.createStatement("INSERT INTO  posts (title, content, status) VALUES ($1, $2, $3)")
                     .returnGeneratedValues("id");
 
-            for (var p : data) {
-                statement.bind(0, p.getTitle()).bind(1, p.getContent()).bind(2, p.getStatus()).add();
+            for (int i = 0; i < data.size() - 1; i++) {
+                Post p = data.get(i);
+                statement.bind(0, p.getTitle())
+                        .bind(1, p.getContent())
+                        .bind(2, p.getStatus())
+                        .add();
             }
+
+            // for the last item, do not call `add`
+            var lastItem = data.get(data.size() - 1);
+            statement.bind(0, lastItem.getTitle())
+                    .bind(1, lastItem.getContent())
+                    .bind(2, lastItem.getStatus());
 
             return Flux.from(statement.execute()).flatMap(result -> result.map((row, rowMetadata) -> row.get("id", UUID.class)));
         });

@@ -43,7 +43,6 @@ public class DatabaseConfig {
 //        return H2ConnectionFactory.inMemory("testdb");
 
 
-
         // postgres
         return new PostgresqlConnectionFactory(
                 PostgresqlConnectionConfiguration.builder()
