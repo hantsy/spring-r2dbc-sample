@@ -37,10 +37,6 @@
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
-            <artifactId>r2dbc-h2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
             <artifactId>r2dbc-postgresql</artifactId>
         </dependency>
         <dependency>
