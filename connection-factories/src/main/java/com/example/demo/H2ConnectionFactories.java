@@ -2,7 +2,6 @@ package com.example.demo;
 
 import io.r2dbc.h2.H2ConnectionConfiguration;
 import io.r2dbc.h2.H2ConnectionFactory;
-import io.r2dbc.h2.H2ConnectionOption;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 

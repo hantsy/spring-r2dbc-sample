@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <name>demo</name>
-    <description>DatabaseClient Sample</description>
+    <description>R2dbc ConnectionFactory Sample</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
