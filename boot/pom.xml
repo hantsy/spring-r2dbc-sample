@@ -37,6 +37,11 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- see: https://github.com/spring-projects/spring-data-r2dbc/issues/451 -->
         <!--dependency>
             <groupId>org.springframework.data</groupId>
