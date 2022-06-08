@@ -17,9 +17,11 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Version
+import org.springframework.data.r2dbc.config.EnableR2dbcAuditing
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
+import org.springframework.data.repository.kotlin.CoroutineSortingRepository
 import org.springframework.r2dbc.connection.TransactionAwareConnectionFactoryProxy
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.*
@@ -36,6 +38,10 @@ class DemoApplication
 fun main(args: Array<String>) {
     runApplication<DemoApplication>(*args)
 }
+
+@Configuration
+@EnableR2dbcAuditing
+class R2dbcConfig {}
 
 @Configuration
 class JooqConfig {
@@ -113,6 +119,8 @@ class PostHandler(val posts: PostRepository) {
 interface PostRepository : CoroutineCrudRepository<Post, UUID>, CustomPostRepository {
     fun findByStatus(status: Status): Flow<Post>
 }
+
+interface CommentRepository : CoroutineSortingRepository<Comment, UUID>
 
 interface CustomPostRepository {
     fun findByTitleContains(title: String): Flow<PostSummary>
