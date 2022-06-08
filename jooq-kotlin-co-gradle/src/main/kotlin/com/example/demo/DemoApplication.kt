@@ -126,7 +126,7 @@ interface CustomPostRepository {
     fun findByTitleContains(title: String): Flow<PostSummary>
 }
 
-class PostRepositoryImpl(val dslContext: DSLContext) : CustomPostRepository {
+class PostRepositoryImpl(private val dslContext: DSLContext) : CustomPostRepository {
     override fun findByTitleContains(title: String): Flow<PostSummary> {
         val sql = dslContext
             .select(
