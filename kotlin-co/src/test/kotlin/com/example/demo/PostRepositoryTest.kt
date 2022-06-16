@@ -3,10 +3,8 @@ package com.example.demo
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -34,7 +32,7 @@ class PostRepositoryTest {
 
         @Container
         private val postgreSQLContainer: PostgreSQLContainer<*> = PostgreSQLContainer<Nothing>("postgres:12")
-            .withCopyFileToContainer(
+            .withCopyToContainer(
                 MountableFile.forClasspathResource("init.sql"),
                 "/docker-entrypoint-initdb.d/init.sql"
             )
@@ -43,9 +41,7 @@ class PostRepositoryTest {
         @JvmStatic
         fun registerDynamicProperties(registry: DynamicPropertyRegistry) {
             registry.add("spring.r2dbc.url") {
-                ("r2dbc:postgresql://"
-                        + postgreSQLContainer.host + ":" + postgreSQLContainer.firstMappedPort
-                        + "/" + postgreSQLContainer.databaseName)
+                "r2dbc:postgresql://${postgreSQLContainer.host}:${postgreSQLContainer.firstMappedPort}/${postgreSQLContainer.databaseName}"
             }
             registry.add("spring.r2dbc.username") { postgreSQLContainer.username }
             registry.add("spring.r2dbc.password") { postgreSQLContainer.password }
@@ -64,7 +60,7 @@ class PostRepositoryTest {
     @BeforeEach
     fun setup() = runTest {
         val deleted = template.delete(Post::class.java).all().awaitSingle()
-        log.debug("clean todo list before tests: $deleted")
+        log.debug("clean posts list before tests: $deleted")
     }
 
     @Test
@@ -119,5 +115,20 @@ class PostRepositoryTest {
         // find by status PUBLISHED should contain results
         publishedPosts.count() shouldBeEqualComparingTo 1
         publishedPosts.toList()[0].status shouldBe Status.PUBLISHED
+    }
+
+    @Test
+    fun pagination() = runTest {
+        val data = (1..15).map { Post(title = "test title $it", content = "test content", status = Status.PUBLISHED) }
+        posts.saveAll(data).onEach { log.debug("saved post: $it") }.collect()
+
+        // get first page
+        val page1 = posts.findAll().drop(0).take(10).toList()
+        page1.size shouldBeEqualComparingTo 10
+
+        // get second page
+        val page2 = posts.findAll().drop(10).take(10).toList()
+        page2.size shouldBeEqualComparingTo 5
+
     }
 }
