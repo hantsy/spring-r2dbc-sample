@@ -86,18 +86,24 @@ class PostRepositoryTest {
         val data = Post(title = "test title", content = "test content")
         val saved = posts.save(data)
         log.debug("saved post: $saved")
+        saved.createdAt shouldNotBe null
 //        val dataWithId = Post(id = UUID.randomUUID(), title = "test title", content = "test content")
 //        val savedWithId = posts.save(dataWithId)
 //        log.debug("saved post with id: $savedWithId")
+//        savedWithId.createdAt shouldNotBe null
 
 
         val data1 = Post(title = "test title", content = "test content")
         val saved1 = template.insert(data1).awaitSingle()
         log.debug("inserted post: $saved1")
+        saved1.createdAt shouldNotBe null
+
         val dataWithId1 = Post(id = UUID.randomUUID(), title = "test title", content = "test content")
         val savedWithId1 = template.insert(dataWithId1).awaitSingle()
         log.debug("inserted post with id: $savedWithId1")
+        savedWithId1.createdAt shouldNotBe null
     }
+
     @Test
     fun testInsertAndQuery() = runTest {
         val data = Post(title = "test title", content = "test content")
