@@ -1,14 +1,15 @@
 package com.example.demo
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.annotation.Version
+import org.springframework.data.r2dbc.config.EnableR2dbcAuditing
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
@@ -25,6 +26,12 @@ class DemoApplication
 
 fun main(args: Array<String>) {
     runApplication<DemoApplication>(*args)
+}
+
+@Configuration
+@EnableR2dbcAuditing
+class DataConfig {
+
 }
 
 @Configuration
@@ -115,9 +122,13 @@ data class Post(
     @CreatedDate
     val createdAt: LocalDateTime? = null,
 
-    @Column("version")
-    @Version
-    val version: Long? = null,
+    @Column("updated_at")
+    @LastModifiedDate
+    val updatedAt: LocalDateTime? = null,
+
+//    @Column("version")
+//    @Version
+//    val version: Long? = null,
 )
 
 enum class Status {

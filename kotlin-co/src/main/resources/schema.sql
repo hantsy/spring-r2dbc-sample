@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS posts (
     content VARCHAR(255),
     status VARCHAR(255) default 'DRAFT',
     cupsofcoffee NUMERIC[],
-    created_at TIMESTAMP , --NOT NULL DEFAULT LOCALTIMESTAMP,
+    created_at TIMESTAMP ,
+    updated_at TIMESTAMP, --NOT NULL DEFAULT LOCALTIMESTAMP,
     version INTEGER,
     PRIMARY KEY (id)
 );

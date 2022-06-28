@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest
+import org.springframework.context.annotation.Import
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -22,10 +23,12 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.MountableFile
+import java.util.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @DataR2dbcTest
 @Testcontainers
+@Import(DataConfig::class)
 class PostRepositoryTest {
     companion object {
         private val log = LoggerFactory.getLogger(PostRepositoryTest::class.java)
@@ -78,6 +81,23 @@ class PostRepositoryTest {
         assertNotNull(posts)
     }
 
+    @Test
+    fun testInsertAndSave() = runTest {
+        val data = Post(title = "test title", content = "test content")
+        val saved = posts.save(data)
+        log.debug("saved post: $saved")
+//        val dataWithId = Post(id = UUID.randomUUID(), title = "test title", content = "test content")
+//        val savedWithId = posts.save(dataWithId)
+//        log.debug("saved post with id: $savedWithId")
+
+
+        val data1 = Post(title = "test title", content = "test content")
+        val saved1 = template.insert(data1).awaitSingle()
+        log.debug("inserted post: $saved1")
+        val dataWithId1 = Post(id = UUID.randomUUID(), title = "test title", content = "test content")
+        val savedWithId1 = template.insert(dataWithId1).awaitSingle()
+        log.debug("inserted post with id: $savedWithId1")
+    }
     @Test
     fun testInsertAndQuery() = runTest {
         val data = Post(title = "test title", content = "test content")
