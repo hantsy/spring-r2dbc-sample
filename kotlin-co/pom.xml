@@ -107,12 +107,12 @@
 		<dependency>
 			<groupId>io.kotest</groupId>
 			<artifactId>kotest-assertions-core-jvm</artifactId>
-			<version>5.4.0</version>
+			<version>5.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.mockk</groupId>
 			<artifactId>mockk</artifactId>
-			<version>1.12.4</version>
+			<version>1.12.5</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
