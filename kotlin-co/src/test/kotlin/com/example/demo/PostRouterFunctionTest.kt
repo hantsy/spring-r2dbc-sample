@@ -3,7 +3,9 @@ package com.example.demo
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import io.mockk.coVerify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,6 +15,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.server.RouterFunction
 import java.util.*
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @SpringBootTest
 //@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 class PostRouterFunctionTest {
@@ -32,7 +35,7 @@ class PostRouterFunctionTest {
     }
 
     @Test
-    fun `get all posts`() {
+    fun `get all posts`() = runTest {
         coEvery { posts.findAll() } returns flowOf(
             Post(
                 id = UUID.randomUUID(),
@@ -51,7 +54,7 @@ class PostRouterFunctionTest {
     }
 
     @Test
-    fun `get single post by id`() {
+    fun `get single post by id`() = runTest {
         coEvery { posts.findById(any<UUID>()) } returns
                 Post(
                     id = UUID.randomUUID(),
@@ -70,7 +73,7 @@ class PostRouterFunctionTest {
     }
 
     @Test
-    fun `get single post by non-existing id`() {
+    fun `get single post by non-existing id`() = runTest {
         coEvery { posts.findById(any<UUID>()) } returns null
 
         val id = UUID.randomUUID()
@@ -83,7 +86,7 @@ class PostRouterFunctionTest {
     }
 
     @Test
-    fun `create a post`() {
+    fun `create a post`() = runTest {
         val id = UUID.randomUUID()
         coEvery { posts.save(any<Post>()) } returns
                 Post(
@@ -93,7 +96,8 @@ class PostRouterFunctionTest {
                 )
 
         client.post()
-            .uri("/posts").contentType(MediaType.APPLICATION_JSON).bodyValue(Post(title="update title", content = "update content"))
+            .uri("/posts").contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(Post(title = "update title", content = "update content"))
             .exchange()
             .expectStatus().isCreated
             .expectHeader().location("/posts/$id")
@@ -103,7 +107,7 @@ class PostRouterFunctionTest {
     }
 
     @Test
-    fun `update a post`() {
+    fun `update a post`() = runTest {
         val id = UUID.randomUUID()
         coEvery { posts.findById(any<UUID>()) } returns
                 Post(
@@ -119,7 +123,8 @@ class PostRouterFunctionTest {
                 )
 
         client.put()
-            .uri("/posts/$id").contentType(MediaType.APPLICATION_JSON).bodyValue(Post(title="test title", content = "test content"))
+            .uri("/posts/$id").contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(Post(title = "test title", content = "test content"))
             .exchange()
             .expectStatus().isNoContent
         coVerify(exactly = 1) { posts.findById(id) }
@@ -127,7 +132,7 @@ class PostRouterFunctionTest {
     }
 
     @Test
-    fun `delete a post`() {
+    fun `delete a post`() = runTest {
         val id = UUID.randomUUID()
         coEvery { posts.deleteById(any<UUID>()) } returns Unit
 
