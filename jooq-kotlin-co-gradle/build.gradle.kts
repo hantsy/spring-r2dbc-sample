@@ -69,7 +69,7 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core-jvm:${kotestVersion}")
 
     // mockk: mocking framework for Kotlin
-    testImplementation("io.mockk:mockk:${mockkVersion}")
+    testImplementation("io.mockk:mockk-jvm:${mockkVersion}")
 
     // mockk spring integration
     testImplementation("com.ninja-squad:springmockk:${springmockkVersion}")
