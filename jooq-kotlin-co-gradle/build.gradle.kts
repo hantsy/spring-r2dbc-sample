@@ -5,7 +5,7 @@ import org.jooq.meta.jaxb.Property
 
 plugins {
     id("org.springframework.boot") version "2.7.3"
-    id("io.spring.dependency-management") version "1.0.13.RELEASE"
+    id("io.spring.dependency-management") version "1.0.14.RELEASE"
     kotlin("jvm") version "1.7.10"
     kotlin("plugin.spring") version "1.7.10"
     id("nu.studer.jooq") version "7.1.1"
@@ -46,7 +46,7 @@ dependencies {
     implementation("org.jooq:jooq:${jooqVersion}")
     implementation("org.jooq:jooq-kotlin:${jooqVersion}")
     // workaround of issue: https://github.com/etiennestuder/gradle-jooq-plugin/issues/209
-    jooqGenerator("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
+    jooqGenerator("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
     jooqGenerator("org.jooq:jooq-meta-extensions:${jooqVersion}")
     // workaround of array type codegen, see: https://github.com/jOOQ/jOOQ/issues/13322
     jooqGenerator("com.h2database:h2:2.1.214")
@@ -69,7 +69,7 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core-jvm:${kotestVersion}")
 
     // mockk: mocking framework for Kotlin
-    testImplementation("io.mockk:mockk:${mockkVersion}")
+    testImplementation("io.mockk:mockk-jvm:${mockkVersion}")
 
     // mockk spring integration
     testImplementation("com.ninja-squad:springmockk:${springmockkVersion}")

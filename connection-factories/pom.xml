@@ -28,7 +28,7 @@
             <dependency>
                 <groupId>io.r2dbc</groupId>
                 <artifactId>r2dbc-bom</artifactId>
-                <version>Borca-SR1</version>
+                <version>Borca-SR2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
