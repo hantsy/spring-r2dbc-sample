@@ -72,7 +72,9 @@ dependencies {
     testImplementation("io.mockk:mockk-jvm:${mockkVersion}")
 
     // mockk spring integration
-    testImplementation("com.ninja-squad:springmockk:${springmockkVersion}")
+    testImplementation("com.ninja-squad:springmockk:${springmockkVersion}"){
+        exclude(module = "mockk")
+    }
 }
 
 dependencyManagement {

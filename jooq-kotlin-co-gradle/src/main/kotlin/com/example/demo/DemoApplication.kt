@@ -164,6 +164,9 @@ data class Post(
     @Column("content")
     var content: String? = null,
 
+    @Column("tags")
+    var tags: List<String>? = emptyList(),
+
     @Column("status")
     var status: Status? = Status.DRAFT,
 

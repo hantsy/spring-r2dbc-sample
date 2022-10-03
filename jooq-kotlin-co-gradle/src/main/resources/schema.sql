@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS posts (
     title VARCHAR(255),
     content VARCHAR(255),
     status VARCHAR(255) default 'DRAFT',
-    cups_of_coffee NUMERIC[],
+    tags VARCHAR(255)[],
     created_at TIMESTAMP,
     version INTEGER,
     PRIMARY KEY (id)
