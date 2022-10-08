@@ -111,13 +111,16 @@ class PostRepositoriesTest {
             .onEach { log.info("querySQL result: $it") }
             .collect()
 
-        var posts = postRepository.findByTitleContains("test").toList()
+        val posts = postRepository.findByKeyword("test").toList()
         posts shouldNotBe null
         posts.size shouldBe 1
         posts[0].commentsCount shouldBe 2
+
+        postRepository.countByKeyword("test") shouldBe 1
     }
 
     @Test
+    //see: https://github.com/jOOQ/jOOQ/issues/14047o
     fun `test PostgresDSL arrayLength function`() = runTest {
         val list = listOf(
             Post(
@@ -154,7 +157,7 @@ class PostRepositoriesTest {
             .from(
                 dslContext.selectFrom(POSTS)
                     .where(DSL.cardinality(POSTS.TAGS).eq(0))
-                    //.where(POSTS.TAGS.isNull)
+                //.where(POSTS.TAGS.isNull)
             )
             .asFlow()
             .map {

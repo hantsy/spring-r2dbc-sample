@@ -5,8 +5,10 @@ import com.example.demo.jooq.tables.references.POSTS
 import io.r2dbc.spi.ConnectionFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitSingle
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
+import org.jooq.impl.DSL
 import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.using
 import org.jooq.impl.SQLDataType
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.*
 import org.springframework.web.reactive.function.server.ServerResponse.*
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.net.URI
 import java.time.LocalDateTime
 import java.util.*
@@ -72,7 +75,7 @@ class PostHandler(val posts: PostRepository) {
     suspend fun all(req: ServerRequest): ServerResponse {
         //val data = posts.findAll()
         val title = req.queryParamOrNull("title") ?: ""
-        val data = posts.findByTitleContains(title)
+        val data = posts.findByKeyword(title)
         return ok().bodyAndAwait(data)
     }
 
@@ -105,6 +108,7 @@ class PostHandler(val posts: PostRepository) {
                 posts.save(found)
                 return noContent().buildAndAwait()
             }
+
             else -> notFound().buildAndAwait()
         }
     }
@@ -116,18 +120,19 @@ class PostHandler(val posts: PostRepository) {
     }
 }
 
-interface PostRepository : CoroutineCrudRepository<Post, UUID>, CustomPostRepository {
+interface PostRepository : CoroutineCrudRepository<Post, UUID>, PostRepositoryCustom {
     fun findByStatus(status: Status): Flow<Post>
 }
 
 interface CommentRepository : CoroutineSortingRepository<Comment, UUID>
 
-interface CustomPostRepository {
-    fun findByTitleContains(title: String): Flow<PostSummary>
+interface PostRepositoryCustom {
+    fun findByKeyword(title: String): Flow<PostSummary>
+    suspend fun countByKeyword(title: String): Long
 }
 
-class PostRepositoryImpl(private val dslContext: DSLContext) : CustomPostRepository {
-    override fun findByTitleContains(title: String): Flow<PostSummary> {
+class PostRepositoryImpl(private val dslContext: DSLContext) : PostRepositoryCustom {
+    override fun findByKeyword(title: String): Flow<PostSummary> {
         val sql = dslContext
             .select(
                 POSTS.ID,
@@ -139,13 +144,32 @@ class PostRepositoryImpl(private val dslContext: DSLContext) : CustomPostReposit
                     .leftJoin(COMMENTS.`as`("comments"))
                     .on(COMMENTS.POST_ID.eq(POSTS.ID))
             )
-            .where(POSTS.TITLE.like("%$title%"))
+            .where(POSTS.TITLE.like("%$title%")
+                .and(POSTS.CONTENT.like("%$title%"))
+                .and(COMMENTS.CONTENT.like("%$title%"))
+            )
             .groupBy(POSTS.ID)
 
 
         return Flux.from(sql)
             .map { r -> PostSummary(r.value1(), r.value2(), r.value3()) }
             .asFlow();
+    }
+
+    override suspend fun countByKeyword(title: String): Long {
+        val sql = dslContext
+            .select(
+                DSL.field("count(distinct(posts.id))", SQLDataType.BIGINT))
+            .from(
+                POSTS
+                    .leftJoin(COMMENTS.`as`("comments"))
+                    .on(COMMENTS.POST_ID.eq(POSTS.ID))
+            )
+            .where(POSTS.TITLE.like("%$title%")
+                .and(POSTS.CONTENT.like("%$title%"))
+                .and(COMMENTS.CONTENT.like("%$title%"))
+            )
+        return Mono.from(sql).map{ it.value1()?:0}.awaitSingle()
     }
 
 }

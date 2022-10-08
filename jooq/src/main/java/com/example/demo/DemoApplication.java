@@ -123,7 +123,7 @@ class PostHandler {
 
     public Mono<ServerResponse> create(ServerRequest req) {
         return req.bodyToMono(CreatePostCommand.class)
-                .flatMap(body -> this.postService.create(body))
+                .flatMap(this.postService::create)
                 .flatMap(id -> created(URI.create("/posts/" + id)).build());
     }
 
