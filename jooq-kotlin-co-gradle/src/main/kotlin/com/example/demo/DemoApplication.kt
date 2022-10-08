@@ -13,6 +13,7 @@ import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.using
 import org.jooq.impl.SQLDataType
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.jooq.JooqAutoConfiguration
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -35,7 +36,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 
-@SpringBootApplication
+@SpringBootApplication(exclude = [JooqAutoConfiguration::class])
 class DemoApplication
 
 fun main(args: Array<String>) {
@@ -144,9 +145,10 @@ class PostRepositoryImpl(private val dslContext: DSLContext) : PostRepositoryCus
                     .leftJoin(COMMENTS.`as`("comments"))
                     .on(COMMENTS.POST_ID.eq(POSTS.ID))
             )
-            .where(POSTS.TITLE.like("%$title%")
-                .and(POSTS.CONTENT.like("%$title%"))
-                .and(COMMENTS.CONTENT.like("%$title%"))
+            .where(
+                POSTS.TITLE.like("%$title%")
+                    .and(POSTS.CONTENT.like("%$title%"))
+                    .and(COMMENTS.CONTENT.like("%$title%"))
             )
             .groupBy(POSTS.ID)
 
@@ -159,17 +161,19 @@ class PostRepositoryImpl(private val dslContext: DSLContext) : PostRepositoryCus
     override suspend fun countByKeyword(title: String): Long {
         val sql = dslContext
             .select(
-                DSL.field("count(distinct(posts.id))", SQLDataType.BIGINT))
+                DSL.field("count(distinct(posts.id))", SQLDataType.BIGINT)
+            )
             .from(
                 POSTS
                     .leftJoin(COMMENTS.`as`("comments"))
                     .on(COMMENTS.POST_ID.eq(POSTS.ID))
             )
-            .where(POSTS.TITLE.like("%$title%")
-                .and(POSTS.CONTENT.like("%$title%"))
-                .and(COMMENTS.CONTENT.like("%$title%"))
+            .where(
+                POSTS.TITLE.like("%$title%")
+                    .and(POSTS.CONTENT.like("%$title%"))
+                    .and(COMMENTS.CONTENT.like("%$title%"))
             )
-        return Mono.from(sql).map{ it.value1()?:0}.awaitSingle()
+        return Mono.from(sql).map { it.value1() ?: 0 }.awaitSingle()
     }
 
 }
