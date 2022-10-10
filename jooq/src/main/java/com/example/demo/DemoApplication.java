@@ -8,8 +8,10 @@ import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jooq.JooqAutoConfiguration;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.r2dbc.connection.TransactionAwareConnectionFactoryProxy;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -41,7 +44,7 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 import static org.springframework.web.reactive.function.server.ServerResponse.created;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {JooqAutoConfiguration.class})
 @EnableR2dbcAuditing
 public class DemoApplication {
 
@@ -56,7 +59,10 @@ class JooqConfig {
 
     @Bean
     DSLContext dslContext(ConnectionFactory connectionFactory) {
-        return DSL.using(connectionFactory, SQLDialect.POSTGRES);
+        return DSL.using(
+                new TransactionAwareConnectionFactoryProxy(connectionFactory),
+                SQLDialect.POSTGRES
+        );
     }
 }
 
@@ -145,19 +151,22 @@ class PostService {
         var p = POSTS;
         var pt = POSTS_TAGS;
         var t = HASH_TAGS;
+        var c = COMMENTS;
         var sql = dslContext.select(
                         p.ID,
                         p.TITLE,
+                        DSL.field("count(comments.id)", SQLDataType.BIGINT),
                         multiset(select(t.NAME)
                                 .from(t)
                                 .join(pt).on(t.ID.eq(pt.TAG_ID))
                                 .where(pt.POST_ID.eq(p.ID))
                         ).as("tags")
                 )
-                .from(p)
+                .from(p.leftJoin(c).on(c.POST_ID.eq(p.ID)))
+                .groupBy(p.ID)
                 .orderBy(p.CREATED_AT);
         return Flux.from(sql)
-                .map(r -> new PostSummary(r.value1(), r.value2(), r.value3().map(Record1::value1)));
+                .map(r -> new PostSummary(r.value1(), r.value2(), r.value3(), r.value4().map(Record1::value1)));
     }
 
     public Mono<UUID> create(CreatePostCommand data) {
@@ -192,7 +201,7 @@ class PostService {
 record CreatePostCommand(String title, String content, List<UUID> tagId) {
 }
 
-record PostSummary(UUID id, String title, List<String> tags) {
+record PostSummary(UUID id, String title, Long countOfComments, List<String> tags) {
 }
 
 record TagDto(UUID id, String name) {
