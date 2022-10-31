@@ -88,7 +88,9 @@ class PostRepositoryTest {
         log.debug("saved post: $saved")
         saved.createdAt shouldNotBe null
 
-        val dataWithId = Post(id = UUID.randomUUID(), title = "test title", content = "test content")
+        val id = UUID.randomUUID()
+        log.debug("id will be assigned: $id")
+        val dataWithId = Post(id = id, title = "test title", content = "test content")
         val savedWithId = posts.save(dataWithId)
         log.debug("saved post with id: $savedWithId")
         savedWithId.createdAt shouldNotBe null
