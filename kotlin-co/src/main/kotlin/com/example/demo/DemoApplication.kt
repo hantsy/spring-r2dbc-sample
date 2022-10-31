@@ -126,9 +126,9 @@ data class Post(
     @LastModifiedDate
     val updatedAt: LocalDateTime? = null,
 
-//    @Column("version")
-//    @Version
-//    val version: Long? = null,
+    @Column("version")
+    @Version
+    val version: Long? = null,
 )
 
 enum class Status {

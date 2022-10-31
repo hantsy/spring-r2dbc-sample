@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS posts (
     cupsofcoffee NUMERIC[],
     created_at TIMESTAMP ,
     updated_at TIMESTAMP, --NOT NULL DEFAULT LOCALTIMESTAMP,
-    version INTEGER,
+    version BIGINT,
     PRIMARY KEY (id)
 );

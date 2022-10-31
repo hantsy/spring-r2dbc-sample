@@ -26,7 +26,7 @@ import org.testcontainers.utility.MountableFile
 import java.util.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@DataR2dbcTest
+@DataR2dbcTest()
 @Testcontainers
 @Import(DataConfig::class)
 class PostRepositoryTest {
@@ -87,10 +87,11 @@ class PostRepositoryTest {
         val saved = posts.save(data)
         log.debug("saved post: $saved")
         saved.createdAt shouldNotBe null
-//        val dataWithId = Post(id = UUID.randomUUID(), title = "test title", content = "test content")
-//        val savedWithId = posts.save(dataWithId)
-//        log.debug("saved post with id: $savedWithId")
-//        savedWithId.createdAt shouldNotBe null
+
+        val dataWithId = Post(id = UUID.randomUUID(), title = "test title", content = "test content")
+        val savedWithId = posts.save(dataWithId)
+        log.debug("saved post with id: $savedWithId")
+        savedWithId.createdAt shouldNotBe null
 
 
         val data1 = Post(title = "test title", content = "test content")
