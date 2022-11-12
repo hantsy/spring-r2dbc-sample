@@ -28,6 +28,7 @@ Compare to the Spring Data R2dbc 1.1, some breaking changes are notable.
 | [entitycallbacks](https://github.com/hantsy/spring-r2dbc-sample/tree/master/entitycallbacks)  | Spring Data R2dbc `BeforeConvertEntityCallback`, `AfterConvertEntityCallback`, etc. |
 | [testcontainers](https://github.com/hantsy/spring-r2dbc-sample/tree/master/testcontainers) | Spring Data R2dbc `@DataR2dbcTest` with Testcontainers. |
 | [boot](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot) | Spring Boot example (with Postgres specific `Enum`, `Json`, `NOTIFY/LISTEN`, etc.)|
+| [r2dbc-migrate](https://github.com/hantsy/spring-r2dbc-sample/tree/master/r2dbc-migrate) | [R2dbc Migrate](https://github.com/nkonev/r2dbc-migrate) example|
 | [auditing](https://github.com/hantsy/spring-r2dbc-sample/tree/master/auditing)  | Spring Data R2dbc Auditing example |
 | [kotlin-co](https://github.com/hantsy/spring-r2dbc-sample/tree/master/kotlin-co)  | Kotlin Coroutines example |
 | [jooq](https://github.com/hantsy/spring-r2dbc-sample/tree/master/jooq)  | R2dbc and JOOQ example |
