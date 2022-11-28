@@ -118,7 +118,7 @@
 		<dependency>
 			<groupId>com.ninja-squad</groupId>
 			<artifactId>springmockk</artifactId>
-			<version>3.1.1</version>
+			<version>3.1.2</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
