@@ -30,7 +30,6 @@ public class PostRepository {
         return this.template.count(Query.query(where("title").like("%" + name + "%")), Post.class);
     }
 
-
     public Flux<Post> findAll() {
         return this.template.select(Post.class).all();
     }
@@ -49,26 +48,25 @@ public class PostRepository {
                 .map(post -> post.getId());
     }
 
-    public Mono<Integer> update(Post p) {
-/*
-        return this.template.update(Post.class)
-                .matching(Query.query(where("id").is(p.getId())))
-                .apply(Update.update("title", p.getTitle())
-                        .set("content", p.getContent())
-                        .set("status", p.getStatus())
-                        .set("metadata", p.getMetadata()));
-*/
+    public Mono<Long> update(Post p) {
+        /*
+         * return this.template.update(Post.class)
+         * .matching(Query.query(where("id").is(p.getId())))
+         * .apply(Update.update("title", p.getTitle())
+         * .set("content", p.getContent())
+         * .set("status", p.getStatus())
+         * .set("metadata", p.getMetadata()));
+         */
         return this.template.update(
                 Query.query(where("id").is(p.getId())),
                 Update.update("title", p.getTitle())
                         .set("content", p.getContent())
                         .set("status", p.getStatus())
                         .set("metadata", p.getMetadata()),
-                Post.class
-        );
+                Post.class);
     }
 
-    public Mono<Integer> deleteById(UUID id) {
+    public Mono<Long> deleteById(UUID id) {
         return this.template.delete(Query.query(where("id").is(id)), Post.class);
     }
 }

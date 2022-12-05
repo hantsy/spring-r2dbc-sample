@@ -3,7 +3,7 @@ package com.example.demo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -23,11 +23,10 @@ public class IntegrationTests {
 
     @Test
     public void willLoadPosts() {
-    	this.webClient.get().uri("/posts")
-				.exchange()
-				.expectStatus().is2xxSuccessful()
-				.expectBodyList(Post.class).hasSize(2);
+        this.webClient.get().uri("/posts")
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBodyList(Post.class).hasSize(2);
     }
 
 }
-

@@ -49,7 +49,8 @@ public class PostRepository {
                 .all();
     }
 
-    // see: https://stackoverflow.com/questions/64267699/spring-data-r2dbc-and-group-by
+    // see:
+    // https://stackoverflow.com/questions/64267699/spring-data-r2dbc-and-group-by
     public Flux<Map<Object, Object>> countByStatus() {
         return this.databaseClient
                 .sql("SELECT count(*) as cnt, status FROM posts group by status")
@@ -71,7 +72,8 @@ public class PostRepository {
     }
 
     public Mono<UUID> save(Post p) {
-        return this.databaseClient.sql("INSERT INTO  posts (title, content, metadata, status) VALUES (:title, :content, :metadata, :status)")
+        return this.databaseClient.sql(
+                "INSERT INTO  posts (title, content, metadata, status) VALUES (:title, :content, :metadata, :status)")
                 .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
                 .bind("title", p.getTitle())
                 .bind("content", p.getContent())
@@ -83,12 +85,14 @@ public class PostRepository {
     }
 
     // see: https://github.com/spring-projects/spring-data-r2dbc/issues/259
-    // and https://stackoverflow.com/questions/62514094/how-to-execute-multiple-inserts-in-batch-in-r2dbc
+    // and
+    // https://stackoverflow.com/questions/62514094/how-to-execute-multiple-inserts-in-batch-in-r2dbc
     public Flux<UUID> saveAll(List<Post> data) {
         Assert.notEmpty(data, "saving data can be empty");
         return this.databaseClient.inConnectionMany(connection -> {
 
-            var statement = connection.createStatement("INSERT INTO  posts (title, content, status) VALUES ($1, $2, $3)")
+            var statement = connection
+                    .createStatement("INSERT INTO  posts (title, content, status) VALUES ($1, $2, $3)")
                     .returnGeneratedValues("id");
 
             for (int i = 0; i < data.size() - 1; i++) {
@@ -105,12 +109,14 @@ public class PostRepository {
                     .bind(1, lastItem.getContent())
                     .bind(2, lastItem.getStatus());
 
-            return Flux.from(statement.execute()).flatMap(result -> result.map((row, rowMetadata) -> row.get("id", UUID.class)));
+            return Flux.from(statement.execute())
+                    .flatMap(result -> result.map((row, rowMetadata) -> row.get("id", UUID.class)));
         });
     }
 
-    public Mono<Integer> update(Post p) {
-        return this.databaseClient.sql("UPDATE posts set title=:title, content=:content, metadata=:metadata, status=:status WHERE id=:id")
+    public Mono<Long> update(Post p) {
+        return this.databaseClient
+                .sql("UPDATE posts set title=:title, content=:content, metadata=:metadata, status=:status WHERE id=:id")
                 .bind("title", p.getTitle())
                 .bind("content", p.getContent())
                 .bind("metadata", p.getMetadata())
@@ -120,14 +126,14 @@ public class PostRepository {
                 .rowsUpdated();
     }
 
-    public Mono<Integer> deleteById(UUID id) {
+    public Mono<Long> deleteById(UUID id) {
         return this.databaseClient.sql("DELETE FROM posts WHERE id=:id")
                 .bind("id", id)
                 .fetch()
                 .rowsUpdated();
     }
 
-    public Mono<Integer> deleteAll() {
+    public Mono<Long> deleteAll() {
         return this.databaseClient.sql("DELETE FROM posts")
                 .fetch()
                 .rowsUpdated();
