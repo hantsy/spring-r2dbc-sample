@@ -4,6 +4,7 @@ import com.example.demo.jooq.tables.records.PostsTagsRecord;
 import io.r2dbc.spi.ConnectionFactory;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.SQLDialect;
@@ -25,6 +26,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.r2dbc.connection.TransactionAwareConnectionFactoryProxy;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -169,6 +171,47 @@ class PostService {
                 .map(r -> new PostSummary(r.value1(), r.value2(), r.value3(), r.value4().map(Record1::value1)));
     }
 
+    public Mono<PaginatedResult> findByKeyword(String keyword, int offset, int limit) {
+        var p = POSTS;
+        var pt = POSTS_TAGS;
+        var t = HASH_TAGS;
+        var c = COMMENTS;
+
+        Condition where = DSL.trueCondition();
+        if (StringUtils.hasText(keyword)) {
+            where = where.and(p.TITLE.likeIgnoreCase("%" + keyword + "%"));
+        }
+        var dataSql = dslContext.select(
+                        p.ID,
+                        p.TITLE,
+                        DSL.field("count(comments.id)", SQLDataType.BIGINT),
+                        multiset(select(t.NAME)
+                                .from(t)
+                                .join(pt).on(t.ID.eq(pt.TAG_ID))
+                                .where(pt.POST_ID.eq(p.ID))
+                        ).as("tags")
+                )
+                .from(p.leftJoin(c).on(c.POST_ID.eq(p.ID)))
+                .where(where)
+                .groupBy(p.ID)
+                .orderBy(p.CREATED_AT)
+                .limit(offset, limit);
+
+        val countSql = dslContext.select(DSL.field("count(*)", SQLDataType.BIGINT))
+                .from(p)
+                .where(where);
+
+        return Mono
+                .zip(
+                        Flux.from(dataSql)
+                                .map(r -> new PostSummary(r.value1(), r.value2(), r.value3(), r.value4().map(Record1::value1)))
+                                .collectList(),
+                        Mono.from(countSql)
+                                .map(Record1::value1)
+                )
+                .map(it -> new PaginatedResult(it.getT1(), it.getT2()));
+    }
+
     public Mono<UUID> create(CreatePostCommand data) {
         var p = POSTS;
         var pt = POSTS_TAGS;
@@ -202,6 +245,9 @@ record CreatePostCommand(String title, String content, List<UUID> tagId) {
 }
 
 record PostSummary(UUID id, String title, Long countOfComments, List<String> tags) {
+}
+
+record PaginatedResult(List<?> data, Long count) {
 }
 
 record TagDto(UUID id, String name) {
