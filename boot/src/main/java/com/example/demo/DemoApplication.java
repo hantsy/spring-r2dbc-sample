@@ -35,6 +35,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.data.repository.query.ReactiveQueryByExampleExecutor;
 import org.springframework.r2dbc.connection.init.CompositeDatabasePopulator;
 import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
@@ -71,56 +72,6 @@ public class DemoApplication {
     }
 
     @Bean
-    ApplicationRunner initialize(
-            DatabaseClient databaseClient,
-            PostRepository posts,
-            CommentRepository comments,
-            TransactionalOperator operator
-    ) {
-        log.info("start data initialization...");
-        return args -> {
-            databaseClient
-                    .sql("INSERT INTO  posts (title, content, metadata) VALUES (:title, :content, :metadata)")
-                    .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
-                    .bind("title", "my first post")
-                    .bind("content", "content of my first post")
-                    .bind("metadata", Json.of("{\"tags\":[\"spring\", \"r2dbc\"]}"))
-                    .fetch()
-                    .first()
-                    .subscribe(
-                            data -> log.info("inserted data : {}", data),
-                            error -> log.error("error: {}", error)
-                    );
-
-            posts
-                    .save(Post.builder().title("another post").content("content of another post").build())
-                    .map(p -> {
-                        p.setTitle("new Title");
-                        return p;
-                    })
-                    .flatMap(posts::save)
-                    .flatMap(saved -> comments
-                            .save(Comment.builder()
-                                    .content("dummy comments")
-                                    .postId(saved.getId())
-                                    .build()
-                            )
-                    )
-                    .log()
-                    .then()
-                    .thenMany(posts.findAll())
-                    .as(operator::transactional)
-                    .subscribe(
-                            data -> log.info("saved data: {}", data),
-                            err -> log.error("err: {}", err)
-                    );
-
-
-        };
-
-    }
-
-    @Bean
     @Qualifier("pgConnectionFactory")
     public ConnectionFactory pgConnectionFactory() {
         return new PostgresqlConnectionFactory(
@@ -132,20 +83,6 @@ public class DemoApplication {
                         //.codecRegistrar(EnumCodec.builder().withEnum("post_status", Post.Status.class).build())
                         .build()
         );
-    }
-
-    @Bean
-    public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
-
-        ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
-        initializer.setConnectionFactory(connectionFactory);
-
-        CompositeDatabasePopulator populator = new CompositeDatabasePopulator();
-        populator.addPopulators(new ResourceDatabasePopulator(new ClassPathResource("schema.sql")));
-        populator.addPopulators(new ResourceDatabasePopulator(new ClassPathResource("data.sql")));
-        initializer.setDatabasePopulator(populator);
-
-        return initializer;
     }
 
     @Bean
@@ -423,7 +360,7 @@ class PostHandler {
     }
 }
 
-interface PostRepository extends R2dbcRepository<Post, UUID> {
+interface PostRepository extends R2dbcRepository<Post, UUID>, ReactiveQueryByExampleExecutor<Post> {
 
     @Query("SELECT * FROM posts where title like :title")
     public Flux<Post> findByTitleContains(String title);
