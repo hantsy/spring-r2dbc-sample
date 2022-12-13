@@ -1,0 +1,39 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: jooq-kotlin-co-gradle
+
+on:
+  push:
+    paths:
+      - "jooq-kotlin-co-gradle/**"
+    branches: [ master ]
+  pull_request:
+    paths:
+      - "jooq-kotlin-co-gradle/**"
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    - name: Setup Postgres in Docker 
+      run: |
+        docker-compose up -d postgres
+        sleep 5
+        docker ps -a
+    - name: Build with Gradle
+      run: |
+        cd jooq-kotlin-co-gradle
+        chmod +x gradlew
+        ./gradlew build      
