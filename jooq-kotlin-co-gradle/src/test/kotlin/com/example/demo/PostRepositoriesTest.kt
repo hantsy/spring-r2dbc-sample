@@ -2,6 +2,7 @@ package com.example.demo
 
 import com.example.demo.jooq.tables.references.COMMENTS
 import com.example.demo.jooq.tables.references.POSTS
+import io.kotest.inspectors.forAny
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -12,10 +13,11 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.test.runTest
+import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
-import org.jooq.impl.DSL.multiset
-import org.jooq.impl.DSL.select
+import org.jooq.impl.DSL.*
+import org.jooq.impl.SQLDataType
 import org.jooq.util.postgres.PostgresDSL
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,6 +33,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.MountableFile
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.time.LocalDate
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -71,6 +74,7 @@ class PostRepositoriesTest {
     fun setup() = runTest {
         log.info(" clear sample data ...")
         val deletedPostsCount = Mono.from(dslContext.deleteFrom(POSTS)).awaitSingle()
+        // postRepository.deleteAll()
         log.debug(" deletedPostsCount: $deletedPostsCount")
 
     }
@@ -210,4 +214,77 @@ class PostRepositoriesTest {
         log.debug("result4 is $result4")
     }
 
+    @Test
+    fun `test posts count per day statistics`() = runTest {
+        val list = listOf(
+            Post(
+                title = "foo",
+                content = "foo post"
+            ),
+            Post(
+                title = "bar",
+                content = "bar post",
+                tags = listOf("Spring", "R2dbc", "Jooq")
+            )
+        )
+        postRepository.saveAll(list).toList().forEach { p ->
+            log.info("saved post: $p")
+        }
+
+        val startDate = LocalDate.now().minusDays(7)
+        val endDate = LocalDate.now()
+
+        val daysTable: org.jooq.Table<*> = DSL.table("generate_series({0}, {1}, '1 day')", startDate, endDate)
+            .`as`("days", "d")
+        val dayField = DSL.field(DSL.name("days", "d"), SQLDataType.LOCALDATE)
+
+        if (log.isDebugEnabled) {
+            log.debug("generated days from generate_series, start: {}, end: {}", startDate, endDate)
+            Flux.from(dslContext.selectFrom(daysTable))
+                .asFlow()
+                .toList()
+                .forEach { log.debug("day: {}", it.getValue(0)) }
+        }
+
+        var where: Condition = DSL.trueCondition()
+
+        val sql = dslContext.select(field("count(posts.id)", SQLDataType.BIGINT), dayField)
+            .from(
+                daysTable
+                    .leftJoin(
+                        POSTS
+                    )
+                    .on(
+                        year(POSTS.CREATED_AT).eq(year(dayField))
+                            .and(
+                                month(POSTS.CREATED_AT).eq(month(dayField))
+                                    .and(day(POSTS.CREATED_AT).eq(day(dayField)))
+                            )
+                    )
+            )
+            .where(where)
+            .groupBy(dayField)
+            .orderBy(dayField)
+
+        val result = Flux
+            .from(sql)
+            .asFlow()
+            .map {
+                PostCountPerDay(
+                    count = it.value1() ?: 0L,
+                    date = it.value2()
+                )
+            }
+            .toList()
+
+        log.debug("calculated result: {}", result)
+        result.size shouldBe 8 //(including enddate)
+        result.last().count shouldBe 2
+        result.subList(0, 8).forAny { it.count shouldBe 0 }
+    }
+
+
+
 }
+
+data class PostCountPerDay(val count: Long, val date: LocalDate)
