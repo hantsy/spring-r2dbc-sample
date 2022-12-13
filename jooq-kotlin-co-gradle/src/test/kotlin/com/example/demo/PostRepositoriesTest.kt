@@ -278,13 +278,11 @@ class PostRepositoriesTest {
             .toList()
 
         log.debug("calculated result: {}", result)
+        
         result.size shouldBe 8 //(including enddate)
         result.last().count shouldBe 2
         result.subList(0, 8).forAny { it.count shouldBe 0 }
     }
-
-
-
 }
 
 data class PostCountPerDay(val count: Long, val date: LocalDate)
