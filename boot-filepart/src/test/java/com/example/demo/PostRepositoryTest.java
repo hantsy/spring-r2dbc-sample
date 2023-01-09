@@ -1,6 +1,7 @@
 package com.example.demo;
 
 
+import io.r2dbc.spi.Blob;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,9 +14,12 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.MountableFile;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -76,7 +80,7 @@ public class PostRepositoryTest {
 
     @Test
     public void testByteArray() {
-        String s = "testByteBuffer";
+        String s = "testByteArray";
         var post = Post.builder().title("r2dbc").coverImage(s.getBytes()).build();
         posts.save(post)
                 .as(StepVerifier::create)
@@ -84,6 +88,32 @@ public class PostRepositoryTest {
                             assertThat(saved.getTitle()).isEqualTo("r2dbc");
                             var attachment = new String(saved.getCoverImage());
                             assertThat(attachment).isEqualTo(s);
+                        }
+                )
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBlob() {
+        String s = "testBlob";
+        var post = Post.builder().title("r2dbc").coverImageThumbnail(Blob.from(Mono.just(ByteBuffer.wrap(s.getBytes())))).build();
+        posts.save(post)
+                .as(StepVerifier::create)
+                .consumeNextWith(saved -> {
+                            assertThat(saved.getTitle()).isEqualTo("r2dbc");
+                            var latch = new CountDownLatch(1);
+                            Mono.from(saved.getCoverImageThumbnail().stream())
+                                    .map(it -> new String(it.array()))
+                                    .subscribe(it -> {
+                                        assertThat(it).isEqualTo(s);
+                                        latch.countDown();
+                                    });
+
+                            try {
+                                latch.await(1000, TimeUnit.MILLISECONDS);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                 )
                 .verifyComplete();

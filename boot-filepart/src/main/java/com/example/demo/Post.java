@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import io.r2dbc.postgresql.codec.Json;
+import io.r2dbc.spi.Blob;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -42,6 +43,9 @@ class Post {
 
     @Column("cover_image")
     private byte[] coverImage;
+
+    @Column("cover_image_thumbnail")
+    private Blob coverImageThumbnail;
 
     @Column("created_at")
     @CreatedDate

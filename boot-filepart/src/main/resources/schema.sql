@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS posts (
     updated_at TIMESTAMP,
     attachment bytea,
     cover_image bytea,
+    cover_image_thumbnail bytea,
     version INTEGER,
     PRIMARY KEY (id)
 );
