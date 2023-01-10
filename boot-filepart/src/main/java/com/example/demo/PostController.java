@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +26,9 @@ class PostController {
     private final PostRepository posts;
 
     @GetMapping
-    public Flux<Post> all() {
-        return posts.findAll();
+    public Flux<PostSummary> all(@RequestParam(required = false, defaultValue = "") String title,
+                                 @PageableDefault(page = 0, size = 10) Pageable pageable) {
+        return posts.findByTitleLike(title, pageable);
     }
 
     @PostMapping
@@ -43,12 +46,12 @@ class PostController {
 
     @PutMapping("{id}/attachment")
     public Mono<ResponseEntity<?>> upload(@PathVariable UUID id,
-                                       @RequestPart Mono<FilePart> fileParts) {
+                                          @RequestPart Mono<FilePart> fileParts) {
 
         return Mono
                 .zip(objects -> {
-                            var post = (Post)objects[0];
-                            var filePart = (DataBuffer)objects[1];
+                            var post = (Post) objects[0];
+                            var filePart = (DataBuffer) objects[1];
                             post.setAttachment(filePart.toByteBuffer());
                             return post;
                         },

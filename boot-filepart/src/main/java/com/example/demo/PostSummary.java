@@ -4,8 +4,8 @@ import lombok.Value;
 
 import java.util.UUID;
 
-@Value
-class PostSummary {
-    UUID id;
-    String title;
-}
+public record  PostSummary (
+        UUID id,
+        String title
+){}
+
