@@ -34,7 +34,7 @@ class PostController {
     @PostMapping
     public Mono<ResponseEntity<?>> create(@RequestBody CreatePostCommand data) {
         return posts.save(Post.builder().title(data.title()).content(data.content()).build())
-                .map(saved -> ResponseEntity.created(URI.create("/posts/" + saved.getTitle())).build());
+                .map(saved -> ResponseEntity.created(URI.create("/posts/" + saved.getId())).build());
     }
 
     @GetMapping("{id}")

@@ -7,6 +7,8 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.MultiValueMap;
@@ -39,9 +41,10 @@ public class IntegrationTests {
     public void testUploadAndDownload() {
         var locationUri = this.webClient.post()
                 .uri("/posts")
+                .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(new CreatePostCommand("test title", "test content"))
                 .exchange()
-                .expectHeader().exists("Location")
+                .expectHeader().exists(HttpHeaders.LOCATION)
                 .returnResult(ParameterizedTypeReference.forType(Void.class))
                 .getRequestHeaders().getLocation();
 
@@ -56,6 +59,7 @@ public class IntegrationTests {
 
         var responseContent = this.webClient.get()
                 .uri(attachmentUri)
+                .accept(MediaType.APPLICATION_OCTET_STREAM)
                 .exchange()
                 .expectStatus().isOk()
                 .returnResult(ParameterizedTypeReference.forType(byte[].class))
