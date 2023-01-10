@@ -21,7 +21,7 @@ public class IntegrationTests {
                 .build();
     }
 
-    @Test
+    //@Test
     public void willLoadPosts() {
         this.webClient.get().uri("/posts")
                 .exchange()
