@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,7 @@ import org.springframework.util.MultiValueMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Slf4j
 public class IntegrationTests {
 
     @LocalServerPort
@@ -27,6 +29,9 @@ public class IntegrationTests {
     public void setup() {
         this.webClient = WebTestClient.bindToServer()
                 .baseUrl("http://localhost:" + this.port)
+                .codecs(clientCodecConfigurer ->
+                        clientCodecConfigurer.defaultCodecs().enableLoggingRequestDetails(true)
+                )
                 .build();
     }
 
@@ -44,10 +49,12 @@ public class IntegrationTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(new CreatePostCommand("test title", "test content"))
                 .exchange()
+                .expectStatus().isCreated()
                 .expectHeader().exists(HttpHeaders.LOCATION)
                 .returnResult(ParameterizedTypeReference.forType(Void.class))
-                .getRequestHeaders().getLocation();
+                .getResponseHeaders().getLocation();
 
+        log.debug("location uri: {}", locationUri);
         assertThat(locationUri).isNotNull();
 
         var attachmentUri = locationUri + "/attachment";
