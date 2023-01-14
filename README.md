@@ -15,7 +15,7 @@ Compare to the Spring Data R2dbc 1.1, some breaking changes are notable.
 * [*Update*: Accessing RDBMS with Spring Data R2dbc](./docs/data-r2dbc.md)
 * [Data Auditing with Spring Data R2dbc](./docs/auditing.md)
 * [Dealing with Postgres specific Json/Enum type and NOTIFY/LISTEN with R2dbc](./docs/pg.md)
-
+* [Building Chat Application with R2dbc and Postgres](./docs/chat.md)
   
 
 ## Sample Codes
