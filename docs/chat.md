@@ -165,13 +165,13 @@ class WebConfig {
 
 ```
 
-In this example project, we do not save the chat messages into the Postgres database, we just use it a simple message broker. You can add it yourself.
+In this example project, we do not save the chat messages into the Postgres database that is just used as a simple message broker. You can add it yourself.
 
-And at the same time, we only create the backend API here, and I have no plan to repeat the frontend codes, if you are interested in how to connect to our backend API, copy the *client* codes from [angular-spring-sse-sample](https://github.com/hantsy/angular-spring-sse-sample), and experience it yourself.
+And at the same time, we only create the backend API project here, and I have no plan to repeat to create the frontend project, if you are interested in how to connect to our backend API in Angular codes, copy the *client* codes from [angular-spring-sse-sample](https://github.com/hantsy/angular-spring-sse-sample), and experience it yourself.
 
 ## Running Application
 
-Before running the application, ensure there is a running Postgres that is ready to be connected.
+Before running the application, ensure there is a running Postgres that is ready to connect.
 
 Create a *docker-compose.yaml* file in the project root folder.
 
