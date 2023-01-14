@@ -1,8 +1,8 @@
 # Building Chat Application with R2dbc and Postgres
 
-In previous blog posts, I have demonstrated how to use Angular/Spring WebFlux to build a simple and stupid Chat application with varied protocols, including [SSE](https://medium.com/zero-equals-false/building-a-chat-application-with-angular-and-spring-reactive-sse-c0fdddcd7d70), [WebSocket](https://medium.com/zero-equals-false/building-a-chat-application-with-angular-and-spring-reactive-websocket-part-2-ad140125cbd2), and [RSocket](https://medium.com/swlh/building-a-chat-application-with-angular-and-spring-rsocket-3cd8013f2f55). We also introduced the specific Postgres/R2dbc feature in [a previous post](https://medium.com/zero-equals-false/dealing-with-postgres-specific-json-enum-type-and-notifier-listener-with-r2dbc-f15cc104aa10), Postgres itself can be used as simple message broker.
+In previous blog posts, I have demonstrated how to use Angular/Spring WebFlux to build a simple and stupid Chat application with varied protocols, including [SSE](https://medium.com/zero-equals-false/building-a-chat-application-with-angular-and-spring-reactive-sse-c0fdddcd7d70), [WebSocket](https://medium.com/zero-equals-false/building-a-chat-application-with-angular-and-spring-reactive-websocket-part-2-ad140125cbd2), and [RSocket](https://medium.com/swlh/building-a-chat-application-with-angular-and-spring-rsocket-3cd8013f2f55). We also introduced the specific Postgres/R2dbc features (`NOTIFY` and `LISTEN`) in [a previous post](https://medium.com/zero-equals-false/dealing-with-postgres-specific-json-enum-type-and-notifier-listener-with-r2dbc-f15cc104aa10), Postgres itself can be used as a simple message broker.
 
-In this post, we will rebuilt a Chat application as the former applications, but with R2dbc and the Postgres specific `NOTIFY` and `LISTEN` statement.
+In this post, we will rebuild the Chat application as those we've created, but in this example project we will use R2dbc and the Postgres specific `NOTIFY` and `LISTEN` statement.
 
 ## Generating Spring WebFlux Project
 
@@ -14,20 +14,22 @@ Open your browser, go to [Spring Initilizr](http://start.spring.io) page, custom
 
 ![start](./start.png)
 
-Click the *EXPLORE* button, you can preview the project structure in new dialog. Hit the *GENERATE* button to export the project skeleton codes into a zip archive for downloading.
+you can click the *EXPLORE* button to preview the project structure in new dialog before downloading it.
 
-Download the project archive and extract the files into your disc, and import into your IDE, eg. IDEA or VSCode with Spring Tools.
+Hit the *GENERATE* button to export the project skeleton codes into a zip archive.
+
+Download the archive and extract the files into your disc, and import into your IDE, eg. IDEA or VSCode with Spring Tools.
 
 ## Building Chat Application
 
-Declares a `Message` class as payload format that is sent from the Postgres `NOTIFY` and received in a `LISTEN`.
+Declares a `Message` class as payload format that is sent from the Postgres `NOTIFY` statement and received in the `LISTEN` statement.
 
 ```java
 record Message(UUID id, String body, LocalDateTime sentAt) {
 }
 ```
 
-Create a `Notifier` and `Listener` to perform the  `NOTIFY` and `LISTEN` in a Postgres aware SQL statement.
+Create a `Notifier` and `Listener` respectively to execute the `NOTIFY` and `LISTEN` statements in Postgres.
 
 ```java
 @Component
@@ -113,9 +115,9 @@ class Listener {
 }
 ```
 
-Next we will create a frontend controller role to send a message and track the messages that is just sent from varied clients. Here, we use `Server Sent Event` protocol to emit the caught messages to clients in time.
+Next we will create a frontend controller role to send a message and track the messages that is just sent from varied clients. Here, we use `Server Sent Event` protocol again to emit the caught messages to clients in time.
 
-Here we will use the programmatic functional APIs to centralize all the handling methods in one class - `MessageHandler`.
+Instead of the traditional `@RestController` annotated classes, we will use the programmatic functional APIs to centralize all the handling methods in one class - `MessageHandler`.
 
 ```java
 @Component
@@ -140,9 +142,9 @@ class MessageHandler {
 }
 ```
 
-`CreateMessageCommand` is used to wrap the request body when sending a message.
+The `CreateMessageCommand` is used to wrap the request body when sending a message.
 
-Then define a `RouterFunction` bean to declare the routing rules.
+Then define a `RouterFunction` bean to declare the routing rules at runtime.
 
 ```java
 @Configuration
@@ -165,9 +167,9 @@ class WebConfig {
 
 ```
 
-In this example project, we do not save the chat messages into the Postgres database that is just used as a simple message broker. You can add it yourself.
+In this example project, we do not save the messages into the Postgres database, we just use it as a simple message broker. You can add this missing work yourself.
 
-And at the same time, we only create the backend API project here, and I have no plan to repeat to create the frontend project, if you are interested in how to connect to our backend API in Angular codes, copy the *client* codes from [angular-spring-sse-sample](https://github.com/hantsy/angular-spring-sse-sample), and experience it yourself.
+And at the same time, we only create the backend API project here, and we have no plan to repeat the frontend codes in preview posts. If you know some basic of Angular framework, and you are interested in how to connect to our backend API, copy the *client* codes from [angular-spring-sse-sample](https://github.com/hantsy/angular-spring-sse-sample), and experience it yourself.
 
 ## Running Application
 
