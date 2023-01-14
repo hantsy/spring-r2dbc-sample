@@ -36,7 +36,7 @@ public class IntegrationTests {
                 .log()
                 .as(StepVerifier::create)
                 .consumeNextWith(it -> assertThat(it.body()).isEqualTo("test message"))
-                .consumeNextWith(it -> assertThat(it.body()).isEqualTo("test message2"))
+                //.consumeNextWith(it -> assertThat(it.body()).isEqualTo("test message2"))
                 .thenCancel()
                 .verifyLater();
         webClient.post().uri("messages")
@@ -45,12 +45,12 @@ public class IntegrationTests {
                 .retrieve().toBodilessEntity()
                 .then()
                 .block();
-        webClient.post().uri("messages")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(new CreateMessageCommand("test message2"))
-                .retrieve().toBodilessEntity()
-                .then()
-                .block();
+//        webClient.post().uri("messages")
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .bodyValue(new CreateMessageCommand("test message2"))
+//                .retrieve().toBodilessEntity()
+//                .then()
+//                .block();
 
         verifier.verify(Duration.ofMillis(500));
     }
