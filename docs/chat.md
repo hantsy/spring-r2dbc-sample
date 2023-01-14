@@ -215,7 +215,7 @@ Open another terminal window, use `curl` command to send some sample messages.
 Switch back to the first terminal window, you will see information similar to the following.
 
 ```bash
-curl http://localhost:8080/messages
+> curl http://localhost:8080/messages
 data:{"id":"8354fa38-4960-4d09-a4f1-7f0e7eab907a","body":"test","sentAt":"2023-01-14T12:09:49.1174014"}
 
 data:{"id":"88f0d028-410b-40c6-9150-57a2228cb592","body":"test 2","sentAt":"2023-01-14T12:10:47.7973986"}
