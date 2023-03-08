@@ -16,9 +16,3 @@ CREATE TABLE IF NOT EXISTS comments (
     created_at TIMESTAMP ,
     PRIMARY KEY (id)
 );
-
-CREATE TABLE IF NOT EXISTS businesses (
-    id UUID NOT NULL /* [jooq ignore start] */ DEFAULT uuid_generate_v4() /* [jooq ignore stop] */,
-    name VARCHAR(255),
-    PRIMARY KEY (id)
-);
