@@ -2,7 +2,6 @@ package com.example.demo
 
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.Version
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDateTime
@@ -30,7 +29,11 @@ data class Post(
     @CreatedDate
     val createdAt: LocalDateTime? = null,
 
-    @Column("version")
-    @Version
-    val version: Long? = null,
-)
+//    @Column("version")
+//    @Version
+//    val version: Long? = null,
+) {
+    enum class Status {
+        DRAFT, PENDING_MODERATION, PUBLISHED
+    }
+}

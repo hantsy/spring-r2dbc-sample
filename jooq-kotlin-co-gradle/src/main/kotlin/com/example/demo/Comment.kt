@@ -16,7 +16,19 @@ data class Comment(
     @Column("content")
     var content: String? = null,
 
+    @Column("status")
+    var status: Status? = Status.PENDING,
+
+    @Column("post_id")
+    val postId: UUID? = null,
+
     @Column("created_at")
     @CreatedDate
     val createdAt: LocalDateTime? = null,
-)
+){
+    enum class Status {
+        PENDING, ACCEPTED, REJECTED;
+    }
+
+}
+

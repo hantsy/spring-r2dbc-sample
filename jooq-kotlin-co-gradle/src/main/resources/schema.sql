@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS comments (
     id UUID NOT NULL /* [jooq ignore start] */ DEFAULT uuid_generate_v4() /* [jooq ignore stop] */,
     content VARCHAR(255),
     post_id UUID REFERENCES posts  /* [jooq ignore start] */  ON DELETE CASCADE /* [jooq ignore stop] */,
+    status VARCHAR(255) default 'PENDING',
     created_at TIMESTAMP ,
     PRIMARY KEY (id)
 );

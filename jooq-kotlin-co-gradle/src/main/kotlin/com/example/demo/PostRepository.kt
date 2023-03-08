@@ -5,5 +5,5 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import java.util.*
 
 interface PostRepository : CoroutineCrudRepository<Post, UUID>, PostRepositoryCustom {
-    fun findByStatus(status: Status): Flow<Post>
+    fun findByStatus(status: Post.Status): Flow<Post>
 }
