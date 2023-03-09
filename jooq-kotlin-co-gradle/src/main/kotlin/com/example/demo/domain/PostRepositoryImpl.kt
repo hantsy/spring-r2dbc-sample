@@ -1,4 +1,4 @@
-package com.example.demo
+package com.example.demo.domain
 
 import com.example.demo.jooq.tables.references.COMMENTS
 import com.example.demo.jooq.tables.references.POSTS

@@ -1,4 +1,4 @@
-package com.example.demo
+package com.example.demo.domain
 
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id
@@ -28,6 +28,9 @@ data class Post(
     @Column("created_at")
     @CreatedDate
     val createdAt: LocalDateTime? = null,
+
+    @Column("comments_count")
+    var commentsCount: Long? = 0,
 
 //    @Column("version")
 //    @Version

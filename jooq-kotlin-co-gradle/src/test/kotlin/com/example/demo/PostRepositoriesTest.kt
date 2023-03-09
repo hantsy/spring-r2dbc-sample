@@ -1,5 +1,9 @@
 package com.example.demo
 
+import com.example.demo.domain.JooqConfig
+import com.example.demo.domain.Post
+import com.example.demo.domain.PostRepository
+import com.example.demo.domain.R2dbcConfig
 import com.example.demo.jooq.tables.references.COMMENTS
 import com.example.demo.jooq.tables.references.POSTS
 import io.kotest.inspectors.forAny

@@ -1,4 +1,4 @@
-package com.example.demo
+package com.example.demo.domain
 
 import io.r2dbc.spi.ConnectionFactory
 import org.jooq.SQLDialect

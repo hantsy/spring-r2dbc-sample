@@ -1,5 +1,7 @@
-package com.example.demo
+package com.example.demo.interfaces
 
+import com.example.demo.domain.Post
+import com.example.demo.domain.PostRepository
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.*
 import java.net.URI

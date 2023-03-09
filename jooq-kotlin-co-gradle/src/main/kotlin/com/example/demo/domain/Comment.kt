@@ -1,4 +1,4 @@
-package com.example.demo
+package com.example.demo.domain
 
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id
