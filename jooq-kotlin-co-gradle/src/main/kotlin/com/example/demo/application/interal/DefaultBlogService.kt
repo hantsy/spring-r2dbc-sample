@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.reactive.TransactionalOperator
+import org.springframework.transaction.reactive.transactional
 import java.time.LocalDateTime
 import java.util.*
 
@@ -18,7 +20,8 @@ import java.util.*
 @Transactional
 class DefaultBlogService(
     val commentRepository: CommentRepository,
-    val applicationEventPublisher: ApplicationEventPublisher
+    val applicationEventPublisher: ApplicationEventPublisher,
+    val transactionalOperator: TransactionalOperator
 ) : BlogService {
 
     companion object {
@@ -29,6 +32,7 @@ class DefaultBlogService(
         commentRepository.findByPostId(id)
             .buffer()
             .filter { it.status == Comment.Status.PENDING }
+            .transactional(transactionalOperator)
             .onEach {
                 it.apply {
                     status = Comment.Status.ACCEPTED
@@ -46,6 +50,7 @@ class DefaultBlogService(
         commentRepository.findByPostId(id)
             .buffer()
             .filter { it.status == Comment.Status.PENDING }
+            .transactional(transactionalOperator)
             .onEach {
                 it.apply {
                     status = Comment.Status.REJECTED
@@ -63,6 +68,7 @@ class DefaultBlogService(
         commentRepository.findByPostId(id)
             .buffer()
             .filter { it.status == Comment.Status.PENDING }
+            .transactional(transactionalOperator)
             .onEach {
                 it.apply {
                     status = Comment.Status.PENDING

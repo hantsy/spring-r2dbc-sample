@@ -51,7 +51,7 @@ class PostRepositoriesTest {
 
         @Container
         val postgreSQLContainer = PostgreSQLContainer("postgres:12")
-            .withCopyFileToContainer(
+            .withCopyToContainer(
                 MountableFile.forClasspathResource("/init.sql"),
                 "/docker-entrypoint-initdb.d/init.sql"
             )

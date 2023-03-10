@@ -12,4 +12,5 @@ interface CommentRepository : CoroutineSortingRepository<Comment, UUID>,
     fun findByStatus(status: Comment.Status): Flow<Comment>
     fun findByPostId(postId: UUID): Flow<Comment>
     suspend fun countByPostIdAndStatus(postId: UUID, status: Comment.Status): Long
+    suspend fun countByStatus(status: Comment.Status): Long
 }

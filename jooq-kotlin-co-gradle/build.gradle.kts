@@ -67,6 +67,7 @@ dependencies {
 
     // Kotest assertions
     testImplementation("io.kotest:kotest-assertions-core-jvm:${kotestVersion}")
+    testImplementation("io.kotest:kotest-framework-concurrency-jvm:${kotestVersion}")
 
     // mockk: mocking framework for Kotlin
     testImplementation("io.mockk:mockk-jvm:${mockkVersion}")
