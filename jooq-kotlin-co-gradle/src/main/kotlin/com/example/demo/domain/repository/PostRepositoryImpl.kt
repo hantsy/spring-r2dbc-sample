@@ -1,5 +1,6 @@
-package com.example.demo.domain
+package com.example.demo.domain.repository
 
+import com.example.demo.domain.model.PostSummary
 import com.example.demo.jooq.tables.references.COMMENTS
 import com.example.demo.jooq.tables.references.POSTS
 import kotlinx.coroutines.flow.Flow

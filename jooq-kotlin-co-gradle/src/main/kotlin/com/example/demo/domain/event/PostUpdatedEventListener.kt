@@ -1,6 +1,6 @@
-package com.example.demo.domain
+package com.example.demo.domain.event
 
-import com.example.demo.application.EventHandlingService
+import com.example.demo.application.interal.DefaultBlogEventHandlingService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class PostUpdatedEventListener(
-    val eventHandlingService: EventHandlingService,
+    val eventHandlingService: DefaultBlogEventHandlingService,
     val applicationScope: CoroutineScope
 ) {
     companion object {

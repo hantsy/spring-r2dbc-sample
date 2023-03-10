@@ -1,5 +1,6 @@
-package com.example.demo.domain
+package com.example.demo.domain.repository
 
+import com.example.demo.domain.model.Comment
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.data.repository.kotlin.CoroutineSortingRepository
