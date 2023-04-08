@@ -1,5 +1,9 @@
 package com.example.demo
 
+import com.example.demo.model.Post
+import com.example.demo.repository.PostRepository
+import com.example.demo.web.PostHandler
+import com.example.demo.web.RouterConfiguration
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -10,15 +14,24 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.server.RouterFunction
 import java.util.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@SpringBootTest
+@SpringBootTest(classes = [PostRouterFunctionTest.TestConfig::class])
 //@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 class PostRouterFunctionTest {
+
+    @Configuration
+    @Import(PostHandler::class, RouterConfiguration::class)
+    class TestConfig {
+
+    }
+
     @Autowired
     private lateinit var routerFunction: RouterFunction<*>
 

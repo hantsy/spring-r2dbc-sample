@@ -1,5 +1,8 @@
 package com.example.demo
 
+import com.example.demo.model.Post
+import com.example.demo.model.Status
+import com.example.demo.repository.PostRepository
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
