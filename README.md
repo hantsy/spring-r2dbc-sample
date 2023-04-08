@@ -4,7 +4,7 @@
 
 I have created several R2dbc examples in the [spring-reactive-sample](https://github.com/hantsy/spring-reactive-sample/) repository since it was born. But Spring Data R2dbc evolved very quickly, thre are plenty of breaking changes introduced since Spring 5.2 and Spring Data R2dbc 1.2.
 
-Compare to the Spring Data R2dbc 1.1, some breaking changes are notable.
+There is a list of these changes.
 * The old DatabaseClient in Spring Data R2dbc 1.1 was split into two parts, a simple new `DatabaseClient` is part of Spring framework, as an alternative of Jdbc.
 * Another part of the old DatabaseClient is reorganized into a new class `R2dbcEntityTemplate` which acts as the role of `JdbcTemplate`.
 
