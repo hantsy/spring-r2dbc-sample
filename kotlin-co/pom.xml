@@ -17,7 +17,7 @@
 		<java.version>17</java.version>
 		<kotlin.version>1.8.21</kotlin.version>
 		<kotlin-coroutines.version>1.6.4</kotlin-coroutines.version>
-		<testcontainers.version>1.18.1</testcontainers.version>
+		<testcontainers.version>1.18.3</testcontainers.version>
 		<jooq.version>3.18.4</jooq.version>
 	</properties>
 	<dependencies>
