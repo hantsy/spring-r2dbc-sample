@@ -20,7 +20,7 @@
         <!-- maven plugins -->
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <maven-surefire-plugin.version>3.1.0</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>3.1.0</maven-failsafe-plugin.version>
+        <maven-failsafe-plugin.version>3.1.2</maven-failsafe-plugin.version>
 
         <!-- test properties -->
         <testcontainers.version>1.18.3</testcontainers.version>
