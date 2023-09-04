@@ -49,7 +49,7 @@ dependencies {
     jooqGenerator("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
     jooqGenerator("org.jooq:jooq-meta-extensions:${jooqVersion}")
     // workaround of array type codegen, see: https://github.com/jOOQ/jOOQ/issues/13322
-    jooqGenerator("com.h2database:h2:2.2.220")
+    jooqGenerator("com.h2database:h2:2.2.222")
 
     // test dependencies
     runtimeOnly("org.postgresql:postgresql")
