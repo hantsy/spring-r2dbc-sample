@@ -19,7 +19,7 @@ repositories {
     mavenCentral()
 }
 
-extra["testcontainersVersion"] = "1.18.3"
+extra["testcontainersVersion"] = "1.19.0"
 val kotlinCoVersion = project.properties["kotlinCoVersion"]
 val kotestVersion = project.properties["kotestVersion"]
 val mockkVersion = project.properties["mockkVersion"]
