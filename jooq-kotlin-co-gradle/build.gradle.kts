@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jooq.meta.jaxb.Property
 
 plugins {
     id("org.springframework.boot") version "3.2.0"
@@ -166,7 +165,7 @@ jooq {
                         packageName = "com.example.demo.jooq"
                         directory = "build/generated/jooq/main"  // default (can be omitted)
                     }
-                    strategy{
+                    strategy {
                         name = "org.jooq.codegen.DefaultGeneratorStrategy"
                     }
                 }
