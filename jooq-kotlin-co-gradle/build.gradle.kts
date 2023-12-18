@@ -93,7 +93,7 @@ tasks.withType<Test> {
 }
 
 jooq {
-    //version.set(${jooqVersion}")  // the default (can be omitted)
+    version ="$jooqVersion"  // the default (can be omitted)
     //edition.set(JooqEdition.OSS)  // the default (can be omitted)
 
     executions {
@@ -182,8 +182,3 @@ jooq {
         }
     }
 }
-
-// participate in incremental builds and build caching
-//tasks.named<Task>("jooqCodegen") {
-//    dependsOn("classes")
-//}
