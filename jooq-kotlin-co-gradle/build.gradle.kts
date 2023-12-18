@@ -163,7 +163,7 @@ jooq {
                     }
                     target {
                         packageName = "com.example.demo.jooq"
-                        directory = "build/generated/jooq/main"  // default (can be omitted)
+                        directory = "${projectDir}/build/generated/jooq/main"  // default (can be omitted)
                     }
                     strategy {
                         name = "org.jooq.codegen.DefaultGeneratorStrategy"
