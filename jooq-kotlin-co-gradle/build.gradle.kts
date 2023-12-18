@@ -160,9 +160,18 @@ jooq {
                     }
                     generate {
                         isPojosAsKotlinDataClasses = true // use data classes
+                        // Allowing to turn off the feature for to-many join paths (including many-to-many).
+                        // The default is true.
+                        // see: https://stackoverflow.com/questions/77677549/new-jooq-gradle-plugin-can-not-process-self-reference-relation-correctly/77677816#77677816
+                        isImplicitJoinPathsToMany = false
                     }
                     target {
                         packageName = "com.example.demo.jooq"
+
+                        // can not resolve relative path, use
+                        // basedir = "${projectDir}"
+                        // or append `${projectDir}` to the beginning of the relative path.
+                        // see: https://github.com/jOOQ/jOOQ/issues/15944
                         directory = "${projectDir}/build/generated/jooq/main"  // default (can be omitted)
                     }
                     strategy {
