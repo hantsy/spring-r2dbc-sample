@@ -46,6 +46,7 @@ dependencies {
     // workaround of issue: https://github.com/etiennestuder/gradle-jooq-plugin/issues/209
     jooqCodegen("jakarta.xml.bind:jakarta.xml.bind-api:4.0.1")
     jooqCodegen("org.jooq:jooq-meta-extensions:${jooqVersion}")
+    jooqCodegen("org.jooq:jooq-meta-kotlin:${jooqVersion}")
     // workaround of array type codegen, see: https://github.com/jOOQ/jOOQ/issues/13322
     jooqCodegen("com.h2database:h2:2.2.224")
 
@@ -163,7 +164,7 @@ jooq {
                     }
                     target {
                         packageName = "com.example.demo.jooq"
-                        directory = "build/generated-src/jooq/main"  // default (can be omitted)
+                        directory = "build/generated/jooq/main"  // default (can be omitted)
                     }
                     strategy{
                         name = "org.jooq.codegen.DefaultGeneratorStrategy"
@@ -175,6 +176,6 @@ jooq {
 }
 
 // participate in incremental builds and build caching
-//tasks.named<JooqGenerate>("generateJooq") {
-//    allInputsDeclared.set(true)
+//tasks.named<Task>("jooqCodegen") {
+//    dependsOn("classes")
 //}
