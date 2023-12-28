@@ -1,14 +1,11 @@
-import nu.studer.gradle.jooq.JooqEdition
-import nu.studer.gradle.jooq.JooqGenerate
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jooq.meta.jaxb.Property
 
 plugins {
-    id("org.springframework.boot") version "3.2.0"
+    id("org.springframework.boot") version "3.2.1"
     id("io.spring.dependency-management") version "1.1.4"
-    kotlin("jvm") version "1.9.21"
-    kotlin("plugin.spring") version "1.9.21"
-    id("nu.studer.jooq") version "8.2.1"
+    kotlin("jvm") version "1.9.22"
+    kotlin("plugin.spring") version "1.9.22"
+    id("org.jooq.jooq-codegen-gradle") version "3.19.1"
 }
 
 group = "com.example"
@@ -46,10 +43,11 @@ dependencies {
     implementation("org.jooq:jooq:${jooqVersion}")
     implementation("org.jooq:jooq-kotlin:${jooqVersion}")
     // workaround of issue: https://github.com/etiennestuder/gradle-jooq-plugin/issues/209
-    jooqGenerator("jakarta.xml.bind:jakarta.xml.bind-api:4.0.1")
-    jooqGenerator("org.jooq:jooq-meta-extensions:${jooqVersion}")
+    jooqCodegen("jakarta.xml.bind:jakarta.xml.bind-api:4.0.1")
+    jooqCodegen("org.jooq:jooq-meta-extensions:${jooqVersion}")
+    jooqCodegen("org.jooq:jooq-meta-kotlin:${jooqVersion}")
     // workaround of array type codegen, see: https://github.com/jOOQ/jOOQ/issues/13322
-    jooqGenerator("com.h2database:h2:2.2.224")
+    jooqCodegen("com.h2database:h2:2.2.224")
 
     // test dependencies
     runtimeOnly("org.postgresql:postgresql")
@@ -83,6 +81,7 @@ dependencyManagement {
 }
 
 tasks.withType<KotlinCompile> {
+    dependsOn("jooqCodegenMain")
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
         jvmTarget = "21"
@@ -94,87 +93,92 @@ tasks.withType<Test> {
 }
 
 jooq {
-    version.set("$jooqVersion")  // the default (can be omitted)
-    edition.set(JooqEdition.OSS)  // the default (can be omitted)
+    version ="$jooqVersion"  // the default (can be omitted)
+    //edition.set(JooqEdition.OSS)  // the default (can be omitted)
 
-    configurations {
+    executions {
         create("main") {  // name of the jOOQ configuration
-            generateSchemaSourceOnCompilation.set(true)  // default (can be omitted)
+            //generateSchemaSourceOnCompilation =true   // default (can be omitted)
 
-            jooqConfiguration.apply {
-                logging = org.jooq.meta.jaxb.Logging.WARN
-                jdbc = null; // only required for gen from active databases.
+            configuration {
+                logging = org.jooq.meta.jaxb.Logging.DEBUG
+                jdbc = null // only required for gen from active databases.
 
-                generator.apply {
+                generator {
                     name = "org.jooq.codegen.KotlinGenerator"
-                    database.apply {
+                    database {
                         name = "org.jooq.meta.extensions.ddl.DDLDatabase" // gen from ddl schema.
 
                         // commoutted out this, see: https://github.com/etiennestuder/gradle-jooq-plugin/issues/222
                         // inputSchema = "public"
-                        properties.addAll(
-                            listOf(
-                                // Specify the location of your SQL script.
-                                // You may use ant-style file matching, e.g. /path/**/to/*.sql
-                                //
-                                // Where:
-                                // - ** matches any directory subtree
-                                // - * matches any number of characters in a directory / file name
-                                // - ? matches a single character in a directory / file name
-                                Property().apply {
-                                    key = "scripts"
-                                    value = "src/main/resources/schema.sql"
-                                },
+                        properties {
 
-                                // The sort order of the scripts within a directory, where:
-                                //
-                                // - semantic: sorts versions, e.g. v-3.10.0 is after v-3.9.0 (default)
-                                // - alphanumeric: sorts strings, e.g. v-3.10.0 is before v-3.9.0
-                                // - flyway: sorts files the same way as flyway does
-                                // - none: doesn't sort directory contents after fetching them from the directory
-                                Property().apply {
-                                    key = "sort"
-                                    value = "semantic"
-                                },
+                            // Specify the location of your SQL script.
+                            // You may use ant-style file matching, e.g. /path/**/to/*.sql
+                            //
+                            // Where:
+                            // - ** matches any directory subtree
+                            // - * matches any number of characters in a directory / file name
+                            // - ? matches a single character in a directory / file name
+                            property {
+                                key = "scripts"
+                                value = "src/main/resources/schema.sql"
+                            }
 
-                                // The default schema for unqualified objects:
-                                //
-                                // - public: all unqualified objects are located in the PUBLIC (upper case) schema
-                                // - none: all unqualified objects are located in the default schema (default)
-                                //
-                                // This configuration can be overridden with the schema mapping feature
-                                Property().apply {
-                                    key = "unqualifiedSchema"
-                                    value = "none"
-                                },
+                            // The sort order of the scripts within a directory, where:
+                            //
+                            // - semantic: sorts versions, e.g. v-3.10.0 is after v-3.9.0 (default)
+                            // - alphanumeric: sorts strings, e.g. v-3.10.0 is before v-3.9.0
+                            // - flyway: sorts files the same way as flyway does
+                            // - none: doesn't sort directory contents after fetching them from the directory
+                            property {
+                                key = "sort"
+                                value = "semantic"
+                            }
 
-                                // The default name case for unquoted objects:
-                                //
-                                // - as_is: unquoted object names are kept unquoted
-                                // - upper: unquoted object names are turned into upper case (most databases)
-                                // - lower: unquoted object names are turned into lower case (e.g. PostgreSQL)
-                                Property().apply {
-                                    key = "defaultNameCase"
-                                    value = "lower"
-                                }
-                            )
-                        )
+                            // The default schema for unqualified objects:
+                            //
+                            // - public: all unqualified objects are located in the PUBLIC (upper case) schema
+                            // - none: all unqualified objects are located in the default schema (default)
+                            //
+                            // This configuration can be overridden with the schema mapping feature
+                            property {
+                                key = "unqualifiedSchema"
+                                value = "none"
+                            }
+
+                            // The default name case for unquoted objects:
+                            //
+                            // - as_is: unquoted object names are kept unquoted
+                            // - upper: unquoted object names are turned into upper case (most databases)
+                            // - lower: unquoted object names are turned into lower case (e.g. PostgreSQL)
+                            property {
+                                key = "defaultNameCase"
+                                value = "lower"
+                            }
+                        }
                     }
-                    generate.apply {
+                    generate {
                         isPojosAsKotlinDataClasses = true // use data classes
+                        // Allowing to turn off the feature for to-many join paths (including many-to-many).
+                        // The default is true.
+                        // see: https://stackoverflow.com/questions/77677549/new-jooq-gradle-plugin-can-not-process-self-reference-relation-correctly/77677816#77677816
+                        isImplicitJoinPathsToMany = false
                     }
-                    target.apply {
+                    target {
                         packageName = "com.example.demo.jooq"
-                        directory = "build/generated-src/jooq/main"  // default (can be omitted)
+
+                        // can not resolve relative path, use
+                        // basedir = "${projectDir}"
+                        // or append `${projectDir}` to the beginning of the relative path.
+                        // see: https://github.com/jOOQ/jOOQ/issues/15944
+                        directory = "${projectDir}/build/generated/jooq/main"  // default (can be omitted)
                     }
-                    strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
+                    strategy {
+                        name = "org.jooq.codegen.DefaultGeneratorStrategy"
+                    }
                 }
             }
         }
     }
-}
-
-// participate in incremental builds and build caching
-tasks.named<JooqGenerate>("generateJooq") {
-    allInputsDeclared.set(true)
 }
