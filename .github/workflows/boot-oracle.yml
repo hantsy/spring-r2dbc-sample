@@ -1,0 +1,65 @@
+name: boot-oracle
+on:
+  push:
+    paths:
+      - "boot-oracle/**"
+    branches: [master]
+  pull_request:
+    paths:
+      - "boot-oracle/**"
+    branches: [master]
+          
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      # Oracle service (label used to access the service container)
+      oracle:
+        # Docker Hub image (feel free to change the tag "latest" to any other available one)
+        image: gvenzl/oracle-free:latest
+    
+        # Provide passwords and other environment variables to container
+        env:
+          ORACLE_PASSWORD: vertx
+          ORACLE_DATABASE: blogdb
+          APP_USER: vertx
+          APP_USER_PASSWORD: vertx
+    
+        # Forward Oracle port
+        ports:
+          - 1521:1521
+    
+        # Provide healthcheck script options for startup
+        options: >-
+          --health-cmd healthcheck.sh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: "21"
+          distribution: "zulu"
+          cache: "maven"
+      # - name: Set up Oracle(via Docker Compose)
+      #   run: |
+      #     cd hibernate-reactive-mutiny-oracle
+      #     docker-compose up -d
+      #     sleep 10
+      #     docker ps -a
+      # - uses: gvenzl/setup-oracle-free@v1
+        # with:
+          # oracle-database: blogdb
+          # app-user: testUser
+          # app-user-password: testPassword     
+      - name: Build with Maven
+        run: |
+          mvn -B -q clean package --file boot-oracle/pom.xml
+          mvn -B -q verify --file boot-oracle/pom.xml -Pit
+     

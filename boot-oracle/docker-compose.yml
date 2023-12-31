@@ -1,0 +1,16 @@
+version: '3.7' # specify docker-compose version
+
+services:
+  oracle:
+    # see https://www.oracle.com/database/technologies/appdev/xe.html
+    image: gvenzl/oracle-free:23-slim
+    ports:
+      - "1521:1521"
+    restart: always
+    environment:
+      ORACLE_PASSWORD: vertx
+      ORACLE_DATABASE: blogdb
+      APP_USER: vertx
+      APP_USER_PASSWORD: vertx
+    volumes:
+      - ./data:/opt/oracle/oradata
