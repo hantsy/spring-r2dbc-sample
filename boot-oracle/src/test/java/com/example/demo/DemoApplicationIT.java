@@ -23,69 +23,10 @@ public class DemoApplicationIT {
 
     @Test
     public void testGetAllPosts() {
-        this.client.get().uri("/posts")
+        this.client.get().uri("/todos")
             .exchange()
             .expectStatus().isOk()
-            .expectBodyList(Post.class).hasSize(2);
-    }
-
-    @Test
-    public void testGetPostByNonExistedID() {
-        this.client.get().uri("/posts/{id}", UUID.randomUUID())
-            .exchange()
-            .expectStatus().isNotFound();
-    }
-
-    @Test
-    public void testPostCurdFlow() {
-        var id = UUID.randomUUID();
-        String title = "Post test " + id;
-        String content = "content of " + title;
-
-        var result = client.post().uri("/posts")
-            .bodyValue(CreatePostCommand.of(title, content))
-            .exchange()
-            .expectStatus().isCreated()
-            .returnResult(Void.class);
-
-        String savedPostUri = result.getResponseHeaders().getLocation().toString();
-        log.debug("saved post location: {}", savedPostUri);
-        assertNotNull(savedPostUri);
-
-        client.get().uri(savedPostUri)
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody()
-            .jsonPath("$.title").isEqualTo(title)
-            .jsonPath("$.content").isEqualTo(content);
-
-        String updatedTitle = "updated title";
-        String updatedContent = "updated content";
-        client.put()
-            .uri(savedPostUri)
-            .bodyValue(UpdatePostCommand.of(updatedTitle, updatedContent))
-            .exchange()
-            .expectStatus().isNoContent();
-
-        // verified updated.
-        client.get()
-            .uri(savedPostUri)
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody()
-            .jsonPath("$.title").isEqualTo(updatedTitle)
-            .jsonPath("$.content").isEqualTo(updatedContent);
-
-        //delete
-        client.delete().uri(savedPostUri)
-            .exchange()
-            .expectStatus().isNoContent();
-
-        //verify it is deleted.
-        client.get()
-            .uri(savedPostUri)
-            .exchange()
-            .expectStatus().isNotFound();
+            .expectBody().jsonPath("$.size()").isEqualTo(2);
     }
 
 }

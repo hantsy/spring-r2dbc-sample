@@ -1,4 +1,4 @@
 DELETE
 FROM todos;
 INSERT INTO todos(title)
-VALUES ('Hibernate Reactive and Spring'), ('Hibernate and R2dbc with Spring WebFlux');
+VALUES ('Learning Spring WebFlux'), ('Cooking Example Project using Spring Data R2dbc with Oracle');
