@@ -5,7 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.4"
     kotlin("jvm") version "1.9.22"
     kotlin("plugin.spring") version "1.9.22"
-    id("org.jooq.jooq-codegen-gradle") version "3.19.1"
+    id("org.jooq.jooq-codegen-gradle") version "3.19.2"
 }
 
 group = "com.example"
@@ -94,7 +94,7 @@ tasks.withType<Test> {
 
 jooq {
     version ="$jooqVersion"  // the default (can be omitted)
-    //edition.set(JooqEdition.OSS)  // the default (can be omitted)
+    configuration { }
 
     executions {
         create("main") {  // name of the jOOQ configuration
