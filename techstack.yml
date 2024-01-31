@@ -1,0 +1,677 @@
+repo_name: hantsy/spring-r2dbc-sample
+report_id: 45bf31ee9f631031ab77e340a8142cdf
+version: 0.1
+repo_type: Public
+timestamp: '2024-01-31T08:21:04+00:00'
+requested_by: renovate[bot]
+provider: github
+branch: master
+detected_tools_count: 55
+tools:
+- name: Java
+  description: A concurrent, class-based, object-oriented, language specifically designed
+    to have as few implementation dependencies as possible
+  website_url: https://www.java.com
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/995/K85ZWV2F.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample
+  detection_source: Repo Metadata
+- name: Kotlin
+  description: Statically typed Programming Language targeting JVM and JavaScript
+  website_url: https://kotlinlang.org/
+  open_source: true
+  hosted_saas: true
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/3750/pCfEzr6L.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample
+  detection_source: Repo Metadata
+- name: SQL
+  description: It is a domain-specific language used in programming
+  website_url: https://en.wikipedia.org/wiki/SQL
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/2271/default_068d33483bba6b81ee13fbd4dc7aab9780896a54.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/auditing/src/main/resources/data.sql
+  detection_source: auditing/src/main/resources/data.sql
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-08 02:59:30.000000000 Z
+- name: Project Reactor
+  description: Library for building non-blocking applications on JVM
+  website_url: https://projectreactor.io/
+  open_source: false
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Java Tools
+  image_url: https://img.stackshare.io/service/5807/default_cbd8ab670309059d7e315252d307d409aa40d793.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/auditing/pom.xml
+  detection_source: auditing/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-08 02:59:30.000000000 Z
+- name: Spring Framework
+  description: An application framework and inversion of control container for the
+    Java platform
+  website_url: https://spring.io/projects/spring-framework
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Frameworks (Full Stack)
+  image_url: https://img.stackshare.io/service/2006/spring-framework-project-logo.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/auditing/pom.xml
+  detection_source: auditing/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-08 02:59:30.000000000 Z
+- name: Cloud DB for Mysql
+  description: Easily setup and manage the MySQL database service
+  website_url: https://www.ncloud.com/product/database/cloudDbMysql
+  open_source: false
+  hosted_saas: true
+  category: Data Stores
+  sub_category: SQL Database as a Service
+  image_url: https://img.stackshare.io/service/21275/default_078eb0ae2b56280a937ed073a3ba4332291f9ba8.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: renovate[bot]
+  last_updated_on: 2024-01-21 06:16:10.000000000 Z
+- name: Microsoft SQL Server
+  description: A relational database management system developed by Microsoft
+  website_url: http://microsoft.com/sqlserver
+  open_source: false
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/1027/sql_server.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: Renovate Bot
+  last_updated_on: 2022-06-06 02:01:34.000000000 Z
+- name: MongoDB
+  description: The database for giant ideas
+  website_url: http://www.mongodb.com/
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/1030/leaf-360x360.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-07-30 06:15:19.000000000 Z
+- name: MySQL
+  description: The world's most popular open source database
+  website_url: http://www.mysql.com
+  version: '8.3'
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/1025/logo-mysql-170x170.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-05 16:57:27.000000000 Z
+- name: PostgreSQL
+  description: A powerful, open source object-relational database system
+  website_url: http://www.postgresql.org/
+  open_source: true
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Databases
+  image_url: https://img.stackshare.io/service/1028/ASOhU5xJ.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/bookstore/pom.xml
+  detection_source: bookstore/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-11 03:44:46.000000000 Z
+- name: Serverless AppSync
+  description: Easily and quickly deploy GraphQL APIs on AWS
+  website_url: https://github.com/serverless-components/aws-app-sync
+  open_source: false
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: GraphQL Tools
+  image_url: https://img.stackshare.io/service/11394/appsync.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: Renovate Bot
+  last_updated_on: 2022-06-06 02:01:34.000000000 Z
+- name: jOOQ
+  description: 'A light database-mapping software library '
+  website_url: http://www.jooq.org
+  open_source: false
+  hosted_saas: false
+  category: Data Stores
+  sub_category: Database Tools
+  image_url: https://img.stackshare.io/service/2279/jooq-logo-white-750x750-padded.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/jooq/pom.xml
+  detection_source: jooq/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-02-25 08:51:12.000000000 Z
+- name: Docker
+  description: Enterprise Container Platform for High-Velocity Innovation.
+  website_url: https://www.docker.com/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Virtual Machine Platforms & Containers
+  image_url: https://img.stackshare.io/service/586/n4u37v9t_400x400.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-07-30 06:15:19.000000000 Z
+- name: Docker Compose
+  description: Define and run multi-container applications with Docker
+  website_url: https://github.com/docker/compose
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Container Tools
+  image_url: https://img.stackshare.io/service/3136/docker-compose.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/boot-oracle/docker-compose.yml
+  detection_source: boot-oracle/docker-compose.yml
+  last_updated_by: hantsy
+  last_updated_on: 2023-12-31 13:13:18.000000000 Z
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample
+  detection_source: Repo Metadata
+- name: GitHub Actions
+  description: Automate your workflow from idea to production
+  website_url: https://github.com/features/actions
+  open_source: false
+  hosted_saas: true
+  category: Build, Test, Deploy
+  sub_category: Continuous Integration
+  image_url: https://img.stackshare.io/service/11563/actions.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/.github/workflows/auditing.yml
+  detection_source: ".github/workflows/auditing.yml"
+  last_updated_by: renovate[bot]
+  last_updated_on: 2024-01-21 06:16:23.000000000 Z
+- name: Gradle
+  description: A powerful build system for the JVM
+  website_url: https://www.gradle.org/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Java Build Tools
+  image_url: https://img.stackshare.io/service/975/gradlephant-social-black-bg.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/jooq-kotlin-co-gradle/gradlew
+  detection_source: jooq-kotlin-co-gradle/gradlew
+  last_updated_by: renovate[bot]
+  last_updated_on: 2023-08-21 05:27:58.000000000 Z
+- name: JUnit
+  description: A programmer-oriented testing framework for Java
+  website_url: http://junit.org/
+  license: EPL-1.0
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Testing Frameworks
+  image_url: https://img.stackshare.io/service/2020/874086.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/connection-factories/pom.xml
+  detection_source: connection-factories/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-15 09:38:05.000000000 Z
+- name: Logback
+  description: A logging framework for Java applications
+  website_url: https://logback.qos.ch/
+  open_source: false
+  hosted_saas: false
+  category: Monitoring
+  sub_category: Log Management
+  image_url: https://img.stackshare.io/service/2923/05518ecaa42841e834421e9d6987b04f_400x400.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/connection-factories/pom.xml
+  detection_source: connection-factories/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-15 09:38:05.000000000 Z
+- name: Mockito
+  description: Tasty mocking framework for unit tests in Java
+  website_url: https://site.mockito.org/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Testing Frameworks
+  image_url: https://img.stackshare.io/service/2021/4y634TJm_400x400.jpg
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/data-r2dbc-entitytemplate/pom.xml
+  detection_source: data-r2dbc-entitytemplate/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-07 11:12:19.000000000 Z
+- name: SLF4J
+  description: Simple logging facade for Java
+  website_url: http://slf4j.org/
+  open_source: false
+  hosted_saas: false
+  category: Monitoring
+  sub_category: Log Management
+  image_url: https://img.stackshare.io/service/2805/05518ecaa42841e834421e9d6987b04f_400x400.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/connection-factories/pom.xml
+  detection_source: connection-factories/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-15 09:38:05.000000000 Z
+- name: Apache Camel
+  description: A versatile open source integration framework
+  website_url: https://camel.apache.org/
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Application Hosting
+  sub_category: Platform as a Service
+  image_url: https://img.stackshare.io/service/3276/xWt1RFo6_400x400.jpg
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/auditing/src/main/resources/application.properties
+  detection_source: auditing/src/main/resources/application.properties
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-08 02:59:30.000000000 Z
+- name: Mongo
+  description: Heroku provides services and tools to build, run, and scale web applications.
+    Follow @herokustatus for platform updates. A @salesforce company.
+  website_url: http://wedesignapps.herokuapp.com
+  open_source: false
+  hosted_saas: false
+  image_url: https://img.stackshare.io/service/3519/3wgIDj3j_normal.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/docker-compose.yml
+  detection_source: docker-compose.yml
+  last_updated_by: Hantsy Bai
+  last_updated_on: 2021-07-30 06:15:19.000000000 Z
+- name: ch.qos.logback:logback-classic
+  description: Logback-classic module
+  license: EPL-1.0,LGPL-2.1+
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/connection-factories/pom.xml
+  detection_source: connection-factories/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-15 09:38:05.000000000 Z
+- name: ch.qos.logback:logback-core
+  description: Logback-core module
+  license: EPL-1.0,LGPL-2.1+
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/connection-factories/pom.xml
+  detection_source: connection-factories/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-15 09:38:05.000000000 Z
+- name: com.fasterxml.jackson.core:jackson-databind
+  description: 'General data-binding functionality for Jackson: works on core streaming
+    API'
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/data-r2dbc-entitytemplate/pom.xml
+  detection_source: data-r2dbc-entitytemplate/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-07 11:12:19.000000000 Z
+- name: com.fasterxml.jackson.datatype:jackson-datatype-jdk8
+  description: Add-on module for Jackson
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/data-r2dbc-entitytemplate/pom.xml
+  detection_source: data-r2dbc-entitytemplate/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-07 11:12:19.000000000 Z
+- name: com.fasterxml.jackson.datatype:jackson-datatype-jsr310
+  description: Add-on module to support JSR-310
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/data-r2dbc-entitytemplate/pom.xml
+  detection_source: data-r2dbc-entitytemplate/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-07 11:12:19.000000000 Z
+- name: com.fasterxml.jackson.module:jackson-module-kotlin
+  description: Add-on module for Jackson
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/kotlin-co/pom.xml
+  detection_source: kotlin-co/pom.xml
+  last_updated_by: renovate[bot]
+  last_updated_on: 2023-12-22 02:07:28.000000000 Z
+- name: com.jayway.jsonpath:json-path
+  description: Java port of Stefan Goessner JsonPath
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/data-r2dbc-entitytemplate/pom.xml
+  detection_source: data-r2dbc-entitytemplate/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-07 11:12:19.000000000 Z
+- name: com.jayway.jsonpath:json-path-assert
+  description: Assertions on Json using JsonPath
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/data-r2dbc-entitytemplate/pom.xml
+  detection_source: data-r2dbc-entitytemplate/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-07 11:12:19.000000000 Z
+- name: io.netty:netty-buffer
+  description: Netty project - an event-driven asynchronous network application framework
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/connection-factories/pom.xml
+  detection_source: connection-factories/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-15 09:38:05.000000000 Z
+- name: io.projectreactor.netty:reactor-netty
+  description: Reactive Streams Netty driver
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/connection-factories/pom.xml
+  detection_source: connection-factories/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-21 07:16:35.000000000 Z
+- name: io.projectreactor:reactor-test
+  description: Reactor Test support
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/auditing/pom.xml
+  detection_source: auditing/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2020-09-08 02:59:30.000000000 Z
+- name: org.assertj:assertj-core
+  description: Rich and fluent assertions for testing for Java
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/connection-factories/pom.xml
+  detection_source: connection-factories/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-21 05:01:46.000000000 Z
+- name: org.hamcrest:hamcrest
+  description: Core API and libraries of hamcrest matcher framework
+  license: DSDP
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/connection-factories/pom.xml
+  detection_source: connection-factories/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-21 05:01:46.000000000 Z
+- name: org.jetbrains.kotlin:kotlin-reflect
+  description: Kotlin Full Reflection Library
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/kotlin-co/pom.xml
+  detection_source: kotlin-co/pom.xml
+  last_updated_by: renovate[bot]
+  last_updated_on: 2023-12-22 02:07:28.000000000 Z
+- name: org.jetbrains.kotlin:kotlin-stdlib-jdk8
+  description: Kotlin Standard Library JDK 8 extension
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/kotlin-co/pom.xml
+  detection_source: kotlin-co/pom.xml
+  last_updated_by: renovate[bot]
+  last_updated_on: 2023-12-22 02:07:28.000000000 Z
+- name: org.jooq:jooq
+  description: JOOQ effectively combines complex SQL
+  version: 3.19.3
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/jooq/pom.xml
+  detection_source: jooq/pom.xml
+  last_updated_by: renovate[bot]
+  last_updated_on: 2024-01-21 01:45:09.000000000 Z
+- name: org.junit.jupiter:junit-jupiter-engine
+  description: Module "junit-jupiter-engine" of JUnit 5
+  license: EPL-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/connection-factories/pom.xml
+  detection_source: connection-factories/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-21 05:01:46.000000000 Z
+- name: org.mockito:mockito-core
+  description: Mockito mock objects library core API and implementation
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/data-r2dbc-entitytemplate/pom.xml
+  detection_source: data-r2dbc-entitytemplate/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-20 14:52:05.000000000 Z
+- name: org.mockito:mockito-junit-jupiter
+  description: Mockito JUnit 5 support
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/data-r2dbc-entitytemplate/pom.xml
+  detection_source: data-r2dbc-entitytemplate/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-20 14:52:05.000000000 Z
+- name: org.postgresql:postgresql
+  description: The PostgreSQL Driver JDBC4
+  license: BSD-2-Clause
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/bookstore/pom.xml
+  detection_source: bookstore/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-11 03:44:46.000000000 Z
+- name: org.projectlombok:lombok
+  description: 'Spice up your java: Automatic Resource Management'
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/auditing/pom.xml
+  detection_source: auditing/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-20 14:52:05.000000000 Z
+- name: org.skyscreamer:jsonassert
+  description: A library to develop RESTful but flexible APIs
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/data-r2dbc-entitytemplate/pom.xml
+  detection_source: data-r2dbc-entitytemplate/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-20 14:52:05.000000000 Z
+- name: org.slf4j:jcl-over-slf4j
+  description: JCL 1.2 implemented over SLF4J
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/connection-factories/pom.xml
+  detection_source: connection-factories/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-21 05:01:46.000000000 Z
+- name: org.slf4j:slf4j-api
+  description: The slf4j API
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/connection-factories/pom.xml
+  detection_source: connection-factories/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-21 05:01:46.000000000 Z
+- name: org.springframework.boot:spring-boot-starter-actuator
+  description: Starter for using Spring Boot's Actuator which provides production
+    ready features to help you monitor and manage your application
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/boot/pom.xml
+  detection_source: boot/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-12-12 01:04:41.000000000 Z
+- name: org.springframework.boot:spring-boot-starter-security
+  description: Starter for using Spring Security
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/auditing/pom.xml
+  detection_source: auditing/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-20 14:52:05.000000000 Z
+- name: org.springframework.boot:spring-boot-starter-test
+  description: Starter for testing Spring Boot applications with libraries including
+    JUnit
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/auditing/pom.xml
+  detection_source: auditing/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-20 14:52:05.000000000 Z
+- name: org.springframework.security:spring-security-test
+  description: Spring-security-test
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/auditing/pom.xml
+  detection_source: auditing/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-20 14:52:05.000000000 Z
+- name: org.springframework:spring-context
+  description: Spring Context
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/data-r2dbc-entitytemplate/pom.xml
+  detection_source: data-r2dbc-entitytemplate/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-20 14:52:05.000000000 Z
+- name: org.springframework:spring-test
+  description: Spring TestContext Framework
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/data-r2dbc-entitytemplate/pom.xml
+  detection_source: data-r2dbc-entitytemplate/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-20 14:52:05.000000000 Z
+- name: org.springframework:spring-webflux
+  description: Spring WebFlux
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/data-r2dbc-entitytemplate/pom.xml
+  detection_source: data-r2dbc-entitytemplate/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-20 14:52:05.000000000 Z
+- name: org.testcontainers:postgresql
+  description: Testcontainers is a Java library that supports JUnit tests
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/hantsy/spring-r2dbc-sample/blob/master/bookstore/pom.xml
+  detection_source: bookstore/pom.xml
+  last_updated_by: hantsy
+  last_updated_on: 2022-05-11 03:44:46.000000000 Z
