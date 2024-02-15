@@ -27,8 +27,8 @@ class PostRepositoryImpl(private val dslContext: DSLContext) : PostRepositoryCus
             )
             .where(
                 POSTS.TITLE.like("%$title%")
-                    .and(POSTS.CONTENT.like("%$title%"))
-                    .and(COMMENTS.CONTENT.like("%$title%"))
+                    .or(POSTS.CONTENT.like("%$title%"))
+                    .or(COMMENTS.CONTENT.like("%$title%"))
             )
             .groupBy(POSTS.ID)
 
@@ -50,8 +50,8 @@ class PostRepositoryImpl(private val dslContext: DSLContext) : PostRepositoryCus
             )
             .where(
                 POSTS.TITLE.like("%$title%")
-                    .and(POSTS.CONTENT.like("%$title%"))
-                    .and(COMMENTS.CONTENT.like("%$title%"))
+                    .or(POSTS.CONTENT.like("%$title%"))
+                    .or(COMMENTS.CONTENT.like("%$title%"))
             )
         return Mono.from(sql).map { it.value1() ?: 0 }.awaitSingle()
     }
