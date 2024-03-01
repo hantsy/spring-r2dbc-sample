@@ -32,3 +32,14 @@ ALTER TABLE comments ADD CONSTRAINT comments_pk PRIMARY KEY (id);
 ALTER TABLE nodes ADD CONSTRAINT nodes_pk PRIMARY KEY (id);
 ALTER TABLE comments ADD CONSTRAINT comments_posts_fk FOREIGN KEY (post_id) REFERENCES posts(id) /* [jooq ignore start] */ON DELETE CASCADE ON UPDATE CASCADE/* [jooq ignore stop] */;
 ALTER TABLE nodes ADD CONSTRAINT nodes_parent_fk FOREIGN KEY (parent_id) REFERENCES nodes(id) /* [jooq ignore start] */ON UPDATE CASCADE/* [jooq ignore stop] */;
+
+CREATE TABLE IF NOT EXISTS bank_accounts (
+     id UUID  NOT NULL /* [jooq ignore start] */DEFAULT uuid_generate_v4()/* [jooq ignore stop] */,
+     business_name VARCHAR(255),
+     account_number VARCHAR(50) NOT NULL,
+     routing_number VARCHAR(50) NOT NULL,
+     first_name VARCHAR(255),
+     last_name VARCHAR(255)
+);
+
+ALTER TABLE bank_accounts ADD CONSTRAINT bank_accounts_pk PRIMARY KEY (id);
