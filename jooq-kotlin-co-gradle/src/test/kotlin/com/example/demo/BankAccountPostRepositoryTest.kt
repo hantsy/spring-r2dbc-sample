@@ -6,7 +6,6 @@ import com.example.demo.domain.model.BankAccount
 import com.example.demo.domain.model.BusinessBankAccount
 import com.example.demo.domain.model.IndividualBankAccount
 import com.example.demo.domain.repository.BankAccountRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
@@ -25,7 +24,6 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.MountableFile
 
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @Testcontainers
 @DataR2dbcTest()
 @Import(JooqConfig::class, R2dbcConfig::class)

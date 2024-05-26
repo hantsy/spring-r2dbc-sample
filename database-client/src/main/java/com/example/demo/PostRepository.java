@@ -133,6 +133,13 @@ public class PostRepository {
                 .rowsUpdated();
     }
 
+    public Mono<Long> deleteAllById(List<UUID> ids) {
+        return this.databaseClient.sql("DELETE FROM posts WHERE id in (:ids)")
+                .bind("ids", ids)
+                .fetch()
+                .rowsUpdated();
+    }
+
     public Mono<Long> deleteAll() {
         return this.databaseClient.sql("DELETE FROM posts")
                 .fetch()

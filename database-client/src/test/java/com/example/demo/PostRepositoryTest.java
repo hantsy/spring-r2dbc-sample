@@ -74,6 +74,21 @@ public class PostRepositoryTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testInsertAndDelete() {
+        var data = Post.builder().title("test").content("content")
+                .status(Post.Status.PENDING_MODERATION)
+                .build();
+        this.posts.save(data)
+                .flatMap(id -> this.posts.deleteAllById(List.of(id)))
+                .as(StepVerifier::create)
+                .consumeNextWith(r -> {
+                    log.info("deleted result: {}", r);
+                    assertThat(r).isGreaterThan(0);
+                })
+                .verifyComplete();
+    }
+
     @ComponentScan
     static class TestConfig {
     }
