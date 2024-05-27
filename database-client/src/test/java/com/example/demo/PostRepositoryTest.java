@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,8 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,11 +25,16 @@ public class PostRepositoryTest {
     @Autowired
     PostRepository posts;
 
+    @SneakyThrows
     @BeforeEach
     public void setup() {
-        this.posts.deleteAll().subscribe(
-                data -> log.info("clean database: {} deleted.", data)
-        );
+        var latch = new CountDownLatch(1);
+        this.posts.deleteAll()
+                .doOnTerminate(latch::countDown)
+                .subscribe(
+                        data -> log.info("clean database: {} deleted.", data)
+                );
+        latch.await(1000, TimeUnit.MILLISECONDS);
     }
 
     @Test
