@@ -15,7 +15,7 @@
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>21</java.version>
-        <jooq.version>3.19.8</jooq.version>
+        <jooq.version>3.19.9</jooq.version>
         <testcontainers.version>1.19.8</testcontainers.version>
     </properties>
     <dependencies>
