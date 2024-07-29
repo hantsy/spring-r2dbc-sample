@@ -47,7 +47,7 @@ dependencies {
     jooqCodegen("org.jooq:jooq-meta-extensions:${jooqVersion}")
     jooqCodegen("org.jooq:jooq-meta-kotlin:${jooqVersion}")
     // workaround of array type codegen, see: https://github.com/jOOQ/jOOQ/issues/13322
-    jooqCodegen("com.h2database:h2:2.2.224")
+    jooqCodegen("com.h2database:h2:2.3.230")
 
     // test dependencies
     runtimeOnly("org.postgresql:postgresql")
