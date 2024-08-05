@@ -28,7 +28,7 @@ jobs:
 
       - name: Start up PostgreSQL in Docker
         run: |
-          docker-compose up -d postgres
+          docker compose up -d postgres
           sleep 10
           docker ps -a
       - name: Build with Maven

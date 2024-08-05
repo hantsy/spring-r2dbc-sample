@@ -29,7 +29,7 @@ jobs:
         distribution: 'temurin'
     - name: Setup Postgres in Docker 
       run: |
-        docker-compose up -d postgres
+        docker compose up -d postgres
         sleep 5
         docker ps -a
     - name: Build with Gradle

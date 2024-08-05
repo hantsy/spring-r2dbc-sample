@@ -50,7 +50,7 @@ jobs:
       # - name: Set up Oracle(via Docker Compose)
       #   run: |
       #     cd hibernate-reactive-mutiny-oracle
-      #     docker-compose up -d
+      #     docker compose up -d
       #     sleep 10
       #     docker ps -a
       # - uses: gvenzl/setup-oracle-free@v1
