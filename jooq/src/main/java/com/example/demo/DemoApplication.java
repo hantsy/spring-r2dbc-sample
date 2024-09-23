@@ -143,11 +143,6 @@ class PostHandler {
 @Slf4j
 class PostService {
     private final DSLContext dslContext;
-    private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
-    private final HashTagRepository tagRepository;
-    private final PostTagRelationRepository postTagRelRepository;
-
 
     public Flux<PostSummary> findAll() {
         var p = POSTS;
