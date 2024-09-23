@@ -16,6 +16,8 @@ Compare to the Spring Data R2dbc 1.1, some breaking changes are notable.
 * [Data Auditing with Spring Data R2dbc](./docs/auditing.md)
 * [Dealing with Postgres specific Json/Enum type and NOTIFY/LISTEN with R2dbc](./docs/pg.md)
 * [Building Chat Application with R2dbc and Postgres](./docs/chat.md)
+* [Persisting Binary Data into Postgres using Spring Data R2dbc](./docs/persist-bin.md)
+* [Handling File Upload/Download with Spring WebFlux and Spring Data R2dbc](./docs/filepart.md)
   
 
 ## Sample Codes

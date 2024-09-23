@@ -8,11 +8,11 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- CREATE TYPE post_status AS ENUM( 'DRAFT', 'PENDING_MODERATION', 'PUBLISHED');
 
 -- A simple way to skip exception when creating type if it is existed.
-DO $$ BEGIN
-    CREATE TYPE post_status AS ENUM( 'DRAFT', 'PENDING_MODERATION', 'PUBLISHED');
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
+-- DO $$ BEGIN
+--     CREATE TYPE post_status AS ENUM( 'DRAFT', 'PENDING_MODERATION', 'PUBLISHED');
+-- EXCEPTION
+--     WHEN duplicate_object THEN null;
+-- END $$;
 
 -- Use EnumCodec to handle enum between Java and pg. 
 -- see: https://github.com/pgjdbc/r2dbc-postgresql#postgres-enum-types
