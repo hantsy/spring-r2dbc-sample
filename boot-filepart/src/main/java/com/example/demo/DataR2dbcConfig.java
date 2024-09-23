@@ -19,18 +19,19 @@ import java.util.List;
 public class DataR2dbcConfig {
 
     // see: https://github.com/spring-projects/spring-data-relational/issues/1408
-    @Bean
-    public R2dbcCustomConversions r2dbcCustomConversions(ConnectionFactory connectionFactory) {
-        return R2dbcCustomConversions.of(
-                DialectResolver.getDialect(connectionFactory),
-                List.of(
-                        new ByteArrayToByteBufferConverter(),
-                        new ByteBufferToByteArrayConverter(),
-                        new ByteArrayToBlobConverter(),
-                        new BlobToByteArrayConverter()
-                )
-        );
-    }
+    // fixed in spring data relational 3.1
+//    @Bean
+//    public R2dbcCustomConversions r2dbcCustomConversions(ConnectionFactory connectionFactory) {
+//        return R2dbcCustomConversions.of(
+//                DialectResolver.getDialect(connectionFactory),
+//                List.of(
+//                        new ByteArrayToByteBufferConverter(),
+//                        new ByteBufferToByteArrayConverter(),
+//                        new ByteArrayToBlobConverter(),
+//                        new BlobToByteArrayConverter()
+//                )
+//        );
+//    }
 }
 
 
