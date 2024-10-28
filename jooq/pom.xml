@@ -16,7 +16,7 @@
     <properties>
         <java.version>21</java.version>
         <jooq.version>3.19.14</jooq.version>
-        <testcontainers.version>1.20.2</testcontainers.version>
+        <testcontainers.version>1.20.3</testcontainers.version>
     </properties>
     <dependencies>
         <dependency>
