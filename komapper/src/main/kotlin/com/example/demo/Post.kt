@@ -9,6 +9,7 @@ import org.komapper.annotation.KomapperEnum
 import org.komapper.annotation.KomapperId
 import org.komapper.annotation.KomapperTable
 import org.komapper.annotation.KomapperUpdatedAt
+import org.komapper.annotation.KomapperVersion
 import java.time.LocalDateTime
 
 @KomapperEntity
@@ -35,6 +36,9 @@ data class Post(
     @KomapperUpdatedAt
     @KomapperColumn("updated_at")
     val updatedAt: LocalDateTime? = null,
+
+    @KomapperVersion
+    val version: Long? = null
 ) {
     enum class Status {
         DRAFT, PUBLISHED
