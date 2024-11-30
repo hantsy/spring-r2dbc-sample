@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.server.coRouter
 
 @Configuration
-class RouterConfiguration {
+class RouterConfig {
 
     @Bean
     fun routes(handler: PostHandler, commentsHandler: CommentHandler) = coRouter {

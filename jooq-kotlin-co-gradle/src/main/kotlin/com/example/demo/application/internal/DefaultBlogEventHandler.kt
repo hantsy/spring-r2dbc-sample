@@ -1,26 +1,28 @@
-package com.example.demo.application.interal
+package com.example.demo.application.internal
 
-import com.example.demo.application.BlogEventHandlingService
+import com.example.demo.application.BlogEventHandler
+import com.example.demo.domain.event.PostUpdatedEvent
 import com.example.demo.domain.model.Comment
 import com.example.demo.domain.repository.CommentRepository
 import com.example.demo.domain.repository.PostRepository
+import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
 
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW)
-class DefaultBlogEventHandlingService(
+class DefaultBlogEventHandler(
     val postRepository: PostRepository,
     val commentRepository: CommentRepository
-) : BlogEventHandlingService {
+) : BlogEventHandler {
 
-   override suspend fun updatePostCommentsCount(id: UUID) {
+    @EventListener(PostUpdatedEvent::class)
+    override suspend fun onPostUpdatedEvent(event: PostUpdatedEvent) {
+        val id = event.postId
         val count = commentRepository.countByPostIdAndStatus(id, Comment.Status.ACCEPTED)
-        val post = postRepository.findById(id)?.apply {
+        postRepository.findById(id)?.apply {
             commentsCount = count
-        }
-        post?.also { postRepository.save(it) }
+        }?.also { postRepository.save(it) }
     }
 }

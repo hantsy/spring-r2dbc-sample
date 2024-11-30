@@ -46,7 +46,7 @@ import java.time.LocalDate
 @Import(JooqConfig::class, R2dbcConfig::class)
 class PostRepositoriesTest {
     companion object {
-        private val log = LoggerFactory.getLogger(BankAccountPostRepositoryTest::class.java)
+        private val log = LoggerFactory.getLogger(PostRepositoriesTest::class.java)
 
 
         @Container

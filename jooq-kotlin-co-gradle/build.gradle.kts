@@ -10,7 +10,6 @@ plugins {
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_21
 
 repositories {
     mavenCentral()
@@ -80,20 +79,25 @@ dependencyManagement {
     }
 }
 
-tasks.withType<KotlinCompile> {
-    dependsOn("jooqCodegenMain")
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
-        jvmTarget = "21"
+kotlin {
+    jvmToolchain(21)
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            listOf(
+                "-Xjsr305=strict",
+                "-opt-in=kotlin.RequiresOptIn"
+            )
+        )
     }
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+tasks.withType<KotlinCompile> {
+    dependsOn("jooqCodegenMain")
 }
 
+
 jooq {
-    version ="$jooqVersion"  // the default (can be omitted)
+    version = "$jooqVersion"  // the default (can be omitted)
     configuration { }
 
     executions {
@@ -181,4 +185,8 @@ jooq {
             }
         }
     }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

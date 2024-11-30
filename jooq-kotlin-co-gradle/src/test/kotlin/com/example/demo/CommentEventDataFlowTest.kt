@@ -1,7 +1,7 @@
 package com.example.demo
 
 import com.example.demo.application.BlogService
-import com.example.demo.application.interal.DefaultBlogService
+import com.example.demo.application.internal.DefaultBlogService
 import com.example.demo.domain.JooqConfig
 import com.example.demo.domain.R2dbcConfig
 import com.example.demo.domain.event.PostUpdatedEvent
@@ -9,7 +9,7 @@ import com.example.demo.domain.model.Comment
 import com.example.demo.domain.model.Post
 import com.example.demo.domain.repository.CommentRepository
 import com.example.demo.domain.repository.PostRepository
-import io.kotest.framework.concurrency.eventually
+import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,6 +33,7 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.MountableFile
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Testcontainers
@@ -107,7 +108,7 @@ class CommentEventDataFlowTest {
 
         blogService.acceptPendingCommentOfPost(post.id!!)
 
-        eventually(5000) {
+        eventually(5000.milliseconds) {
             val foundPost = posts.findById(post.id!!)
             foundPost shouldNotBe null
 
@@ -140,7 +141,7 @@ class CommentEventDataFlowTest {
 
         blogService.rejectPendingCommentOfPost(post.id!!)
 
-        eventually(5000) {
+        eventually(5000.milliseconds) {
             val foundPost = posts.findById(post.id!!)
             foundPost shouldNotBe null
 
@@ -173,7 +174,7 @@ class CommentEventDataFlowTest {
 
         blogService.rejectPendingCommentOfPost(post.id!!)
 
-        eventually(5000) {
+        eventually(5000.milliseconds) {
             val foundPost = posts.findById(post.id!!)
             foundPost shouldNotBe null
 
@@ -183,7 +184,7 @@ class CommentEventDataFlowTest {
 
         blogService.resetRejectedCommentsOfPost(post.id!!)
 
-        eventually(5000) {
+        eventually(5000.milliseconds) {
             val foundPost = posts.findById(post.id!!)
             foundPost shouldNotBe null
 
@@ -193,7 +194,7 @@ class CommentEventDataFlowTest {
 
         blogService.acceptPendingCommentOfPost(post.id!!)
 
-        eventually(5000) {
+        eventually(5000.milliseconds) {
             val foundPost = posts.findById(post.id!!)
             foundPost shouldNotBe null
 

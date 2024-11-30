@@ -1,10 +1,9 @@
-package com.example.demo.application.interal
+package com.example.demo.application.internal
 
 import com.example.demo.application.BlogService
 import com.example.demo.domain.event.PostUpdatedEvent
 import com.example.demo.domain.model.Comment
 import com.example.demo.domain.repository.CommentRepository
-import com.example.demo.domain.repository.PostRepository
 import kotlinx.coroutines.flow.*
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher

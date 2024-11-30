@@ -23,7 +23,7 @@ data class Comment(
     var notes: String? = null,
 
     @Column("post_id")
-    val postId: UUID? = null,
+    var postId: UUID? = null,
 
     @Column("created_at")
     @CreatedDate

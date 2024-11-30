@@ -10,16 +10,16 @@ import java.util.*
 @Component
 class CommentHandler(val comments: CommentRepository) {
     suspend fun allByPost(req: ServerRequest): ServerResponse {
-        val postId = UUID.fromString(req.pathVariable("id"))
-        val data = comments.findByPostId(postId)
+        val id = UUID.fromString(req.pathVariable("id"))
+        val data = comments.findByPostId(id)
         return ServerResponse.ok().bodyAndAwait(data)
     }
 
     suspend fun create(req: ServerRequest): ServerResponse {
-        var postId = UUID.fromString(req.pathVariable("id"))
+        var id = UUID.fromString(req.pathVariable("id"))
         val data = req.awaitBody(Comment::class)
             .apply {
-                postId = postId
+                postId = id
             }
 
         val saved = comments.save(data)
