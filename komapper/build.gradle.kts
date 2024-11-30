@@ -29,6 +29,7 @@ dependencies {
 	}
 	implementation("org.komapper:komapper-starter-r2dbc")
 	implementation("org.komapper:komapper-dialect-postgresql-r2dbc")
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	ksp("org.komapper:komapper-processor")
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
