@@ -9,5 +9,9 @@ interface PostRepository {
 
     suspend fun save(post: Post): Post
 
+    suspend fun saveAll(posts: List<Post>): List<Post>
+
     suspend fun deleteById(id: Long): Long
+
+    suspend fun deleteAll(): Long
 }

@@ -1,16 +1,18 @@
 package com.example.demo
 
-import com.example.demo.Post.Status.PUBLISHED
+import com.example.demo.Status.PUBLISHED
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.first
 import org.komapper.r2dbc.R2dbcDatabase
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
 @Component
+@Profile("dev")
 class DataInitializer(
     private val r2dbcDatabase: R2dbcDatabase
 ) {
@@ -25,10 +27,10 @@ class DataInitializer(
         r2dbcDatabase.withTransaction {
 
             // create schema
-            r2dbcDatabase.runQuery {
-                QueryDsl.drop(p)
-                QueryDsl.create(p)
-            }
+   //         r2dbcDatabase.runQuery {
+//                QueryDsl.drop(p)
+//                QueryDsl.create(p)
+//            }
 
             // insert data
             val newPost = r2dbcDatabase.runQuery {

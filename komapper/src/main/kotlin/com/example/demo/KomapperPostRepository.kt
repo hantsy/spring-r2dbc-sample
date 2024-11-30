@@ -30,9 +30,23 @@ class KomapperPostRepository(
         }
     }
 
+    override suspend fun saveAll(posts: List<Post>) = r2dbcDatabase.withTransaction{
+        r2dbcDatabase.runQuery{
+            QueryDsl.insert(p)
+                .multiple(posts)
+                .returning()
+        }
+    }
+
     override suspend fun deleteById(id: Long): Long = r2dbcDatabase.withTransaction {
         r2dbcDatabase.runQuery {
             QueryDsl.delete(p).where { p.id eq id }
+        }
+    }
+
+    override suspend fun deleteAll(): Long = r2dbcDatabase.withTransaction {
+        r2dbcDatabase.runQuery {
+            QueryDsl.delete(p).all()
         }
     }
 

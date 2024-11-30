@@ -39,8 +39,4 @@ data class Post(
 
     @KomapperVersion
     val version: Long? = null
-) {
-    enum class Status {
-        DRAFT, PUBLISHED
-    }
-}
+)
