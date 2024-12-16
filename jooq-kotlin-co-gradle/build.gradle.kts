@@ -5,7 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.6"
     kotlin("jvm") version "2.1.0"
     kotlin("plugin.spring") version "2.1.0"
-    id("org.jooq.jooq-codegen-gradle") version "3.19.15"
+    id("org.jooq.jooq-codegen-gradle") version "3.19.16"
 }
 
 group = "com.example"
