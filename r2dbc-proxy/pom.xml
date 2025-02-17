@@ -21,7 +21,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <java.version>21</java.version>
-        <springdoc-openapi.version>2.8.4</springdoc-openapi.version>
+        <springdoc-openapi.version>2.8.5</springdoc-openapi.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
 
         <project.testresult.directory>${project.build.directory}/test-results</project.testresult.directory>
