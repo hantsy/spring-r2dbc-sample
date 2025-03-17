@@ -23,7 +23,7 @@
         <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
 
         <!-- test properties -->
-        <testcontainers.version>1.20.5</testcontainers.version>
+        <testcontainers.version>1.20.6</testcontainers.version>
         <skip.unit.tests>true</skip.unit.tests>
         <skip.integration.tests>true</skip.integration.tests>
     </properties>
