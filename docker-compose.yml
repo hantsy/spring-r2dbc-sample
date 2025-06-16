@@ -32,7 +32,7 @@ services:
 
   # no entrypoint-init scripts, see: https://github.com/Microsoft/mssql-docker/issues/11
   mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:2025-latest
     environment:
       - SA_PASSWORD=p@ssw0rd
       - ACCEPT_EULA=Y
