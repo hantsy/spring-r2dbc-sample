@@ -42,7 +42,7 @@ dependencies {
     implementation("org.jooq:jooq:${jooqVersion}")
     implementation("org.jooq:jooq-kotlin:${jooqVersion}")
     // workaround of issue: https://github.com/etiennestuder/gradle-jooq-plugin/issues/209
-    jooqCodegen("jakarta.xml.bind:jakarta.xml.bind-api:4.0.2")
+    jooqCodegen("jakarta.xml.bind:jakarta.xml.bind-api:4.0.4")
     jooqCodegen("org.jooq:jooq-meta-extensions:${jooqVersion}")
     jooqCodegen("org.jooq:jooq-meta-kotlin:${jooqVersion}")
     // workaround of array type codegen, see: https://github.com/jOOQ/jOOQ/issues/13322
