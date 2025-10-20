@@ -15,7 +15,7 @@ repositories {
     mavenCentral()
 }
 
-extra["testcontainersVersion"] = "1.21.3"
+extra["testcontainersVersion"] = "2.0.1"
 val kotlinCoVersion = project.properties["kotlinCoVersion"]
 val kotestVersion = project.properties["kotestVersion"]
 val mockkVersion = project.properties["mockkVersion"]
@@ -64,7 +64,6 @@ dependencies {
 
     // Kotest assertions
     testImplementation("io.kotest:kotest-assertions-core-jvm:${kotestVersion}")
-    testImplementation("io.kotest:kotest-framework-concurrency-jvm:${kotestVersion}")
 
     // mockk: mocking framework for Kotlin
     testImplementation("io.mockk:mockk-jvm:${mockkVersion}")
