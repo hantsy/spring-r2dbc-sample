@@ -27,6 +27,7 @@ jobs:
       with:
         java-version: "21"
         distribution: 'temurin'
+        cache: "maven"
     - name: Setup Postgres in Docker 
       run: |
         docker compose up -d postgres
