@@ -86,7 +86,7 @@ class CommentEventDataFlowTest {
     }
 
     @Test
-    fun `accept pending comments`() = runTest(StandardTestDispatcher(), 300_000) {
+    fun `accept pending comments`() = runTest(StandardTestDispatcher(), 300_000.milliseconds) {
         val post = template.insert(Post(title = "Post #", content = "Content of post")).awaitSingle()
         val data = (1..30)
             .map {
