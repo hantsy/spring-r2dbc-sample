@@ -1,5 +1,8 @@
 # Spring R2dbc Example
 
+> [!NOTE]
+> The Spring Boot 3 based version is tagged with a `boot-3` tag. 
+
 >This repository contains the latest changes in the Spring R2dbc(part of Spring Framework 5.3), Spring Data R2dbc 1.2 and Spring Boot 2.4.
 
 I have created several R2dbc examples in the [spring-reactive-sample](https://github.com/hantsy/spring-reactive-sample/) repository since it was born. But Spring Data R2dbc evolved very quickly, thre are plenty of breaking changes introduced since Spring 5.2 and Spring Data R2dbc 1.2.
