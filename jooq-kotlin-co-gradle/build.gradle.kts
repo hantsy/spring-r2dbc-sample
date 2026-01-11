@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "4.0.0"
+    id("org.springframework.boot") version "4.0.1"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.2.21"
-    kotlin("plugin.spring") version "2.2.21"
+    kotlin("jvm") version "2.3.0"
+    kotlin("plugin.spring") version "2.3.0"
     id("org.jooq.jooq-codegen-gradle") version "3.20.10"
 }
 
@@ -15,7 +15,6 @@ repositories {
     mavenCentral()
 }
 
-extra["testcontainersVersion"] = "2.0.3"
 val kotlinCoVersion = project.properties["kotlinCoVersion"]
 val kotestVersion = project.properties["kotestVersion"]
 val mockkVersion = project.properties["mockkVersion"]
@@ -23,19 +22,13 @@ val springmockkVersion = project.properties["springmockkVersion"]
 val jooqVersion = project.properties["jooqVersion"]
 
 dependencies {
-
-    // webflux
+    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-
-    //kotlin and coroutines support
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-
-    //r2dbc and spring data r2dbc
-    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+    implementation("tools.jackson.module:jackson-module-kotlin")
+    runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
 
     //jooq
@@ -49,15 +42,15 @@ dependencies {
     jooqCodegen("com.h2database:h2:2.4.240")
 
     // test dependencies
-    runtimeOnly("org.postgresql:postgresql")
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        // use mockk as mocking framework
-        exclude(module = "mockito-core")
-    }
-    testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:postgresql")
-    testImplementation("org.testcontainers:r2dbc")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-r2dbc-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
+    testImplementation("org.testcontainers:testcontainers-r2dbc")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // test helpers for Kotlin coroutines
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${kotlinCoVersion}")
@@ -72,18 +65,13 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:${springmockkVersion}")
 }
 
-dependencyManagement {
-    imports {
-        mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
-    }
-}
-
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
     compilerOptions {
         freeCompilerArgs.addAll(
             listOf(
                 "-Xjsr305=strict",
+                "-Xannotation-default-target=param-property",
                 "-opt-in=kotlin.RequiresOptIn"
             )
         )

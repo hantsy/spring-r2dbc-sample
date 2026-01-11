@@ -16,54 +16,27 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest
+import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Import
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
-import org.testcontainers.utility.MountableFile
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@Testcontainers
 @DataR2dbcTest()
-@Import(JooqConfig::class, R2dbcConfig::class)
 class CommentEventDataFlowTest {
     companion object {
         private val log = LoggerFactory.getLogger(CommentEventDataFlowTest::class.java)
-
-
-        @Container
-        val postgreSQLContainer = PostgreSQLContainer("postgres:12")
-            .withCopyToContainer(
-                MountableFile.forClasspathResource("/init.sql"),
-                "/docker-entrypoint-initdb.d/init.sql"
-            )
-
-        @JvmStatic
-        @DynamicPropertySource
-        fun registerDynamicProperties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.r2dbc.url") {
-                "r2dbc:postgresql://${postgreSQLContainer.host}:${postgreSQLContainer.firstMappedPort}/${postgreSQLContainer.databaseName}"
-            }
-            registry.add("spring.r2dbc.username") { postgreSQLContainer.username }
-            registry.add("spring.r2dbc.password") { postgreSQLContainer.password }
-        }
-
     }
 
     @TestConfiguration
+    @Import(TestcontainersConfiguration::class, JooqConfig::class, R2dbcConfig::class)
     @ComponentScan(basePackageClasses = [DefaultBlogService::class, PostUpdatedEvent::class])
     class TestConfig {}
 
@@ -86,7 +59,7 @@ class CommentEventDataFlowTest {
     }
 
     @Test
-    fun `accept pending comments`() = runTest(StandardTestDispatcher(), 300_000.milliseconds) {
+    suspend fun `accept pending comments`() {
         val post = template.insert(Post(title = "Post #", content = "Content of post")).awaitSingle()
         val data = (1..30)
             .map {
@@ -119,7 +92,7 @@ class CommentEventDataFlowTest {
     }
 
     @Test
-    fun `reject pending comments`() = runTest {
+    suspend fun `reject pending comments`() {
         val post = template.insert(Post(title = "Post #", content = "Content of post")).awaitSingle()
         val data = (1..30)
             .map {
@@ -152,7 +125,7 @@ class CommentEventDataFlowTest {
     }
 
     @Test
-    fun `reset rejected comments to pending`() = runTest {
+    suspend fun `reset rejected comments to pending`() {
         val post = template.insert(Post(title = "Post #", content = "Content of post")).awaitSingle()
         val data = (1..30)
             .map {
