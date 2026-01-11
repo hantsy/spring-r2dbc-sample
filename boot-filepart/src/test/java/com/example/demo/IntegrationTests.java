@@ -5,7 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,11 +15,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
+@Import(TestcontainersConfiguration.class)
 public class IntegrationTests {
 
     @LocalServerPort
@@ -60,7 +64,8 @@ public class IntegrationTests {
         var attachmentUri = locationUri + "/attachment";
         this.webClient.put()
                 .uri(attachmentUri)
-                .bodyValue(generateBody())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(generateBody()))
                 .exchange()
                 .expectStatus().isNoContent();
 
@@ -78,7 +83,7 @@ public class IntegrationTests {
 
     private MultiValueMap<String, HttpEntity<?>> generateBody() {
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("fileParts", new ClassPathResource("/foo.txt", IntegrationTests.class));
+        builder.part("fileParts",  new ClassPathResource("/foo.txt"));
         return builder.build();
     }
 

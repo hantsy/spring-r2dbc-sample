@@ -2,9 +2,9 @@ package com.example.demo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.*;
 @WebFluxTest(controllers = PostController.class)
 public class PostControllerTest {
 
-    @MockBean
+    @MockitoBean
     private PostRepository postRepository;
 
     @Autowired
@@ -24,11 +24,8 @@ public class PostControllerTest {
 
     @Test
     public void createPost() {
-        var post = Post.builder()
-                .title("test")
-                .content("test").build();
-        post.setId(UUID.randomUUID());
-
+        UUID id = UUID.randomUUID();
+        var post = Post.of(id, "test", "test");
         when(postRepository.save(any()))
                 .thenReturn(Mono.just(post));
 

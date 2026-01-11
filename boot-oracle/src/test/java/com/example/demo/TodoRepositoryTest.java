@@ -5,13 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.OracleContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
+import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest;
+import org.springframework.context.annotation.Import;
 import reactor.test.StepVerifier;
 
 import java.util.concurrent.CountDownLatch;
@@ -20,30 +15,10 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Testcontainers
 @DataR2dbcTest
+@Import(TestcontainersConfiguration.class)
 @Slf4j
 public class TodoRepositoryTest {
-
-    static DockerImageName oracleDockerImageName = DockerImageName.parse("gvenzl/oracle-free:23-slim-faststart").asCompatibleSubstituteFor("gvenzl/oracle-xe");
-
-    // see: https://java.testcontainers.org/modules/databases/oraclexe/
-    @Container
-    static OracleContainer oracleContainer = new OracleContainer(oracleDockerImageName)
-        .withDatabaseName("blogdb")
-        .withUsername("testUser")
-        .withPassword("testPassword");
-
-    @DynamicPropertySource
-    static void registerDynamicProperties(DynamicPropertyRegistry registry) {
-        String url = "r2dbc:oracle://"
-            + oracleContainer.getHost() + ":" + oracleContainer.getFirstMappedPort()
-            + "/" + oracleContainer.getDatabaseName();
-        log.debug("connecting to oracle db via r2dbc: {}", url);
-        registry.add("spring.r2dbc.url", () -> url);
-        registry.add("spring.r2dbc.username", () -> oracleContainer.getUsername());
-        registry.add("spring.r2dbc.password", () -> oracleContainer.getPassword());
-    }
 
     @Autowired
     TodoRepository todos;

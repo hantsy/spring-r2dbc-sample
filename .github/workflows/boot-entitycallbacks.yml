@@ -1,0 +1,29 @@
+name: boot-entitycallbacks
+
+on:
+  push:
+    paths:
+      - "boot-entitycallbacks/**"
+    branches:
+      - master
+  pull_request:
+    paths:
+      - "boot-entitycallbacks/**"
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "25"
+          cache: "maven"
+      - name: Build with Maven
+        run: mvn clean install --file boot-entitycallbacks/pom.xml
