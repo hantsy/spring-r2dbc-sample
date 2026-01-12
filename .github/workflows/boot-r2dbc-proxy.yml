@@ -21,7 +21,7 @@ jobs:
       run:
         working-directory: "boot-r2dbc-proxy"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
