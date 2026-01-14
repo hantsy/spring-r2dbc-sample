@@ -34,7 +34,7 @@
         </dependency>
         <!-- The r2dbc-mysql is not updated to R2dbc 0.9 yet -->
         <dependency>
-            <groupId>dev.miku</groupId>
+            <groupId>io.asyncer</groupId>
             <artifactId>r2dbc-mysql</artifactId>
         </dependency>
         <dependency>
