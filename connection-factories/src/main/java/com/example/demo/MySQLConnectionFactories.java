@@ -1,7 +1,7 @@
 package com.example.demo;
 
-import dev.miku.r2dbc.mysql.MySqlConnectionConfiguration;
-import dev.miku.r2dbc.mysql.MySqlConnectionFactory;
+import io.asyncer.r2dbc.mysql.MySqlConnectionConfiguration;
+import io.asyncer.r2dbc.mysql.MySqlConnectionFactory;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
