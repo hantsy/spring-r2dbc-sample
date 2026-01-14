@@ -14,7 +14,7 @@ repositories {
     maven { url = uri("https://repo.spring.io/milestone") }
 }
 
-val komapperVersion = "5.6.0"
+val komapperVersion = "5.7.0"
 
 dependencies {
     platform("org.komapper:komapper-platform:$komapperVersion").let {
