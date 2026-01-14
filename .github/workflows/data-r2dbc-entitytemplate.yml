@@ -25,10 +25,5 @@ jobs:
           distribution: "temurin"
           java-version: "25"
           cache: "maven"
-      - name: Start up PostgreSQL in Docker
-        run: |
-          docker compose up -d postgres
-          sleep 10
-          docker ps -a
       - name: Build with Maven
         run: mvn clean install --file data-r2dbc-entitytemplate/pom.xml

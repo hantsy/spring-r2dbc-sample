@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PostRepositoryTest {
 
     @Configuration
-    @Import(value = {DatabaseConfig.class, PostRepository.class})
+    @Import(value = {DatabaseConfig.class})
     static class TestConfig {
     }
 
@@ -55,12 +55,6 @@ public class PostRepositoryTest {
                 .expectNextCount(2)
                 .verifyComplete();
 
-        StepVerifier.create(posts.countByStatus())
-                .consumeNextWith(r -> {
-                    log.info("data: {}", r);
-                    assertThat(r.get("status")).isEqualTo(Post.Status.DRAFT);
-                })
-                .verifyComplete();
     }
 
     //see: https://stackoverflow.com/questions/64374730/java-r2dbc-client-execute-sql-and-use-returned-id-for-next-execute/64409363#64409363
@@ -68,7 +62,7 @@ public class PostRepositoryTest {
     public void testInsertAndQuery() {
         var data = Post.of("test", "content");
         this.posts.save(data)
-                .flatMap(id -> this.posts.findById(id))
+                .flatMap(saved -> this.posts.findById(saved.id()))
                 .as(StepVerifier::create)
                 .consumeNextWith(r -> {
                     log.info("result data: {}", r);
@@ -81,12 +75,8 @@ public class PostRepositoryTest {
     public void testInsertAndDelete() {
         var data = Post.of("test", "content");
         this.posts.save(data)
-                .flatMap(id -> this.posts.deleteAllById(List.of(id)))
+                .flatMap(saved -> this.posts.deleteAllById(List.of(saved.id())))
                 .as(StepVerifier::create)
-                .consumeNextWith(r -> {
-                    log.info("deleted result: {}", r);
-                    assertThat(r).isGreaterThan(0);
-                })
                 .verifyComplete();
     }
 }

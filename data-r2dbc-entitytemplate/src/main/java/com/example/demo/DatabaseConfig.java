@@ -3,9 +3,12 @@ package com.example.demo;
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
 import io.r2dbc.postgresql.PostgresqlConnectionFactory;
 import io.r2dbc.postgresql.codec.EnumCodec;
+import io.r2dbc.postgresql.extension.CodecRegistrar;
 import io.r2dbc.spi.ConnectionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration;
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
@@ -25,25 +28,31 @@ import java.util.List;
 @EnableTransactionManagement
 @EnableR2dbcAuditing
 public class DatabaseConfig extends AbstractR2dbcConfiguration {
+    @Autowired
+    Environment env;
 
     @Override
     @Bean
     public ConnectionFactory connectionFactory() {
-        // postgres
+        CodecRegistrar codecRegistrar = EnumCodec.builder()
+                .withEnum("post_status", Post.Status.class)
+                .build();
+        String host = env.getProperty("r2dbc.host", "localhost");
+        Integer port = env.getProperty("r2dbc.port", Integer.class);
+        String dbName = env.getProperty("r2dbc.databaseName", "testdb");
+        String user = env.getProperty("r2dbc.username", "user");
+        String password = env.getProperty("r2dbc.password", "password");
+
         return new PostgresqlConnectionFactory(
                 PostgresqlConnectionConfiguration.builder()
-                        .host("localhost")
-                        .database("blogdb")
-                        .username("user")
-                        .password("password")
-                        .codecRegistrar(EnumCodec.builder().withEnum("post_status", Post.Status.class).build())
+                        .host(host)
+                        .port(port != null ? port : 3456)
+                        .database(dbName)
+                        .username(user)
+                        .password(password)
+                        .codecRegistrar(codecRegistrar)
                         .build()
         );
-    }
-
-    @Override
-    protected List<Object> getCustomConverters() {
-        return List.of(new PostReadingConverter(), new PostStatusWritingConverter());
     }
 
     @Bean

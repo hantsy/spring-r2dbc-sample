@@ -1,67 +1,29 @@
 package com.example.demo;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
-import io.r2dbc.postgresql.PostgresqlConnectionConfiguration;
-import io.r2dbc.postgresql.PostgresqlConnectionFactory;
-import io.r2dbc.postgresql.api.PostgresqlConnection;
-import io.r2dbc.postgresql.api.PostgresqlResult;
-import io.r2dbc.postgresql.codec.Json;
-import io.r2dbc.spi.ConnectionFactory;
-import lombok.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
-import org.springframework.boot.autoconfigure.r2dbc.ConnectionFactoryOptionsBuilderCustomizer;
-import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.annotation.*;
 import org.springframework.data.domain.ReactiveAuditorAware;
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
-import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.data.repository.query.ReactiveQueryByExampleExecutor;
-import org.springframework.r2dbc.connection.init.CompositeDatabasePopulator;
-import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
-import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
-import org.springframework.r2dbc.core.DatabaseClient;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.reactive.TransactionalOperator;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import java.io.IOException;
-import java.net.URI;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
-import static io.r2dbc.postgresql.PostgresqlConnectionFactoryProvider.OPTIONS;
-import static org.springframework.web.reactive.function.server.RequestPredicates.path;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
-import static org.springframework.web.reactive.function.server.ServerResponse.*;
+import static org.springframework.http.ResponseEntity.ok;
 
 @SpringBootApplication
 @Slf4j
@@ -70,347 +32,82 @@ public class DemoApplication {
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
     }
-
-    @Bean
-    @Qualifier("pgConnectionFactory")
-    public ConnectionFactory pgConnectionFactory() {
-        return new PostgresqlConnectionFactory(
-                PostgresqlConnectionConfiguration.builder()
-                        .host("localhost")
-                        .database("blogdb")
-                        .username("user")
-                        .password("password")
-                        //.codecRegistrar(EnumCodec.builder().withEnum("post_status", Post.Status.class).build())
-                        .build()
-        );
-    }
-
-    @Bean
-    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
-        return builder -> {
-            builder.serializationInclusion(JsonInclude.Include.NON_EMPTY);
-            builder.featuresToDisable(
-                    SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-                    SerializationFeature.FAIL_ON_EMPTY_BEANS,
-                    DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
-                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-            builder.featuresToEnable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        };
-    }
 }
 
-@Component
-@Slf4j
-class Notifier {
-    @Autowired
-    @Qualifier("pgConnectionFactory")
-    ConnectionFactory pgConnectionFactory;
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/posts")
+class PostController {
+    private final PostRepository postRepository;
 
-    PostgresqlConnection sender;
-
-    @PostConstruct
-    public void initialize() throws InterruptedException {
-        sender = Mono.from(pgConnectionFactory.create())
-                .cast(PostgresqlConnection.class)
-                .block();
+    @GetMapping("")
+    public Flux<Post> all() {
+       return  this.postRepository.findAll();
     }
 
-    public Mono<Void> send() {
-        return sender.createStatement("NOTIFY mymessage, 'Hello world at " + LocalDateTime.now() + "'")
-                .execute()
-                .flatMap(PostgresqlResult::getRowsUpdated)
-                .log("sending notification::")
-                .then();
-    }
-
-    @PreDestroy
-    public void destroy() {
-        sender.close().subscribe();
+    @GetMapping("{id}")
+    public ResponseEntity<Mono<Post>> get(@PathVariable UUID id) {
+        var post = this.postRepository.findById(id);
+        return ok( post);
     }
 
 }
 
-@Component
-@Slf4j
-class Listener {
-    @Autowired
-    @Qualifier("pgConnectionFactory")
-    ConnectionFactory pgConnectionFactory;
-
-    PostgresqlConnection receiver;
-
-    @PostConstruct
-    public void initialize() throws InterruptedException {
-        receiver = Mono.from(pgConnectionFactory.create())
-                .cast(PostgresqlConnection.class)
-                .block();
-
-        receiver.createStatement("LISTEN mymessage")
-                .execute()
-                .flatMap(PostgresqlResult::getRowsUpdated)
-                .log("listen::")
-                .subscribe();
-
-        receiver.getNotifications()
-                .delayElements(Duration.ofSeconds(1))
-                .log()
-                .subscribe(
-                        data -> log.info("notifications: {}", data)
-                );
-    }
-
-    @PreDestroy
-    public void destroy() {
-        receiver.close().subscribe();
-    }
-
-}
-
-// need to register EnumCodec to handle post_status
-// If use a varchar to store Enum, no need converter for it.
-// eg. "status VARCHAR(255) default 'DRAFT'"
-/*
-@Configuration
-class R2dbcConfig extends AbstractR2dbcConfiguration {
-    @Bean
-    @Primary
-    public ConnectionFactory connectionFactory() {
-        return new PostgresqlConnectionFactory(
-                PostgresqlConnectionConfiguration.builder()
-                        .host("localhost")
-                        .database("blogdb")
-                        .username("user")
-                        .password("password")
-                        .codecRegistrar(EnumCodec.builder().withEnum("post_status", Post.Status.class).build())
-                        .build()
-        );
-    }
-
-    @Override
-    protected List<Object> getCustomConverters() {
-        return List.of(
-                new PostReadingConverter(),
-                new PostStatusWritingConverter()
-        );
-    }
-
-}
-
-@WritingConverter
-class PostStatusWritingConverter extends EnumWriteSupport<Post.Status> {
-
-}
-
-@ReadingConverter
-class PostReadingConverter implements Converter<Row, Post> {
-
-    @Override
-    public Post convert(Row row) {
-        return Post.builder()
-                .id(row.get("id", UUID.class))
-                .title(row.get("title", String.class))
-                .content(row.get("content", String.class))
-                .status(row.get("status", Post.Status.class))
-                .metadata(row.get("metadata", Json.class))
-                .createdAt(row.get("created_at", LocalDateTime.class))
-                .updatedAt(row.get("updated_at", LocalDateTime.class))
-                .version(row.get("version", Long.class))
-                .build();
-    }
-}
-*/
 
 @Configuration
 @EnableR2dbcAuditing
 class DataConfig {
 
     @Bean
-    public ConnectionFactoryOptionsBuilderCustomizer postgresCustomizer() {
-        Map<String, String> options = new HashMap<>();
-        options.put("lock_timeout", "30s");
-        options.put("statement_timeout", "60s");
-        return (builder) -> builder.option(OPTIONS, options);
-    }
-
-    @Bean
     ReactiveAuditorAware<String> auditorAware() {
-        return () -> Mono.just("hantsy");
+        return () -> Mono.just("test");
     }
 }
 
-@Configuration
-class WebConfig {
 
-    @Bean
-    public RouterFunction<ServerResponse> routes(
-            PostHandler postController,
-            CommentHandler commentHandler,
-            Notifier notifier) {
-        return route()
-                .GET("/hello", request -> notifier
-                        .send()
-                        .flatMap((v) -> noContent().build())
-                )
-                .path("/posts", () -> route()
-                        .nest(
-                                path(""),
-                                () -> route()
-                                        .GET("", postController::all)
-                                        .POST("", postController::create)
-                                        .build()
-                        )
-                        .nest(
-                                path("{id}"),
-                                () -> route()
-                                        .GET("", postController::get)
-                                        .PUT("", postController::update)
-                                        .DELETE("", postController::delete)
-                                        .nest(
-                                                path("comments"),
-                                                () -> route()
-                                                        .GET("", commentHandler::getByPostId)
-                                                        .POST("", commentHandler::create)
-                                                        .build()
-                                        )
-                                        .build()
-                        )
-                        .build()
-                ).build();
-    }
+interface PostRepository extends R2dbcRepository<Post, UUID> {
 }
 
-@Slf4j
-@JsonComponent
-class PgJsonObjectJsonComponent {
-
-    static class Deserializer extends JsonDeserializer<Json> {
-
-        @Override
-        public Json deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            var value = ctxt.readTree(p);
-            log.info("read json value :{}", value);
-            return Json.of(value.toString());
-        }
-    }
-
-    static class Serializer extends JsonSerializer<Json> {
-
-        @Override
-        public void serialize(Json value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            var text = value.asString();
-            log.info("The raw json value from PostgresSQL JSON type:{}", text);
-            JsonFactory factory = new JsonFactory();
-            JsonParser parser = factory.createParser(text);
-            var node = gen.getCodec().readTree(parser);
-            serializers.defaultSerializeValue(node, gen);
-        }
-
-    }
-}
-
-@Component
-class PostHandler {
-
-    private final PostRepository posts;
-
-    public PostHandler(PostRepository posts) {
-        this.posts = posts;
-    }
-
-    public Mono<ServerResponse> all(ServerRequest req) {
-        return ok().body(this.posts.findAll(), Post.class);
-    }
-
-    public Mono<ServerResponse> create(ServerRequest req) {
-        return req.bodyToMono(Post.class)
-                .flatMap(this.posts::save)
-                .flatMap(post -> created(URI.create("/posts/" + post.getId())).build());
-    }
-
-    public Mono<ServerResponse> get(ServerRequest req) {
-        return this.posts.findById(UUID.fromString(req.pathVariable("id")))
-                .flatMap(post -> ok().body(Mono.just(post), Post.class))
-                .switchIfEmpty(notFound().build());
-    }
-
-    public Mono<ServerResponse> update(ServerRequest req) {
-        var existed = this.posts.findById(UUID.fromString(req.pathVariable("id")));
-        return Mono
-                .zip(
-                        (data) -> {
-                            Post p = (Post) data[0];
-                            Post p2 = (Post) data[1];
-                            p.setTitle(p2.getTitle());
-                            p.setContent(p2.getContent());
-                            p.setMetadata(p2.getMetadata());
-                            p.setStatus(p2.getStatus());
-                            return p;
-                        },
-                        existed,
-                        req.bodyToMono(Post.class)
-                )
-                .cast(Post.class)
-                .flatMap(this.posts::save)
-                .flatMap(post -> noContent().build());
-    }
-
-    public Mono<ServerResponse> delete(ServerRequest req) {
-        return this.posts.deleteById(UUID.fromString(req.pathVariable("id")))
-                .flatMap(deleted -> noContent().build());
-    }
-}
-
-interface PostRepository extends R2dbcRepository<Post, UUID>, ReactiveQueryByExampleExecutor<Post> {
-
-    @Query("SELECT * FROM posts where title like :title")
-    public Flux<Post> findByTitleContains(String title);
-
-    public Mono<Long> countByTitleContaining(String title);
-
-    public Flux<PostSummary> findByTitleLike(String title, Pageable pageable);
-}
-
-@Value
-class PostSummary {
-    UUID id;
-    String title;
-}
-
-@Data
-@ToString
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(value = "posts")
-class Post {
+record Post(
 
-    @Id
-    @Column("id")
-    private UUID id;
+        @Id
+        @Column("id")
+        UUID id,
 
-    @Column("title")
-    private String title;
+        @Column("title")
+        String title,
 
-    @Column("content")
-    private String content;
+        @Column("content")
+        String content,
 
-    @Column("metadata")
-    private Json metadata;
+        @Column("status")
+        Status status,
 
-    @Column("status")
-    private Status status;
+        @Column("created_at")
+        @CreatedDate
+        LocalDateTime createdAt,
 
-    @Column("created_at")
-    @CreatedDate
-    private LocalDateTime createdAt;
+        @Column("created_by")
+        @CreatedBy
+        String createdBy,
 
-    @Column("updated_at")
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
+        @Column("updated_at")
+        @LastModifiedDate
+        LocalDateTime updatedAt,
 
-    @Column("version")
-    @Version
-    private Long version;
+        @Column("updated_by")
+        @LastModifiedBy
+        String updatedBy,
+
+        @Column("version")
+        @Version
+        Long version
+) {
+
+    public static Post of(String title, String content) {
+        return new Post(null, title, content, null, null, null, null, null, null);
+    }
 
     enum Status {
         DRAFT, PENDING_MODERATION, PUBLISHED;
@@ -418,64 +115,4 @@ class Post {
 
 }
 
-@Component
-class CommentHandler {
 
-    private final CommentRepository comments;
-
-    public CommentHandler(CommentRepository comments) {
-        this.comments = comments;
-    }
-
-    public Mono<ServerResponse> create(ServerRequest req) {
-        var postId = UUID.fromString(req.pathVariable("id"));
-        return req.bodyToMono(Comment.class)
-                .map(comment -> {
-                    comment.setPostId(postId);
-                    return comment;
-                })
-                .flatMap(this.comments::save)
-                .flatMap(c -> created(URI.create("/posts/" + postId + "/comments/" + c.getId())).build());
-    }
-
-    public Mono<ServerResponse> getByPostId(ServerRequest req) {
-        var result = this.comments.findByPostId(UUID.fromString(req.pathVariable("id")));
-        return ok().body(result, Comment.class);
-    }
-}
-
-interface CommentRepository extends R2dbcRepository<Comment, UUID> {
-    Flux<Comment> findByPostId(UUID postId);
-}
-
-@Data
-@ToString
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(value = "comments")
-class Comment {
-
-    @Id
-    @Column("id")
-    private UUID id;
-
-    @Column("content")
-    private String content;
-
-    @Column("post_id")
-    private UUID postId;
-
-    @Column("created_at")
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @Column("updated_at")
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-
-    @Column("version")
-    @Version
-    private Long version;
-
-}

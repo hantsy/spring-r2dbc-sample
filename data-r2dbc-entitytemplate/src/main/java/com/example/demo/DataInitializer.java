@@ -1,6 +1,5 @@
 package com.example.demo;
 
-import io.r2dbc.postgresql.codec.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -19,11 +18,10 @@ public class DataInitializer {
     public void init() throws Exception {
         log.info("start data initialization...");
         this.databaseClient
-                .sql("INSERT INTO  posts (title, content, metadata) VALUES (:title, :content, :metadata)")
+                .sql("INSERT INTO  posts (title, content) VALUES (:title, :content)")
                 .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
                 .bind("title", "my first post")
                 .bind("content", "content of my first post")
-                .bind("metadata", Json.of("{\"tags\":[\"spring\", \"r2dbc\"]}"))
                 .fetch()
                 .first()
                 .subscribe(

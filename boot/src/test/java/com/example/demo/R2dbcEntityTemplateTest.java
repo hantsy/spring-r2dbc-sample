@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.r2dbc.test.autoconfigure.DataR2dbcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.springframework.data.relational.core.query.Criteria;
+import org.springframework.data.relational.core.query.Query;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,16 +17,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @DataR2dbcTest()
 @Slf4j
 @Import(value = {TestcontainersConfiguration.class, DataConfig.class})
-public class PostRepositoryTest {
+public class R2dbcEntityTemplateTest {
+
     @Autowired
-    PostRepository posts;
+    R2dbcEntityTemplate r2dbcEntityTemplate;
 
     @Test
-    public void testInsertAndQuery() {
+    public void testInsertAndQuery_template() {
         var data = Post.of("test title", "content of test");
-        this.posts.save(data)
-                .flatMap(p ->
-                        this.posts.findById(p.id())
+        this.r2dbcEntityTemplate.insert(data)
+                .flatMap(p -> this.r2dbcEntityTemplate
+                        .select(Post.class)
+                        .matching(Query.query(Criteria.where("id").is(p.id())))
+                        .one()
                 )
                 .log()
                 .as(StepVerifier::create)
@@ -37,7 +43,5 @@ public class PostRepositoryTest {
                         }
                 )
                 .verifyComplete();
-
     }
-
 }

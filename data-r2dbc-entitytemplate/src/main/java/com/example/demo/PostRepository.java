@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.data.relational.core.query.Criteria.where;
@@ -45,7 +46,7 @@ public class PostRepository {
     public Mono<UUID> save(Post p) {
         return this.template.insert(Post.class)
                 .using(p)
-                .map(post -> post.getId());
+                .map(Post::id);
     }
 
     public Mono<Long> update(Post p) {
@@ -58,15 +59,35 @@ public class PostRepository {
          * .set("metadata", p.getMetadata()));
          */
         return this.template.update(
-                Query.query(where("id").is(p.getId())),
-                Update.update("title", p.getTitle())
-                        .set("content", p.getContent())
-                        .set("status", p.getStatus())
-                        .set("metadata", p.getMetadata()),
+                Query.query(where("id").is(p.id())),
+                Update.update("title", p.title())
+                        .set("content", p.content())
+                        .set("status", p.status()),
                 Post.class);
     }
 
     public Mono<Long> deleteById(UUID id) {
         return this.template.delete(Query.query(where("id").is(id)), Post.class);
+    }
+
+    public Flux<UUID> saveAll(List<Post> data) {
+
+        return Flux.fromIterable(data)
+                .flatMap(p -> this.template
+                        .insert(Post.class)
+                        .using(p)
+                        .map(Post::id)
+                );
+
+    }
+
+    public Mono<Long> deleteAll() {
+        return this.template.delete(Post.class).all();
+    }
+
+    public Mono<Long> deleteAllById(List<UUID> ids) {
+        return this.template.delete(Post.class)
+                .matching(Query.query(where("id").in(ids)))
+                .all();
     }
 }

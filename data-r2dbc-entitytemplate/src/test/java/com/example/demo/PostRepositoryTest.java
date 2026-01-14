@@ -1,38 +1,84 @@
 package com.example.demo;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
-import reactor.core.publisher.Flux;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import reactor.test.StepVerifier;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-/**
- * @author hantsy
- */
+import static org.assertj.core.api.Assertions.assertThat;
+
 @Slf4j
+@SpringJUnitConfig(classes = {PostRepositoryTest.TestConfig.class})
+@ContextConfiguration(initializers = {PostgresContextInitializer.class})
 public class PostRepositoryTest {
 
-    @Test
-    public void testGetAllPostsDeepStubs() {
-        // RETURNS_DEEP_STUBS is used for mock sql, filter, all together in a stubbing statement.
-        var template = mock(R2dbcEntityTemplate.class, RETURNS_DEEP_STUBS);
-        var posts = new PostRepository(template);
-        log.info("databaseClient: {}", template);
-        given(template.select(Post.class).all())
-                .willReturn(Flux.just(Post.builder().title("test").content("content").build()));
+    @Configuration
+    @Import(value = {DatabaseConfig.class, PostRepository.class})
+    static class TestConfig {
+    }
 
-        var result = posts.findAll();
+    @Autowired
+    PostRepository posts;
+
+    @SneakyThrows
+    @BeforeEach
+    public void setup() {
+        var latch = new CountDownLatch(1);
+        this.posts.deleteAll()
+                .doOnTerminate(latch::countDown)
+                .subscribe(
+                        data -> log.info("clean database: {} deleted.", data)
+                );
+        latch.await(1000, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testSaveAll() {
+        var data = Post.of("test", "content");
+        var data1 = Post.of("test", "content");
+
+        var result = posts.saveAll(List.of(data, data1)).log("[Generated result]")
+                .doOnNext(id -> log.info("generated id: {}", id));
 
         assertThat(result).isNotNull();
         result.as(StepVerifier::create)
-                .consumeNextWith(p -> assertThat(p.getTitle()).isEqualTo("test"))
+                .expectNextCount(2)
+                .verifyComplete();
+
+    }
+
+    //see: https://stackoverflow.com/questions/64374730/java-r2dbc-client-execute-sql-and-use-returned-id-for-next-execute/64409363#64409363
+    @Test
+    public void testInsertAndQuery() {
+        var data = Post.of("test", "content");
+        this.posts.save(data)
+                .flatMap(id -> this.posts.findById(id))
+                .as(StepVerifier::create)
+                .consumeNextWith(r -> {
+                    log.info("result data: {}", r);
+                    assertThat(r.status()).isEqualTo(Post.Status.DRAFT);
+                })
                 .verifyComplete();
     }
 
+    @Test
+    public void testInsertAndDelete() {
+        var data = Post.of("test", "content");
+        this.posts.save(data)
+                .flatMap(id -> this.posts.deleteAllById(List.of(id)))
+                .as(StepVerifier::create)
+                .consumeNextWith(deleted -> assertThat(deleted).isEqualTo(1))
+                .verifyComplete();
+    }
 }
+

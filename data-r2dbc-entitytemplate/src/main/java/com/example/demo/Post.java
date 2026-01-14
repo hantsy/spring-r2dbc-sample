@@ -1,59 +1,36 @@
 package com.example.demo;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import io.r2dbc.postgresql.codec.Json;
-import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * @author hantsy
- */
-@Data
-@ToString
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(value = "posts")
-public class Post {
+record Post(
 
-    @Id
-    @Column("id")
-    private UUID id;
+        @Id
+        @Column("id")
+        UUID id,
 
-    @Column("title")
-    private String title;
+        @Column("title")
+        String title,
 
-    @Column("content")
-    private String content;
+        @Column("content")
+        String content,
 
-    @JsonSerialize(using = PgJsonObjectSerializer.class)
-    @JsonDeserialize(using = PgJsonObjectDeserializer.class)
-    @Column("metadata")
-    private Json metadata;
+        @Column("status")
+        Status status,
 
-    @Column("status")
-    private Status status;
+        @Column("version")
+        @Version
+        Long version
+) {
 
-    @Column("created_at")
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @Column("updated_at")
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-
-    @Column("version")
-    @Version
-    private Long version;
+    public static Post of(String title, String content) {
+        return new Post(null, title, content, null, null);
+    }
 
     enum Status {
         DRAFT, PENDING_MODERATION, PUBLISHED;
