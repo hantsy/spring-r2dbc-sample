@@ -38,6 +38,10 @@ The following example projects are standard Spring Boot projects with Spring Boo
 | [boot-testcontainers](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-testcontainers) | Spring Data R2dbc `@DataR2dbcTest` with varied Testcontainers configuration. |
 | [boot](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot) | Spring Boot example with `R2dbcRepository`, `R2dbcEntityTemplate` and `DatabaseClient`|
 | [boot-oracle](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-oracle) | Spring Boot with Oracle Example|
+| [boot-pg-json](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-pg-json) | Spring Boot Example with R2dbc `Json` and Postgres `JSON/JSONB` |
+| [boot-pg-notifier-listener](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-pg-notifier-listener) | Spring Boot Example with Postgres `Notifier/Listener` |
+| [boot-komapper](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-komapper) | Spring Boot Example with komapper ORM |
+| [boot-r2dbc-proxy](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-r2dbc-proxy) | Spring Boot Example with `R2dbc Proxy` for SQL Logging |
 | [boot-filepart](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-filepart) | Spring Boot `FilePart` example, Postgres `bytea` type mapping to `byte[]`, `ByteBuffer`, R2dbc `Blob`|
 | [boot-r2dbc-migrate](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-r2dbc-migrate) | [R2dbc Migrate](https://github.com/nkonev/r2dbc-migrate) example|
 | [boot-auditing](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-auditing)  | Spring Data R2dbc Auditing example |
