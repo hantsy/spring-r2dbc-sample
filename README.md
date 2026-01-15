@@ -28,7 +28,10 @@ Compare to the Spring Data R2dbc 1.1, some breaking changes are notable.
 
 ## Sample Codes
 
-## Spring Boot example
+### Spring Boot example
+
+The following example projects are standard Spring Boot projects with Spring Boot autoconfiguration.
+
 | Example | Description |
 |---|---|
 | [boot-entitycallbacks](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-entitycallbacks)  | Spring Data R2dbc `BeforeConvertEntityCallback`, `AfterConvertEntityCallback`, etc. |
