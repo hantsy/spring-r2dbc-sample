@@ -32,13 +32,13 @@ Compare to the Spring Data R2dbc 1.1, some breaking changes are notable.
 | Example | Description |
 |---|---|
 | [boot-entitycallbacks](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-entitycallbacks)  | Spring Data R2dbc `BeforeConvertEntityCallback`, `AfterConvertEntityCallback`, etc. |
-| [boot-testcontainers](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-testcontainers) | Spring Data R2dbc `@DataR2dbcTest` with Testcontainers. |
-| [boot](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot) | Spring Boot example|
+| [boot-testcontainers](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-testcontainers) | Spring Data R2dbc `@DataR2dbcTest` with varied Testcontainers configuration. |
+| [boot](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot) | Spring Boot example with `R2dbcRepository`, `R2dbcEntityTemplate` and `DatabaseClient`|
 | [boot-oracle](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-oracle) | Spring Boot with Oracle Example|
-| [boot-filepart](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-filepart) | Spring Boot FilePart example, Postgres `bytea` type mapping to `byte[]`, `ByteBuffer`, R2dbc `Blob`|
+| [boot-filepart](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-filepart) | Spring Boot `FilePart` example, Postgres `bytea` type mapping to `byte[]`, `ByteBuffer`, R2dbc `Blob`|
 | [boot-r2dbc-migrate](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-r2dbc-migrate) | [R2dbc Migrate](https://github.com/nkonev/r2dbc-migrate) example|
 | [boot-auditing](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-auditing)  | Spring Data R2dbc Auditing example |
-| [boot-kotlin-co](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-kotlin-co)  | Kotlin Coroutines example |
+| [boot-kotlin-co](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-kotlin-co)  | Kotlin Coroutines example with `CoroutinesRepository` |
 | [boot-jooq](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-jooq)  | R2dbc and JOOQ example |
 | [boot-jooq-kotlin-co-gradle](https://github.com/hantsy/spring-r2dbc-sample/tree/master/boot-jooq-kotlin-co-gradle)  | R2dbc/JOOQ/Kotlin Coroutines and Gradle generator config example |
 | [bookstore](https://github.com/hantsy/spring-r2dbc-sample/tree/master/bookstore)  | **(WIP)** An example to track the associations support of Spring Data  R2dbc |
