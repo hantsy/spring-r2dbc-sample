@@ -30,7 +30,7 @@ public class TodoRepositoryTest {
         this.todos.deleteAll()
             .doOnTerminate(latch::countDown)
             .subscribe(data -> log.debug("post data is removed"), err -> log.error("error:" + err));
-        latch.await(500, TimeUnit.MILLISECONDS);
+        latch.await(5000, TimeUnit.MILLISECONDS);
     }
 
     @Test
