@@ -204,8 +204,8 @@ class PostRepositoriesTest {
     }
 
 
-    @Nested
-    inner class CountPerDayTests {
+    // @Nested
+    // inner class CountPerDayTests {
 
         @Test
         fun `test posts count per day statistics`() = runTest {
@@ -276,7 +276,7 @@ class PostRepositoriesTest {
             result.last().count shouldBe 2
             result.subList(0, 8).forAny { it.count shouldBe 0 }
         }
-    }
+  //  }
 }
 
 data class PostCountPerDay(val count: Long, val date: LocalDate)
