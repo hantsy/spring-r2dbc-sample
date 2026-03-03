@@ -45,7 +45,7 @@ public class PostRepositoryTest {
     @Test
     public void testSaveAll() {
         var data = Post.of("test", "content");
-        var data1 = Post.of("test", "content");
+        var data1 = Post.of("test", "content", List.of("spring", "r2dbc"));
 
         var result = posts.saveAll(List.of(data, data1)).log("[Generated result]")
                 .doOnNext(id -> log.info("generated id: {}", id));
@@ -60,7 +60,7 @@ public class PostRepositoryTest {
     //see: https://stackoverflow.com/questions/64374730/java-r2dbc-client-execute-sql-and-use-returned-id-for-next-execute/64409363#64409363
     @Test
     public void testInsertAndQuery() {
-        var data = Post.of("test", "content");
+        var data = Post.of("test", "content", List.of("spring", "r2dbc"));
         this.posts.save(data)
                 .flatMap(saved -> this.posts.findById(saved.id()))
                 .as(StepVerifier::create)

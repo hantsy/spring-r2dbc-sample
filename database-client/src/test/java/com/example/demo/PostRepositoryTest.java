@@ -45,7 +45,7 @@ public class PostRepositoryTest {
     @Test
     public void testSaveAll() {
         var data = Post.of("test", "content");
-        var data1 = Post.of("test", "content");
+        var data1 = Post.of("test", "content", List.of("spring", "r2dbc"));
 
         var result = posts.saveAll(List.of(data, data1)).log("[Generated result]")
                 .doOnNext(id -> log.info("generated id: {}", id));

@@ -62,7 +62,8 @@ public class PostRepository {
                 Query.query(where("id").is(p.id())),
                 Update.update("title", p.title())
                         .set("content", p.content())
-                        .set("status", p.status()),
+                        .set("status", p.status())
+                        .set("tags", p.tags()),
                 Post.class);
     }
 

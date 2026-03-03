@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS posts (
      id UUID DEFAULT uuid_generate_v4(),
      title VARCHAR(255),
      content VARCHAR(255),
+     tags VARCHAR[] DEFAULT '{}', -- Default to an empty array
      status post_status default 'DRAFT',
      version INTEGER
  );

@@ -28,9 +28,7 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiFunction;
 
 @Configuration
@@ -171,11 +169,16 @@ record Post(
         UUID id,
         String title,
         String content,
-        Status status
+        Status status,
+        List<String> tags
 ) {
 
     public static Post of(String title, String content) {
-        return new Post(null, title, content, Status.DRAFT);
+        return new Post(null, title, content, Status.DRAFT, List.of("default"));
+    }
+
+    public static Post of(String title, String content, List<String> tags) {
+        return new Post(null, title, content, Status.DRAFT, tags);
     }
 
     enum Status {
@@ -189,12 +192,16 @@ record Post(
 @Slf4j
 class PostRepository {
 
-    public static final BiFunction<Row, RowMetadata, Post> MAPPING_FUNCTION = (row, _) -> new Post(
-            row.get("id", UUID.class),
-            row.get("title", String.class),
-            row.get("content", String.class),
-            row.get("status", Post.Status.class)
-    );
+    public static final BiFunction<Row, RowMetadata, Post> MAPPING_FUNCTION = (row, _) -> {
+        String[] tags = row.get("tags", String[].class);
+        return new Post(
+                row.get("id", UUID.class),
+                row.get("title", String.class),
+                row.get("content", String.class),
+                row.get("status", Post.Status.class),
+                tags == null ? Collections.emptyList() : Arrays.asList(tags)
+        );
+    };
 
     private final DatabaseClient databaseClient;
 
@@ -238,12 +245,13 @@ class PostRepository {
 
     public Mono<UUID> save(Post p) {
         return this.databaseClient.sql(
-                        "INSERT INTO  posts (title, content, status) VALUES (:title, :content, :status)")
+                        "INSERT INTO  posts (title, content, status, tags) VALUES (:title, :content, :status, :tags)")
                 .filter((statement, executeFunction) -> statement.returnGeneratedValues("id").execute())
                 .bindValues(
                         Map.of("title", p.title(),
                                 "content", p.content(),
-                                "status", p.status())
+                                "status", p.status(),
+                                "tags", p.tags().toArray(new String[0]))
                 )
                 .fetch()
                 .first()
@@ -258,7 +266,7 @@ class PostRepository {
         return this.databaseClient.inConnectionMany(connection -> {
 
             var statement = connection
-                    .createStatement("INSERT INTO  posts (title, content, status) VALUES ($1, $2, $3)")
+                    .createStatement("INSERT INTO  posts (title, content, status, tags) VALUES ($1, $2, $3, $4)")
                     .returnGeneratedValues("id");
 
             for (int i = 0; i < data.size() - 1; i++) {
@@ -266,6 +274,7 @@ class PostRepository {
                 statement.bind(0, p.title())
                         .bind(1, p.content())
                         .bind(2, p.status())
+                        .bind(3, p.tags().toArray(new String[0]))
                         .add();
             }
 
@@ -273,7 +282,8 @@ class PostRepository {
             var lastItem = data.getLast();
             statement.bind(0, lastItem.title())
                     .bind(1, lastItem.content())
-                    .bind(2, lastItem.status());
+                    .bind(2, lastItem.status())
+                    .bind(3, lastItem.tags().toArray(new String[0]));
 
             return Flux.from(statement.execute())
                     .flatMap(result -> result.map((row, rowMetadata) -> row.get("id", UUID.class)));
@@ -282,11 +292,12 @@ class PostRepository {
 
     public Mono<Long> update(Post p) {
         return this.databaseClient
-                .sql("UPDATE posts set title=:title, content=:content, status=:status WHERE id=:id")
+                .sql("UPDATE posts set title=:title, content=:content, status=:status, tags=:tags WHERE id=:id")
                 .bindValues(
                         Map.of("title", p.title(),
                                 "content", p.content(),
                                 "status", p.status(),
+                                "tags", p.tags().toArray(new String[0]),
                                 "id", p.id())
                 )
                 .fetch()
